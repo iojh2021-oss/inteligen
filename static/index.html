@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Five Worlds — One Evolving AI</title>
+<style>
+body{font-family:system-ui;background:#101827;color:#eef4ff;margin:0;padding:24px}
+main{max-width:950px;margin:auto}h1{font-size:2rem}.sub{color:#a9bad1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.card,textarea,button,.result{background:#1c2b40;border:1px solid #344b67;border-radius:12px;color:#eef4ff;padding:16px}
+textarea{width:100%;box-sizing:border-box;min-height:100px;margin:16px 0}
+button{cursor:pointer;background:#2865a6}pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.result{margin-top:16px}.status{color:#9ed9b1}
+</style></head><body><main>
+<h1>Five Worlds · One Evolving AI</h1><p class="sub">One model, five specialist perspectives, shared memory, central synthesis.</p>
+<div class="grid">
+<div class="card"><h3>01 · Knowledge</h3>Facts and uncertainty</div>
+<div class="card"><h3>02 · Reasoning</h3>Logic and problem solving</div>
+<div class="card"><h3>03 · Science</h3>Hypotheses and tests</div>
+<div class="card"><h3>04 · Creativity</h3>New approaches</div>
+<div class="card"><h3>05 · Learning</h3>Evaluation and improvement proposals</div>
+</div>
+<textarea id="q" placeholder="Ask the five worlds a question..."></textarea><button onclick="ask()">Send to all five worlds</button>
+<p id="status" class="status"></p><section id="out"></section>
+<script>
+async function ask(){const q=document.getElementById('q').value.trim();if(!q)return;
+const s=document.getElementById('status'),o=document.getElementById('out');s.textContent='Working…';o.innerHTML='';
+try{const r=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});const d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');
+o.innerHTML='<div class="result"><h2>Central answer</h2><pre></pre></div>'+Object.entries(d.worlds).map(([k,v])=>'<div class="result"><h3>'+k+'</h3><pre></pre></div>').join('');
+o.querySelectorAll('pre')[0].textContent=d.answer;Object.values(d.worlds).forEach((v,i)=>o.querySelectorAll('pre')[i+1].textContent=v);s.textContent='Completed. Results saved to shared memory.';
+}catch(e){s.textContent='Could not connect: '+e.message+' — check the model server and .env.'}}
+</script></main></body></html>

@@ -29,9 +29,21 @@ The Learning world may recommend prompt/configuration changes and compare evalua
 
 ## Milestone 1
 - Five specialist worlds and central orchestration
-- Shared SQLite memory with timestamps and world labels
+- Shared SQLite memory with timestamps and  world labels
 - OpenAI-compatible model adapter
-- Basic dashboard and health/config endpoints
+- 
+- Basic معماری نهایی پروژه Ai:
+🧠 مغز مرکزی: مدیریت هوش، تصمیم‌گیری و هماهنگی پنج دنیا.
+🌐 دنیای دانش: یادگیری و گسترش دانش.
+🧩 دنیای استدلال: تقویت منطق و حل مسئله.
+🔬 دنیای علم: فرضیه‌سازی و آزمایش.
+🎨 دنیای خلاقیت: تولید ایده و راه‌حل‌های جدید.
+🧠 دنیای یادگیری: بررسی عملکرد و بهبود مستمر.
+💾 حافظه بلندمدت: ذخیره و بازیابی تجربه‌ها.
+🧪 آزمایشگاه شبیه‌سازی: آزمایش روش‌های جدید.
+📈 موتور ارزیابی و تکامل: اندازه‌گیری پیشرفت و انتخاب
+نسخه بهتر.
+and health/config  endpoin   
 - Baseline tests
 
 This is a working foundation, not evidence of general intelligence or autonomous self-improvement. Quality depends on the selected model and evaluation data.

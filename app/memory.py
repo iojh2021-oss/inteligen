@@ -1,9 +1,15 @@
-import os, sqlite3
-from pathlib import Path
+"""Durable SQLite memory with provenance (request_id, world, timestamp), per-world
+retrieval, forgetting, and per-world capability metrics."""
+import re
+import sqlite3
 from datetime import datetime, timezone
+from pathlib import Path
+
+from app import config
+
 
 def _db():
-    path = Path(os.getenv("DATABASE_PATH", "data/memory.sqlite3"))
+    path = Path(config.database_path())
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
     conn.execute("""CREATE TABLE IF NOT EXISTS memories (
@@ -13,15 +19,112 @@ def _db():
         result TEXT NOT NULL,
         created_at TEXT NOT NULL
     )""")
+    # Migration: older databases lack request_id.
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(memories)")}
+    if "request_id" not in cols:
+        conn.execute("ALTER TABLE memories ADD COLUMN request_id TEXT")
+    conn.execute("""CREATE TABLE IF NOT EXISTS world_metrics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        world TEXT NOT NULL,
+        request_id TEXT,
+        ok INTEGER NOT NULL,
+        latency_ms INTEGER NOT NULL,
+        output_chars INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+    )""")
     conn.commit()
     return conn
 
-def save(world: str, prompt: str, result: str):
-    with _db() as conn:
-        conn.execute("INSERT INTO memories(world,prompt,result,created_at) VALUES(?,?,?,?)",
-            (world, prompt[:8000], result[:12000], datetime.now(timezone.utc).isoformat()))
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def save(world: str, prompt: str, result: str, request_id: str = None):
+    conn = _db()
+    try:
+        with conn:
+            conn.execute(
+                "INSERT INTO memories(world,prompt,result,created_at,request_id) VALUES(?,?,?,?,?)",
+                (world, prompt[:8000], result[:12000], _now(), request_id),
+            )
+    finally:
+        conn.close()
+
+
+def _rows(sql: str, params=()):
+    conn = _db()
+    try:
+        return conn.execute(sql, params).fetchall()
+    finally:
+        conn.close()
+
+
+def _item(r) -> dict:
+    return {"id": r[0], "world": r[1], "prompt": r[2], "result": r[3],
+            "created_at": r[4], "request_id": r[5]}
+
+
+_COLS = "id,world,prompt,result,created_at,request_id"
+
 
 def recent(limit: int = 20):
-    with _db() as conn:
-        rows = conn.execute("SELECT world,prompt,result,created_at FROM memories ORDER BY id DESC LIMIT ?", (min(max(limit,1),100),)).fetchall()
-    return [{"world":r[0],"prompt":r[1],"result":r[2],"created_at":r[3]} for r in rows]
+    rows = _rows(f"SELECT {_COLS} FROM memories ORDER BY id DESC LIMIT ?",
+                 (min(max(limit, 1), 100),))
+    return [_item(r) for r in rows]
+
+
+def _tokens(text: str) -> set:
+    return {t for t in re.findall(r"\w+", text.lower()) if len(t) >= 2}
+
+
+def relevant(world: str, question: str, limit: int = 3):
+    """Keyword-overlap retrieval over this world's own past work (not a vector search).
+    Works for any script, including Persian. Ties are broken by recency."""
+    q = _tokens(question)
+    if not q:
+        return []
+    rows = _rows(f"SELECT {_COLS} FROM memories WHERE world=? ORDER BY id DESC LIMIT 200", (world,))
+    scored = []
+    for r in rows:
+        overlap = len(q & _tokens(r[2]))
+        if overlap:
+            scored.append((overlap, r[0], r))
+    scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
+    return [_item(s[2]) for s in scored[:limit]]
+
+
+def forget(memory_id: int) -> bool:
+    conn = _db()
+    try:
+        with conn:
+            cur = conn.execute("DELETE FROM memories WHERE id=?", (memory_id,))
+        return cur.rowcount > 0
+    finally:
+        conn.close()
+
+
+def record_metric(world: str, request_id: str, ok: bool, latency_ms: int, output_chars: int):
+    conn = _db()
+    try:
+        with conn:
+            conn.execute(
+                "INSERT INTO world_metrics(world,request_id,ok,latency_ms,output_chars,created_at) VALUES(?,?,?,?,?,?)",
+                (world, request_id, 1 if ok else 0, latency_ms, output_chars, _now()),
+            )
+    finally:
+        conn.close()
+
+
+def metrics_summary() -> dict:
+    rows = _rows("""SELECT world, COUNT(*), SUM(ok), AVG(latency_ms), AVG(CASE WHEN ok=1 THEN output_chars END)
+                    FROM world_metrics GROUP BY world""")
+    return {
+        r[0]: {
+            "runs": r[1],
+            "success_rate": round((r[2] or 0) / r[1], 3),
+            "avg_latency_ms": int(r[3] or 0),
+            "avg_output_chars": int(r[4] or 0),
+        }
+        for r in rows
+    }

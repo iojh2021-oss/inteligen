@@ -1,7 +1,12 @@
 # Architecture
 
 ## Request path
-Browser -> FastAPI -> central orchestrator -> five specialist prompts -> shared SQLite memory -> central synthesis -> browser.
+Browser -> Starlette -> central orchestrator -> knowledge / reasoning / science / creativity (independent) -> learning (reviews those four) -> central synthesis -> browser.
+
+Each world retrieves its own relevant past work from SQLite memory (keyword overlap, with timestamps and request_id provenance). A failing world is recorded and reported but does not abort the request; only a total failure returns 503. Per-world success rate, latency and output size are stored and exposed at `/metrics`.
+
+## Endpoints
+`POST /ask`, `GET /memory`, `DELETE /memory/{id}` (forgetting), `GET /metrics`, `GET /health`, `GET /health/model` (probes the local model server).
 
 ## Model choice and trust
 The initial adapter targets an OpenAI-compatible local endpoint. Suggested starter weights: Qwen/Qwen3-4B, published by the Qwen team. Its official model card declares Apache-2.0; the Qwen project's official repository says Qwen3 open-weight models use Apache 2.0. This verifies the upstream license statement, not the integrity of every third-party quantization or download mirror. Prefer the upstream publisher and verify checksums where supplied.
@@ -21,6 +26,10 @@ A 4B model is a practical starting point, not a claim that it is the strongest m
 
 ## Known limitations
 - Five worlds currently use one underlying model with different system prompts. They are not five independently trained models.
-- Shared memory is a simple recent-history store, not a semantic vector database.
+- Memory retrieval is keyword overlap over each world's last 200 entries, not a semantic vector search. Memories are not yet reviewed/approved before sharing.
+- Per-world metrics measure reliability and speed only, not answer quality; quality needs the Phase 5 evaluation harness.
 - No fine-tuning or automatic architecture mutation is implemented.
 - Model endpoint availability and quality must be tested in the target environment.
+
+## Running on GitHub (Codespaces)
+Open the repository in a Codespace (Code > Codespaces > Create). The dev container installs dependencies automatically. Then run `bash scripts/start_codespace.sh`, which starts Ollama with a small model and the server on port 8000. Codespaces is a development environment, not a hosting service: it stops after an idle period and uses a monthly free quota, so it is not an always-on server. The default model is small because a 2-core machine is slow; quality will be lower than the 4B model suggested for local hardware.

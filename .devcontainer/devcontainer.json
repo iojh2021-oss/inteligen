@@ -1,0 +1,9 @@
+{
+  "name": "inteligen",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -r requirements.txt pytest && cp -n .env.example .env",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": { "label": "Inteligen", "onAutoForward": "notify" }
+  }
+}

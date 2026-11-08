@@ -29,3 +29,9 @@ The project's non-negotiable destination is:
 
 ## Safety boundary
 No self-modifying production code, autonomous deployment, arbitrary shell execution, or unrestricted external tool access. The evolution engine proposes and evaluates changes; a human approves promotion. Model output is untrusted input.
+
+## Status
+- Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against your local model server to confirm.
+- Phase 2: partial. Per-world retrieval and reliability metrics exist; per-world datasets and quality metrics do not yet.
+- Phase 3: started. Provenance, timestamps and forgetting exist; correction and approval of shared memories do not.
+- Phases 4-6: not started.

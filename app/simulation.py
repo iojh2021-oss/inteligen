@@ -198,3 +198,49 @@ def get_run(run_id):
         "assumptions": SCENARIOS[scenario]["assumptions"],
         "deterministic": True,
     }
+
+
+
+def record_run_as_experience(
+    run_id,
+    world,
+    hypothesis,
+    prediction,
+    expected_metric=None,
+    predicted_value=None,
+    confidence=None,
+):
+    """Attach a simulation observation to a world experience as inconclusive evidence.
+
+    Simulation output is not external-world evidence, so this helper never marks
+    a hypothesis confirmed or refuted automatically.
+    """
+    run = get_run(run_id)
+    if run is None:
+        raise ValueError("Simulation run not found")
+    from app import memory
+
+    experience_id = memory.record_experience(
+        world=world,
+        hypothesis=hypothesis,
+        prediction=prediction,
+        request_id=f"simulation:{run['fingerprint'][:16]}",
+        expected_metric=expected_metric,
+        predicted_value=predicted_value,
+        confidence=confidence,
+    )
+    observed_value = run["result"].get("final_value")
+    evidence = (
+        f"Simulation-only evidence; scenario={run['scenario']}; "
+        f"parameters={json.dumps(run['parameters'], sort_keys=True)}; "
+        f"fingerprint={run['fingerprint']}"
+    )
+    return memory.resolve_experience(
+        experience_id=experience_id,
+        observed_outcome=(
+            f"Simulation {run_id} produced {run['result']}"
+        ),
+        outcome_status="inconclusive",
+        observed_value=observed_value,
+        evidence_note=evidence,
+    )

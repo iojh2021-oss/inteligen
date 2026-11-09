@@ -11,7 +11,7 @@ Inteligen is an experimental multi-perspective AI system coordinated by a centra
 - **Creativity world:** alternative ideas and trade-offs.
 - **Learning world:** reviews the other four worlds and proposes measurable improvements.
 - **Long-term memory:** SQLite with per-world retrieval, timestamps and request provenance.
-- **Simulation and evolution:** planned next phases; candidate changes must be evaluated and human-approved.
+- **Simulation and evolution:** an isolated prompt experiment runner and deterministic structural evaluator are available at `/lab/compare`; reports are stored and retrievable at `/lab/experiments`. Candidate changes are never promoted automatically.
 
 ## Run on GitHub without a separate server
 
@@ -49,7 +49,8 @@ This repository is public. The workflow commits the question, model outputs, and
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.
-- Semantic/vector memory, world-specific datasets, scientific simulation lab, quality benchmarks, candidate comparison and rollback: not yet implemented.
+- Initial isolated prompt comparison and deterministic structural evaluator: implemented. It is a heuristic, not a semantic correctness or safety certification.
+- Semantic/vector memory, world-specific datasets, independently trained world models, and full stateful simulation remain future work.
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.
 
 See [ROADMAP.md](ROADMAP.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

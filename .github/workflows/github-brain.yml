@@ -72,6 +72,9 @@ jobs:
           pip install -r requirements.txt -r requirements-semantic.txt pytest
 
       - name: Run regression tests
+        env:
+          # Keep unit tests offline; semantic behavior is tested with deterministic fake vectors.
+          INTELIGEN_SEMANTIC_MEMORY: "0"
         run: pytest -q
 
       - name: Install Ollama

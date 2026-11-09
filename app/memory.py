@@ -417,44 +417,23 @@ def resolve_experience(
     outcome_status: str,
     observed_value: float = None,
     evidence_note: str = None,
+    evidence_source_type: str = "unknown",
+    evidence_reference: str = None,
+    reviewer_label: str = None,
 ) -> dict:
-    """Record an observed result; status is explicitly supplied by the evaluator."""
-    if outcome_status not in {"confirmed", "refuted", "inconclusive"}:
-        raise ValueError("outcome_status must be confirmed, refuted, or inconclusive")
-    if not isinstance(observed_outcome, str) or not observed_outcome.strip() or len(observed_outcome) > 4000:
-        raise ValueError("observed_outcome must contain 1 to 4000 characters")
-    if evidence_note is not None and (not isinstance(evidence_note, str) or len(evidence_note) > 4000):
-        raise ValueError("evidence_note must be at most 4000 characters")
-    if observed_value is not None:
-        observed_value = float(observed_value)
-        if not math.isfinite(observed_value):
-            raise ValueError("observed_value must be finite")
+    """Compatibility entry point that enforces the provenance validation layer."""
+    from app import provenance
 
-    conn = _db()
-    try:
-        with conn:
-            cur = conn.execute(
-                """UPDATE experiences
-                   SET observed_outcome=?, observed_value=?, outcome_status=?,
-                       evidence_note=?, resolved_at=?
-                   WHERE id=? AND outcome_status='planned'""",
-                (observed_outcome.strip(), observed_value, outcome_status,
-                 evidence_note, _now(), experience_id),
-            )
-            if cur.rowcount != 1:
-                raise ValueError("Experience not found or already resolved")
-            row = conn.execute(
-                f"SELECT {_EXPERIENCE_COLS} FROM experiences WHERE id=?",
-                (experience_id,),
-            ).fetchone()
-    finally:
-        conn.close()
-    item = _experience_item(row)
-    try:
-        _index_experience(experience_id, item["world"], _experience_text(item))
-    except semantic.SemanticUnavailable:
-        pass
-    return item
+    return provenance.resolve_experience(
+        experience_id=experience_id,
+        observed_outcome=observed_outcome,
+        outcome_status=outcome_status,
+        observed_value=observed_value,
+        evidence_note=evidence_note,
+        evidence_source_type=evidence_source_type,
+        evidence_reference=evidence_reference,
+        reviewer_label=reviewer_label,
+    )
 
 
 def experience_history(world: str, question: str = None, limit: int = 5) -> list[dict]:

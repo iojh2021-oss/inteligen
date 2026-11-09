@@ -33,6 +33,11 @@ def main() -> None:
         raise SystemExit("Runner returned an incomplete world set: " + ", ".join(missing_worlds))
 
     evaluation_report = evaluation.evaluate_worlds(result["worlds"])
+    # Persist the same per-world rubric snapshot into the SQLite file that the
+    # workflow carries forward. This makes cross-run deltas possible after a
+    # later runner restores the database; docs/state remains a readable snapshot.
+    evaluation_report["persistence"] = evaluation.record_evaluation(evaluation_report)
+    evaluation_report["history"] = evaluation.evaluation_history(limit=100)
     state = {
         "schema_version": 3,
         "status": "complete" if not result["errors"] and len(successful_worlds) == len(expected_worlds) else "partial",
@@ -65,6 +70,8 @@ def main() -> None:
             "overall_score": evaluation_report["overall_score"],
             "evaluated_worlds": evaluation_report["evaluated_worlds"],
             "scope": evaluation_report["scope"],
+            "history_worlds": len(evaluation_report["history"]["worlds"]),
+            "snapshot_ids": evaluation_report["persistence"]["snapshot_ids"],
         },
         "safety": {
             "guardrail_version": result["safety"]["guardrail_version"],

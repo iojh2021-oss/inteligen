@@ -59,7 +59,7 @@ def evaluate_text(world: str, output: str) -> dict:
         "checks": checks,
         "missing": [name for name, ok in checks.items() if not ok],
         "output_chars": len(text),
-        "output_words": len(re.findall(r"\\w+", text, flags=re.UNICODE)),
+        "output_words": len(re.findall(r"\w+", text, flags=re.UNICODE)),
         "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning",
     }
 

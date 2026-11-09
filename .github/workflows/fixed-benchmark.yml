@@ -1,0 +1,65 @@
+name: Fixed Five-World Benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fixed-five-world-benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      MODEL_BASE_URL: http://127.0.0.1:11434/v1
+      MODEL_NAME: qwen3:1.7b
+      REQUEST_TIMEOUT_SECONDS: "180"
+      DATABASE_PATH: artifacts/benchmark.sqlite3
+      BENCHMARK_OUTPUT_DIR: artifacts
+    steps:
+      - name: Check out selected branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install application dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start local Ollama and pull benchmark model
+        run: |
+          ollama serve > /tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$MODEL_NAME"
+
+      - name: Run the same five benchmark tasks
+        run: python scripts/run_fixed_benchmark.py
+
+      - name: Upload benchmark report and SQLite snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteligen-fixed-benchmark
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30

@@ -25,7 +25,7 @@ The `GitHub Brain Cycle` workflow runs the model locally on a temporary GitHub-h
 
 Start a cycle from **Actions → GitHub Brain Cycle → Run workflow**. You can provide a question or use the default review prompt. A daily scheduled review is also configured.
 
-To publish the dashboard, open **Settings → Pages**, choose **Deploy from a branch**, select `main` and `/docs`. Then the site is available at:
+To publish the dashboard, open **Settings → Pages** and set **Source** to **GitHub Actions**. The brain workflow uploads and deploys the `docs` folder after each successful cycle. Then the site is available at:
 
 `https://iojh2021-oss.github.io/inteligen/`
 

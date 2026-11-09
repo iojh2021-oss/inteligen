@@ -65,6 +65,8 @@ def resolve_experience(
         if not math.isfinite(observed_value):
             raise ValueError("observed_value must be finite")
 
+    if evidence_source_type in {"simulation", "model_generated", "unknown"} and outcome_status != "inconclusive":
+        raise ValueError(f"{evidence_source_type} evidence can only produce an inconclusive outcome")
     if outcome_status in {"confirmed", "refuted"}:
         if evidence_source_type not in {"manual_observation", "external_reference"}:
             raise ValueError("confirmed/refuted outcomes require manual_observation or external_reference evidence")
@@ -72,8 +74,6 @@ def resolve_experience(
             raise ValueError("confirmed/refuted outcomes require evidence_note and reviewer_label")
         if evidence_source_type == "external_reference" and not evidence_reference:
             raise ValueError("external_reference evidence requires evidence_reference")
-    if evidence_source_type in {"simulation", "model_generated", "unknown"} and outcome_status != "inconclusive":
-        raise ValueError(f"{evidence_source_type} evidence can only produce an inconclusive outcome")
 
     payload = {
         "experience_id": int(experience_id),

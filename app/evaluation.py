@@ -203,16 +203,20 @@ FIXED_BENCHMARKS = {
 
 async def run_fixed_benchmark(model_client) -> dict:
     """Run the same five benign tasks every cycle for comparable rubric snapshots."""
-    from app import safety
+    from app import model, safety
     from app.worlds import WORLDS
 
     outputs = {}
     for name, world in WORLDS.items():
-        response = await model_client.generate(
-            "Safety boundary: educational and non-operational responses only. "
-            + world.system_prompt,
-            FIXED_BENCHMARKS[name],
-        )
+        try:
+            response = await model_client.generate(
+                "Safety boundary: educational and non-operational responses only. "
+                + world.system_prompt,
+                FIXED_BENCHMARKS[name],
+            )
+        except model.ModelUnavailable:
+            outputs[name] = "(unavailable: benchmark model call failed)"
+            continue
         check = safety.screen_text(response)
         outputs[name] = response if check["allowed"] else safety.SAFE_REFUSAL
     report = evaluate_worlds(outputs)

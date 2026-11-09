@@ -35,3 +35,11 @@ No self-modifying production code, autonomous deployment, arbitrary shell execut
 - Phase 2: partial. Per-world retrieval and reliability metrics exist; per-world datasets and quality metrics do not yet.
 - Phase 3: started. Provenance, timestamps and forgetting exist; correction and approval of shared memories do not.
 - Phases 4-6: not started.
+
+
+## Next implementation milestone: evidence provenance and world progress
+- Add a provenance ledger to each resolved experience: source type, reference, reviewer label, evidence digest, and validation status.
+- Require documented review metadata before a result can be labelled confirmed/refuted. Simulation-only and model-generated evidence remain inconclusive.
+- Expose `GET /progress` with separate per-world memory, experience, reliability, evidence, and fixed-benchmark trend summaries.
+- Keep the distinction explicit: isolated state and evaluation do not yet mean independently trained models or verified learning.
+- Acceptance: provenance validation tests, API tests, five-world isolation tests, full pytest, compileall, then a GitHub Actions run. Keep the changes on a review branch until green.

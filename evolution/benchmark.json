@@ -1,0 +1,8 @@
+{
+  "note": "Fixed lab benchmark. Keep these questions different from the questions used in production cycles so comparisons stay held-out.",
+  "questions": [
+    {"id": "b1", "question": "A small town wants to cut its water use by 20 percent within one year without banning anything. What should it do and how would it know it worked?"},
+    {"id": "b2", "question": "Why do some students remember a lesson for years while others forget it in a week? Suggest what a teacher could change."},
+    {"id": "b3", "question": "یک کتابخانه محله می‌خواهد تعداد اعضای فعال خود را دو برابر کند. چه باید بکند و از کجا بفهمد موفق بوده است؟"}
+  ]
+}

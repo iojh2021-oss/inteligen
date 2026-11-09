@@ -4,8 +4,8 @@ import asyncio
 import time
 import uuid
 
-from app import config, memory, model
-from app.worlds import WORLDS, World
+from app import config, memory, model, versions
+from app.worlds import WORLDS, World, system_prompt
 
 SYNTHESIS_PROMPT = (
     "You are the central coordinator of five specialist worlds. Synthesize their results, "
@@ -17,18 +17,24 @@ SYNTHESIS_PROMPT = (
 
 def _memory_context(world: World, question: str) -> str:
     items = memory.relevant(world.name, question)
-    if not items:
-        return "No relevant prior work."
-    return "\n".join(
-        f"[{m['created_at'][:10]}] {m['result'][:700]}" for m in items
-    )
+    text = "No relevant prior work."
+    if items:
+        text = "\n".join(f"[{m['created_at'][:10]}] {m['result'][:700]}" for m in items)
+    if world.name == "learning":
+        # The Learning World also sees recent evolution experiments (results of the lab).
+        experiments = memory.latest_of_kind("experiment", 2)
+        if experiments:
+            text += "\n\nRecent simulation-lab experiments:\n" + "\n".join(
+                f"[{m['created_at'][:10]}] {m['result'][:500]}" for m in experiments)
+    return text
 
 
-def _build_prompt(world: World, question: str, outputs: dict, errors: dict) -> str:
+def _build_prompt(world: World, question: str, outputs: dict, errors: dict, lab: bool = False) -> str:
+    context = ("Memory is disabled in the simulation lab so that versions are compared fairly."
+               if lab else _memory_context(world, question))
     parts = [
         f"User task:\n{question}",
-        "Your own relevant past work (may be outdated or wrong; verify it):\n"
-        + _memory_context(world, question),
+        "Your own relevant past work (may be outdated or wrong; verify it):\n" + context,
     ]
     if world.depends_on:
         lines = []
@@ -41,27 +47,39 @@ def _build_prompt(world: World, question: str, outputs: dict, errors: dict) -> s
     return "\n\n".join(parts)
 
 
-async def run_five_worlds(question: str):
+async def run_five_worlds(question: str, *, additions: dict = None, lab: bool = False):
+    """Run the five worlds, then the central synthesis.
+
+    additions: per-world approved prompt guidance; defaults to the stable version.
+    lab: simulation-lab mode. No memory is read or written, no metrics are recorded and the
+         central synthesis is skipped, so a lab run cannot change production state.
+    """
+    stable = versions.load_stable()
+    if additions is None:
+        additions = stable["world_additions"]
     request_id = uuid.uuid4().hex[:12]
     sem = asyncio.Semaphore(config.world_concurrency())
     outputs: dict = {}
     errors: dict = {}
 
     async def run_world(world: World):
-        prompt = _build_prompt(world, question, outputs, errors)
+        prompt = _build_prompt(world, question, outputs, errors, lab)
         started = time.monotonic()
         async with sem:
             try:
-                answer = await model.generate(world.system_prompt, prompt)
+                answer = await model.generate(system_prompt(world.name, additions), prompt)
             except model.ModelUnavailable as exc:
                 errors[world.name] = str(exc)
-                memory.record_metric(world.name, request_id, False,
-                                     int((time.monotonic() - started) * 1000), 0)
+                if not lab:
+                    memory.record_metric(world.name, request_id, False,
+                                         int((time.monotonic() - started) * 1000), 0)
+                    memory.save(world.name, question, f"Failed: {exc}", request_id, kind="failure")
                 return
         outputs[world.name] = answer
-        memory.record_metric(world.name, request_id, True,
-                             int((time.monotonic() - started) * 1000), len(answer))
-        memory.save(world.name, question, answer, request_id)
+        if not lab:
+            memory.record_metric(world.name, request_id, True,
+                                 int((time.monotonic() - started) * 1000), len(answer))
+            memory.save(world.name, question, answer, request_id)
 
     pending = dict(WORLDS)
     while pending:
@@ -76,6 +94,11 @@ async def run_five_worlds(question: str):
     if not outputs:
         raise model.ModelUnavailable("All worlds failed: " + "; ".join(errors.values()))
 
+    worlds_out = {name: outputs.get(name, f"(unavailable: {errors.get(name)})") for name in WORLDS}
+    if lab:
+        return {"request_id": request_id, "answer": None, "worlds": worlds_out,
+                "errors": errors, "config_version": stable["version"]}
+
     sections = []
     for name in WORLDS:
         if name in outputs:
@@ -89,6 +112,7 @@ async def run_five_worlds(question: str):
     return {
         "request_id": request_id,
         "answer": synthesis,
-        "worlds": {name: outputs.get(name, f"(unavailable: {errors.get(name)})") for name in WORLDS},
+        "worlds": worlds_out,
         "errors": errors,
+        "config_version": stable["version"],
     }

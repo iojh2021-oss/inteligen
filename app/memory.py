@@ -23,6 +23,9 @@ def _db():
     cols = {r[1] for r in conn.execute("PRAGMA table_info(memories)")}
     if "request_id" not in cols:
         conn.execute("ALTER TABLE memories ADD COLUMN request_id TEXT")
+    # Migration: memory kinds (experience, experiment, decision, failure ...).
+    if "kind" not in cols:
+        conn.execute("ALTER TABLE memories ADD COLUMN kind TEXT DEFAULT 'experience'")
     conn.execute("""CREATE TABLE IF NOT EXISTS world_metrics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         world TEXT NOT NULL,
@@ -40,13 +43,18 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def save(world: str, prompt: str, result: str, request_id: str = None):
+KINDS = ("experience", "experiment", "decision", "failure")
+
+
+def save(world: str, prompt: str, result: str, request_id: str = None, kind: str = "experience"):
+    if kind not in KINDS:
+        raise ValueError(f"Unknown memory kind: {kind}")
     conn = _db()
     try:
         with conn:
             conn.execute(
-                "INSERT INTO memories(world,prompt,result,created_at,request_id) VALUES(?,?,?,?,?)",
-                (world, prompt[:8000], result[:12000], _now(), request_id),
+                "INSERT INTO memories(world,prompt,result,created_at,request_id,kind) VALUES(?,?,?,?,?,?)",
+                (world, prompt[:8000], result[:12000], _now(), request_id, kind),
             )
     finally:
         conn.close()
@@ -62,10 +70,10 @@ def _rows(sql: str, params=()):
 
 def _item(r) -> dict:
     return {"id": r[0], "world": r[1], "prompt": r[2], "result": r[3],
-            "created_at": r[4], "request_id": r[5]}
+            "created_at": r[4], "request_id": r[5], "kind": r[6] or "experience"}
 
 
-_COLS = "id,world,prompt,result,created_at,request_id"
+_COLS = "id,world,prompt,result,created_at,request_id,kind"
 
 
 def recent(limit: int = 20):
@@ -84,7 +92,8 @@ def relevant(world: str, question: str, limit: int = 3):
     q = _tokens(question)
     if not q:
         return []
-    rows = _rows(f"SELECT {_COLS} FROM memories WHERE world=? ORDER BY id DESC LIMIT 200", (world,))
+    rows = _rows(f"SELECT {_COLS} FROM memories WHERE world=? AND COALESCE(kind,'experience')!='failure' "
+                 "ORDER BY id DESC LIMIT 200", (world,))
     scored = []
     for r in rows:
         overlap = len(q & _tokens(r[2]))
@@ -92,6 +101,22 @@ def relevant(world: str, question: str, limit: int = 3):
             scored.append((overlap, r[0], r))
     scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
     return [_item(s[2]) for s in scored[:limit]]
+
+
+def latest_of_kind(kind: str, limit: int = 2):
+    """Most recent memories of one kind, regardless of keyword overlap."""
+    rows = _rows(f"SELECT {_COLS} FROM memories WHERE kind=? ORDER BY id DESC LIMIT ?",
+                 (kind, min(max(limit, 1), 20)))
+    return [_item(r) for r in rows]
+
+
+def stats() -> dict:
+    """Counts per world and per kind, for the dashboard."""
+    total = _rows("SELECT COUNT(*) FROM memories")[0][0]
+    by_world = {r[0]: r[1] for r in _rows("SELECT world, COUNT(*) FROM memories GROUP BY world")}
+    by_kind = {(r[0] or "experience"): r[1]
+               for r in _rows("SELECT kind, COUNT(*) FROM memories GROUP BY kind")}
+    return {"total": total, "by_world": by_world, "by_kind": by_kind}
 
 
 def forget(memory_id: int) -> bool:

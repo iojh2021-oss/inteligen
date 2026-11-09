@@ -27,3 +27,15 @@ WORLDS = {
     )
     for name, prompt in _BASE.items()
 }
+
+
+MAX_ADDITION_CHARS = 700
+
+
+def system_prompt(name: str, additions: dict = None) -> str:
+    """Base prompt plus human-approved guidance for this world (from the stable version)."""
+    base = WORLDS[name].system_prompt
+    extra = str((additions or {}).get(name, "")).strip()[:MAX_ADDITION_CHARS]
+    if not extra:
+        return base
+    return base + "\n\nAdditional approved guidance:\n" + extra

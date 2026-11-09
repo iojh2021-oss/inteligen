@@ -3,7 +3,7 @@
 ## Request path
 Browser -> Starlette -> input safety gate -> central orchestrator -> knowledge / reasoning / science / creativity -> learning (reviews those four) -> output safety gate -> central synthesis -> final safety gate -> browser.
 
-Each world retrieves its own relevant past work from SQLite memory (keyword overlap, with timestamps and request_id provenance). A failing world is recorded and reported but does not abort the request; only a total model failure returns 503. Per-world success rate, latency and output size are stored and exposed at /metrics.
+Each world retrieves its own relevant past work from SQLite memory. When the optional local multilingual embedding model is loaded, retrieval fuses BM25 lexical rank and dense cosine rank; otherwise it falls back to BM25. Records retain timestamps and request_id provenance. A failing world is recorded and reported but does not abort the request; only a total model failure returns 503. Per-world success rate, latency and output size are stored and exposed at /metrics.
 
 ## Safety boundary
 - Guardrail v1 screens incoming prompts before any model call.
@@ -24,7 +24,7 @@ Do not submit secrets or sensitive personal data: this repository is public. For
 
 ## Known limitations and next stages
 - Five worlds are prompt-specialized roles on one base model, not separately trained agents.
-- Memory retrieval is keyword overlap, not semantic vector search. Memory persistence between GitHub runs depends on the cache workflow being merged and validated by a subsequent full brain-cycle run.
+- Semantic memory uses the local FastEmbed multilingual MiniLM model (384-dimensional vectors) with SQLite storage and reciprocal-rank fusion with BM25. The model is optional at runtime; unavailable downloads or inference safely fall back to BM25. GitHub Actions caches the model files and stores vectors in the SQLite memory cache. A full brain-cycle run must still verify model download, inference, and cross-run cache restore.
 - The current evaluation rubric measures visible text coverage, not factual correctness, intelligence or learning.
 - The deterministic safety filter covers only a small set of explicit patterns and is not comprehensive.
 - Simulation experiments, outcome tracking, semantic retrieval, and measurable cross-run improvement still need implementation and validation.
@@ -35,7 +35,7 @@ The brain cycle runs on GitHub-hosted Actions with a local Ollama process on tha
 
 
 ## Memory and experiments
-- World memory uses deterministic BM25-style lexical retrieval over each world's own records. This is not semantic/vector retrieval.
+- World memory uses world-scoped hybrid retrieval: BM25 lexical ranking plus optional multilingual dense embeddings, combined by reciprocal-rank fusion. Each memory vector records a model version; embeddings from another model version are not mixed into the active index.
 - Structured experience records retain hypothesis, prediction, expected metric, numeric prediction (when supplied), observation, explicit outcome status, evidence note and timestamps. Each world retrieves only its own experience history.
 - Outcome status is explicitly provided by an evaluator; the model does not certify its own predictions. Numeric absolute error is reported only when predicted and observed values are comparable numeric values.
 
@@ -59,3 +59,12 @@ The existing root dashboard route is preserved. The health endpoint reports the 
 - Fixed-benchmark snapshots are stored separately from user-request evaluation snapshots in SQLite, preventing unlike prompts from being compared in the same history.
 - The latest report is also written to `docs/state/benchmark.json`; per-world history and score deltas are included when prior snapshots are available.
 - Rubric scores only measure textual criterion coverage. A higher score is not proof of factual correctness, reasoning quality, or learning. Human-reviewed held-out tasks are still needed.
+
+
+## Multilingual semantic memory
+- Embeddings are generated locally with FastEmbed and `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (384 dimensions, multilingual model).
+- Embedding vectors are stored in SQLite by memory ID, world, and model version. The five worlds never retrieve each other's memories.
+- Hybrid ranking uses reciprocal-rank fusion rather than directly adding BM25 and cosine scores with different scales.
+- Existing memories can be indexed incrementally with `POST /memory/semantic/backfill?limit=500`; status is exposed at `GET /memory/semantic`.
+- The primary memory save succeeds even if embedding inference fails. Retrieval then uses BM25 as a fallback. Deleting a memory also deletes its stored vector.
+- GitHub Actions restores/saves the FastEmbed model cache separately from SQLite memory. Unit tests use deterministic fake vectors and do not download the model.

@@ -1,4 +1,5 @@
 """Durable SQLite memory, world-scoped experience records, and provenance."""
+import math
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -172,10 +173,14 @@ def record_experience(
         raise ValueError("prediction must contain 1 to 4000 characters")
     if expected_metric is not None and (not isinstance(expected_metric, str) or len(expected_metric) > 120):
         raise ValueError("expected_metric must be at most 120 characters")
-    if confidence is not None and not 0 <= float(confidence) <= 1:
-        raise ValueError("confidence must be between 0 and 1")
+    if confidence is not None:
+        confidence = float(confidence)
+        if not math.isfinite(confidence) or not 0 <= confidence <= 1:
+            raise ValueError("confidence must be a finite number between 0 and 1")
     if predicted_value is not None:
         predicted_value = float(predicted_value)
+        if not math.isfinite(predicted_value):
+            raise ValueError("predicted_value must be finite")
     conn = _db()
     try:
         with conn:
@@ -208,6 +213,8 @@ def resolve_experience(
         raise ValueError("evidence_note must be at most 4000 characters")
     if observed_value is not None:
         observed_value = float(observed_value)
+        if not math.isfinite(observed_value):
+            raise ValueError("observed_value must be finite")
 
     conn = _db()
     try:

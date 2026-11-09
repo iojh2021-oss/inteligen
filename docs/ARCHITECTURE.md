@@ -32,3 +32,23 @@ Do not submit secrets or sensitive personal data: this repository is public. For
 
 ## GitHub-only execution
 The brain cycle runs on GitHub-hosted Actions with a local Ollama process on that temporary runner. No separate VPS or always-on inference server is required for the scheduled workflow. GitHub-hosted runners are temporary; durable memory requires a validated persistence mechanism.
+
+
+## Memory and experiments
+- World memory uses deterministic BM25-style lexical retrieval over each world's own records. This is not semantic/vector retrieval.
+- Structured experience records retain hypothesis, prediction, expected metric, numeric prediction (when supplied), observation, explicit outcome status, evidence note and timestamps. Each world retrieves only its own experience history.
+- Outcome status is explicitly provided by an evaluator; the model does not certify its own predictions. Numeric absolute error is reported only when predicted and observed values are comparable numeric values.
+
+## Simulation laboratory
+- The lab executes only two reviewed deterministic scenarios: discrete logistic population growth and exponential decay.
+- Inputs are validated and bounded; user-supplied code is never executed.
+- Results are persisted in SQLite and include a SHA-256 fingerprint of normalized inputs and deterministic outputs.
+- A simulation result may be attached to a world's experience ledger only as inconclusive simulation-only evidence; it cannot automatically confirm or refute a real-world hypothesis.
+
+## Additional API routes
+- `GET /experiences?world=...` and `POST /experiences`
+- `POST /experiences/{id}/resolve` and `GET /experiences/summary`
+- `GET /simulations/scenarios`, `POST /simulations/run`, `GET /simulations/{id}`
+- `POST /simulations/{id}/experience`
+
+The existing root dashboard route is preserved. The health endpoint reports the guardrail version, retrieval mode, experience ledger and simulation-lab availability.

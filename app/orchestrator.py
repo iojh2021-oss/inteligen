@@ -25,8 +25,8 @@ def _memory_context(world: World, question: str) -> str:
     sections = []
     if items:
         sections.append(
-            "Prior work (may be outdated or wrong; verify it):\\n"
-            + "\\n".join(f"[{m['created_at'][:10]}] {m['result'][:700]}" for m in items)
+            "Prior work (may be outdated or wrong; verify it):\n"
+            + "\n".join(f"[{m['created_at'][:10]}] {m['result'][:700]}" for m in items)
         )
     if experiences:
         lines = []
@@ -38,10 +38,10 @@ def _memory_context(world: World, question: str) -> str:
                 f"numeric_absolute_error={item['absolute_error']}"
             )
         sections.append(
-            "Prior experiment records (evidence notes are records, not guaranteed truth):\\n"
-            + "\\n".join(lines)
+            "Prior experiment records (evidence notes are records, not guaranteed truth):\n"
+            + "\n".join(lines)
         )
-    return "\\n\\n".join(sections) if sections else "No relevant prior work or experience records."
+    return "\n\n".join(sections) if sections else "No relevant prior work or experience records."
 
 def _build_prompt(world: World, question: str, outputs: dict, errors: dict) -> str:
     parts = [

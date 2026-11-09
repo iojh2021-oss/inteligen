@@ -8,12 +8,12 @@ from statistics import mean
 
 from app.worlds import WORLDS
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 PASS_THRESHOLD = 70
 
 
 def _words(text: str) -> list[str]:
-    return re.findall(r"\b[\w'-]+\b", str(text).casefold(), flags=re.UNICODE)
+    return re.findall(r"\\b[\\w'-]+\\b", str(text).casefold(), flags=re.UNICODE)
 
 
 def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
@@ -29,7 +29,7 @@ def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
     matched = []
     for alternatives in anchor_groups:
         hits = [term for term in alternatives
-                if re.search(r"(?<!\w)" + re.escape(term.casefold()) + r"(?!\w)", normalized)]
+                if re.search(r"(?<!\\w)" + re.escape(term.casefold()) + r"(?!\\w)", normalized)]
         matched.append({"matched": bool(hits), "terms": hits})
 
     coverage = (sum(item["matched"] for item in matched) / len(matched)) if matched else 1.0
@@ -37,6 +37,7 @@ def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
     score = round(completeness + length_score + anchor_score, 2)
     return {
         "score": score,
+        "usable": usable,
         "passed": usable and score >= PASS_THRESHOLD,
         "word_count": len(words),
         "components": {
@@ -50,7 +51,6 @@ def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
 
 def evaluate_results(results: list[dict], benchmark_cases: list[dict]) -> dict:
     """Evaluate per-case world outputs and aggregate scores without model judging."""
-    expected = set(WORLDS)
     case_reports = []
     world_scores = {name: [] for name in WORLDS}
     for case in benchmark_cases:
@@ -62,9 +62,10 @@ def evaluate_results(results: list[dict], benchmark_cases: list[dict]) -> dict:
             report = score_output(outputs.get(name, ""), criteria, case.get("min_words", 35))
             world_reports[name] = report
             world_scores[name].append(report["score"])
+        case_complete = all(world_reports[name]["usable"] for name in WORLDS)
         case_reports.append({
             "case_id": case["id"],
-            "complete": set(outputs) >= expected,
+            "complete": case_complete,
             "worlds": world_reports,
         })
 
@@ -82,6 +83,10 @@ def evaluate_results(results: list[dict], benchmark_cases: list[dict]) -> dict:
     return {
         "schema_version": SCHEMA_VERSION,
         "status": "complete" if case_reports and all(c["complete"] for c in case_reports) else "incomplete",
+        "all_cases_passed": bool(case_reports) and all(
+            all(world["passed"] for world in case["worlds"].values())
+            for case in case_reports
+        ),
         "threshold": PASS_THRESHOLD,
         "aggregate_mean_score": round(mean(all_scores), 2) if all_scores else 0,
         "per_world": per_world,

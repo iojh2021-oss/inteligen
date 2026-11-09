@@ -1,0 +1,58 @@
+{
+  "updated_at": "2026-11-09T23:24:44.900230+00:00",
+  "worlds": {
+    "creativity": {
+      "runs": 2,
+      "success_rate": 1.0,
+      "avg_latency_ms": 199551,
+      "avg_output_chars": 2340
+    },
+    "knowledge": {
+      "runs": 2,
+      "success_rate": 1.0,
+      "avg_latency_ms": 51908,
+      "avg_output_chars": 2928
+    },
+    "learning": {
+      "runs": 2,
+      "success_rate": 1.0,
+      "avg_latency_ms": 148476,
+      "avg_output_chars": 4783
+    },
+    "reasoning": {
+      "runs": 2,
+      "success_rate": 1.0,
+      "avg_latency_ms": 101275,
+      "avg_output_chars": 2488
+    },
+    "science": {
+      "runs": 2,
+      "success_rate": 1.0,
+      "avg_latency_ms": 155505,
+      "avg_output_chars": 2806
+    }
+  },
+  "memory_items": 12,
+  "memory": {
+    "total": 12,
+    "by_world": {
+      "central": 2,
+      "creativity": 2,
+      "knowledge": 2,
+      "learning": 2,
+      "reasoning": 2,
+      "science": 2
+    },
+    "by_kind": {
+      "experience": 12
+    }
+  },
+  "config_version": 1,
+  "evaluation": {
+    "rubric_version": 1,
+    "overall_score": 80,
+    "evaluated_worlds": 5,
+    "scope": "deterministic text-coverage signals; human review still required"
+  },
+  "architecture": "central-brain + five-worlds + long-term-memory + simulation-lab + evaluation-evolution"
+}

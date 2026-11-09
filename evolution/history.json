@@ -1,0 +1,37 @@
+[
+ {
+  "timestamp": "2026-11-09T23:24:44.900230+00:00",
+  "request_id": "c6f2e6456a85",
+  "config_version": 1,
+  "model": "qwen3:1.7b",
+  "overall_score": 80,
+  "worlds": {
+   "knowledge": {
+    "score": 50,
+    "missing": [
+     "concepts",
+     "fact_vs_assumption"
+    ]
+   },
+   "reasoning": {
+    "score": 100,
+    "missing": []
+   },
+   "science": {
+    "score": 100,
+    "missing": []
+   },
+   "creativity": {
+    "score": 50,
+    "missing": [
+     "multiple_ideas",
+     "original_combination"
+    ]
+   },
+   "learning": {
+    "score": 100,
+    "missing": []
+   }
+  }
+ }
+]

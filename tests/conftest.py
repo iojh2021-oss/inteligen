@@ -30,6 +30,7 @@ class FakeModel:
 @pytest.fixture
 def db(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_PATH", str(tmp_path / "memory.sqlite3"))
+    monkeypatch.setenv("EVOLUTION_DIR", str(tmp_path / "evolution"))
     return tmp_path
 
 

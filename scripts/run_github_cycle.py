@@ -15,7 +15,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 os.chdir(REPOSITORY_ROOT)
 sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from app import evaluation, memory, model
+from app import brain, evaluation, evolution, memory, model, versions
 from app.orchestrator import run_five_worlds
 from app.worlds import WORLDS
 
@@ -39,8 +39,10 @@ def main() -> None:
         raise SystemExit("Runner returned an incomplete world set: " + ", ".join(missing_worlds))
 
     evaluation_report = evaluation.evaluate_worlds(result["worlds"])
+    assessment = brain.assess(len(expected_worlds), successful_worlds, evaluation_report, result["errors"])
     state = {
-        "schema_version": 2,
+        "schema_version": 3,
+        "config_version": result.get("config_version", versions.load_stable()["version"]),
         "status": "complete" if not result["errors"] and len(successful_worlds) == len(expected_worlds) else "partial",
         "expected_world_count": len(expected_worlds),
         "successful_worlds": successful_worlds,
@@ -52,6 +54,7 @@ def main() -> None:
         "answer": result["answer"],
         "worlds": result["worlds"],
         "evaluation": evaluation_report,
+        "central_assessment": assessment,
         "errors": result["errors"],
     }
 
@@ -66,18 +69,23 @@ def main() -> None:
     metrics = {
         "updated_at": timestamp,
         "worlds": memory.metrics_summary(),
-        "memory_items": len(memory.recent(100)),
+        "memory_items": memory.stats()["total"],
+        "memory": memory.stats(),
+        "config_version": state["config_version"],
         "evaluation": {
             "rubric_version": evaluation_report["rubric_version"],
             "overall_score": evaluation_report["overall_score"],
             "evaluated_worlds": evaluation_report["evaluated_worlds"],
             "scope": evaluation_report["scope"],
         },
-        "architecture": "central-brain + five-worlds + sqlite-long-term-memory + explainable-evaluation",
+        "architecture": "central-brain + five-worlds + long-term-memory + simulation-lab + evaluation-evolution",
     }
     (state_dir / "metrics.json").write_text(
         json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+    evolution.record_cycle(state)
+    versions.ensure_baseline()
+    evolution.export_state()
     print(json.dumps({
         "ok": True,
         "request_id": result["request_id"],

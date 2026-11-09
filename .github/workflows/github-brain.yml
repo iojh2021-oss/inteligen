@@ -1,13 +1,9 @@
 name: GitHub Brain Cycle
 
+# Runs the central brain and the five worlds on a temporary GitHub-hosted runner.
+# Triggered manually or daily. It is intentionally not triggered by code pushes,
+# because one cycle downloads a model and takes many minutes of CPU inference.
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/github-brain.yml"
-      - "scripts/run_github_cycle.py"
-      - "app/**"
-      - "requirements.txt"
   workflow_dispatch:
     inputs:
       question:
@@ -23,8 +19,9 @@ permissions:
   pages: write
   id-token: write
 
+# Shared with the Evolution workflow: both commit state, so they must not overlap.
 concurrency:
-  group: inteligen-brain-cycle
+  group: inteligen-state
   cancel-in-progress: false
 
 jobs:
@@ -56,24 +53,10 @@ jobs:
       - name: Run regression tests
         run: pytest -q
 
-      - name: Install Ollama
-        run: |
-          curl -fsSL https://ollama.com/install.sh | sh
-          nohup ollama serve >/tmp/ollama.log 2>&1 &
-          for attempt in $(seq 1 60); do
-            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
-              exit 0
-            fi
-            sleep 2
-          done
-          cat /tmp/ollama.log
-          exit 1
-
-      - name: Download and verify the local model
-        run: |
-          ollama pull "$MODEL_NAME"
-          ollama list
-          curl --fail --silent --show-error http://127.0.0.1:11434/v1/models
+      - name: Set up Ollama and the model
+        uses: ./.github/actions/setup-ollama
+        with:
+          model: qwen3:1.7b
 
       - name: Compile application and runner
         run: python -m compileall -q app scripts
@@ -81,17 +64,19 @@ jobs:
       - name: Run central brain and five worlds
         run: python scripts/run_github_cycle.py
 
-      - name: Persist public memory and dashboard state
+      - name: Persist public memory, evolution history and dashboard state
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # data/ is ignored locally; force-add the intended durable SQLite memory.
           git add -f data/memory.sqlite3
-          git add docs/state/latest.json docs/state/metrics.json
+          git add docs/state evolution
           if git diff --cached --quiet; then
             echo "No state changes to commit."
           else
             git commit -m "Record GitHub brain cycle"
+            # The cycle takes a while; main may have moved meanwhile.
+            git pull --rebase origin main
             git push
           fi
 
@@ -103,8 +88,13 @@ jobs:
         with:
           path: docs
 
+  deploy:
+    needs: run-five-worlds
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy dashboard
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          token: ${{ github.token }}

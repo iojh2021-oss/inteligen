@@ -1,61 +1,206 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Inteligen · Five Worlds</title>
+<title>Inteligen · مغز مرکزی و پنج دنیا</title>
 <style>
-:root{color-scheme:dark;--bg:#08111f;--panel:#111f33;--line:#263b56;--muted:#9bb0ca;--ink:#edf5ff;--accent:#76b7ff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172c49,var(--bg) 58%);color:var(--ink);font:15px/1.6 system-ui,sans-serif}
-main{max-width:1100px;margin:auto;padding:28px 18px 64px}header{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
-h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.1;margin:12px 0}.muted{color:var(--muted)}.tag{border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:#b9d9ff}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
-.card,.panel{background:linear-gradient(145deg,#14253c,#0e1a2b);border:1px solid var(--line);border-radius:16px;padding:17px;min-width:0}
-.card h2{font-size:1rem;margin:0 0 6px}.card p{margin:0;color:var(--muted)}
-.panel{margin-top:16px}.panel h2{margin:0 0 12px;font-size:1.15rem}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;margin:0;color:#dceaff}
-a{color:var(--accent)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
-.action{display:inline-block;padding:10px 14px;border:1px solid #4775a7;border-radius:10px;text-decoration:none;background:#16375b}
-small{color:var(--muted)}.metric{font-size:1.5rem;font-weight:700}
-#error{color:#ffb8a8}
+:root{color-scheme:dark;--bg:#08111f;--panel:#111f33;--line:#263b56;--muted:#9bb0ca;--ink:#edf5ff;--accent:#76b7ff;--ok:#48bb78;--warn:#ecc94b;--bad:#f56565}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#172c49,var(--bg) 58%);color:var(--ink);font:15px/1.7 system-ui,Tahoma,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px 16px 64px}
+header{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+h1{font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin:10px 0}
+h2{margin:0 0 12px;font-size:1.15rem}h3{margin:0 0 6px;font-size:1rem}h4{margin:10px 0 4px}
+.muted{color:var(--muted)}small{color:var(--muted)}
+.tag,.badge{border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:#b9d9ff;display:inline-block;font-size:.85rem}
+.badge.high,.badge.recommended,.badge.promoted{border-color:var(--ok);color:#9ae6b4}
+.badge.medium,.badge.inconclusive{border-color:var(--warn);color:#faf089}
+.badge.low,.badge.rejected{border-color:var(--bad);color:#feb2b2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.card,.panel{background:linear-gradient(145deg,#14253c,#0e1a2b);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.panel{margin-top:16px}.card p{margin:4px 0 8px;color:var(--muted)}
+button,.action{font:inherit;color:var(--ink);background:#16375b;border:1px solid #4775a7;border-radius:10px;padding:8px 14px;text-decoration:none;cursor:pointer;display:inline-block}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+a{color:var(--accent)}code{background:#0b1624;padding:1px 5px;border-radius:5px}
+details{margin-top:8px}summary{cursor:pointer;color:var(--accent)}
+.txt p,.txt li{margin:4px 0;overflow-wrap:anywhere}.txt ul{margin:4px 0;padding-inline-start:20px}
+table{width:100%;border-collapse:collapse}td,th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:start}
+.bars{display:flex;align-items:flex-end;gap:4px;height:90px}
+.bars div{flex:1;min-width:6px;background:#3b82c4;border-radius:4px 4px 0 0}
+.score{font-size:1.6rem;font-weight:700}
 </style>
 </head>
 <body><main>
-<header><div><span class="tag">SERVERLESS · GITHUB ACTIONS</span><h1>Inteligen</h1><p class="muted">One central brain coordinating five specialist worlds, durable memory, and measurable evaluation.</p></div><span id="status" class="tag">Loading latest cycle…</span></header>
-<div class="grid">
-<div class="card"><h2>🌐 Knowledge</h2><p>Evidence, concepts, source quality</p></div>
-<div class="card"><h2>🧩 Reasoning</h2><p>Logic, assumptions, problem solving</p></div>
-<div class="card"><h2>🔬 Science</h2><p>Hypotheses, predictions, safe experiments</p></div>
-<div class="card"><h2>🎨 Creativity</h2><p>Alternative ideas and trade-offs</p></div>
-<div class="card"><h2>🧠 Learning</h2><p>Reviews the other worlds and proposes measurable improvements</p></div>
-</div>
-<div class="actions"><a class="action" href="https://github.com/iojh2021-oss/inteligen/actions/workflows/github-brain.yml">Run / inspect a brain cycle on GitHub</a><a class="action" href="https://github.com/iojh2021-oss/inteligen">Repository & source</a></div>
-<section class="panel"><h2>Central brain · Latest synthesis</h2><pre id="answer">Waiting for the first GitHub Actions run…</pre></section>
-<section class="panel"><h2>Five-world results</h2><div id="worlds" class="grid"></div></section>
-<section class="panel"><h2>Evaluation & execution</h2><pre id="metrics">Loading metrics…</pre><p id="error"></p></section>
-<section class="panel"><h2>Explainable quality rubric</h2><p class="muted">Text-coverage signals only — not a truth or intelligence score. Missing criteria are shown for review.</p><pre id="evaluation">Loading evaluation…</pre></section>
-<p class="muted"><small>Execution happens only when a GitHub Actions workflow is triggered. It is not an always-on process. This public repository stores the submitted question, outputs, and SQLite memory in Git history. Never submit passwords, API keys, private personal data, or confidential material.</small></p>
+<header>
+ <div><span class="tag" id="tag"></span><h1>Inteligen</h1><p class="muted" id="sub"></p></div>
+ <div><span id="status" class="tag"></span><br><button id="lang" style="margin-top:8px"></button></div>
+</header>
+<div class="actions" id="links"></div>
+<section class="panel"><h2 id="h-arch"></h2><div id="arch" class="grid"></div></section>
+<section class="panel"><h2 id="h-brain"></h2><div id="brain"></div></section>
+<section class="panel"><h2 id="h-worlds"></h2><div id="worlds" class="grid"></div></section>
+<section class="panel"><h2 id="h-memory"></h2><div id="memory"></div></section>
+<section class="panel"><h2 id="h-evo"></h2><div id="evo"></div></section>
+<section class="panel"><h2 id="h-hist"></h2><div id="hist"></div></section>
+<section class="panel"><h2 id="h-metrics"></h2><div id="metrics"></div></section>
+<p class="muted"><small id="foot"></small></p>
+<p id="error" style="color:#ffb8a8"></p>
 </main>
 <script>
-async function load(){
- const status=document.getElementById('status');
- try{
-  const [sr,mr]=await Promise.all([fetch('./state/latest.json?'+Date.now()),fetch('./state/metrics.json?'+Date.now())]);
-  if(!sr.ok)throw Error('No completed brain cycle yet. Start one from the GitHub Actions link.');
-  const s=await sr.json();document.getElementById('answer').textContent=s.answer||'No synthesis available';
-  const ev=s.evaluation;if(ev){const lines=[`Overall textual coverage: ${ev.overall_score ?? 'n/a'}%`,`Evaluated worlds: ${ev.evaluated_worlds}/5`,''];for(const [name,item] of Object.entries(ev.worlds||{})){lines.push(`${name}: ${item.status==='unavailable'?'UNAVAILABLE':`${item.score}% (${item.passed}/${item.total})`}`);if(item.missing?.length)lines.push(`  Missing signals: ${item.missing.join(', ')}`);}lines.push('',ev.scope||'');document.getElementById('evaluation').textContent=lines.join('\\n');}else{document.getElementById('evaluation').textContent='No evaluation report in this cycle. Run the updated brain workflow.';}
-  document.getElementById('worlds').replaceChildren();
-  for(const [name,value] of Object.entries(s.worlds||{})){
-   const box=document.createElement('article');box.className='card';
-   const h=document.createElement('h2');h.textContent=name;
-   const p=document.createElement('pre');p.textContent=value;
-   box.append(h,p);document.getElementById('worlds').append(box);
-  }
-  status.textContent=(s.status==='complete'?'All five worlds completed':'Partial cycle')+' · '+new Date(s.timestamp).toLocaleString();
-  status.style.borderColor=s.status==='complete'?'#2f855a':'#b7791f';
-  if(mr.ok){const m=await mr.json();document.getElementById('metrics').textContent=JSON.stringify(m,null,2);}
-  document.getElementById('error').textContent=s.status==='complete'?'All five worlds and central synthesis completed.':('Partial cycle: '+Object.keys(s.errors||{}).length+' world(s) unavailable. See details above.');
- }catch(e){status.textContent='Awaiting run';document.getElementById('error').textContent=e.message;document.getElementById('answer').textContent='No published result is available yet.';document.getElementById('metrics').textContent='Metrics appear after the first successful run.';}
+const REPO='iojh2021-oss/inteligen';
+const WORLD_ORDER=['knowledge','reasoning','science','creativity','learning'];
+const T={
+fa:{tag:'بدون سرور · اجرا روی GitHub Actions',sub:'یک مغز مرکزی که پنج دنیا، حافظه بلندمدت، آزمایشگاه شبیه‌سازی و موتور ارزیابی و تکامل را هماهنگ می‌کند.',
+ loading:'در حال بارگذاری…',awaiting:'در انتظار اجرا',complete:'هر پنج دنیا کامل شدند',partial:'اجرای ناقص',
+ run:'اجرای یک چرخه مغز',evo:'موتور تکامل (تأیید انسانی)',repo:'مخزن و کد',lang:'English',
+ arch:'معماری',brain:'مغز مرکزی · آخرین جمع‌بندی',worlds:'نتایج پنج دنیا',memory:'حافظه بلندمدت',evol:'آزمایشگاه شبیه‌سازی و موتور تکامل',hist:'روند امتیاز پوشش (هر چرخه)',metrics:'اجرا و تأخیر',
+ a_brain:['🧠 مغز مرکزی','مدیریت، تصمیم‌گیری و هماهنگی پنج دنیا'],
+ a_knowledge:['🌐 دنیای دانش','یادگیری و گسترش دانش'],a_reasoning:['🧩 دنیای استدلال','تقویت منطق و حل مسئله'],
+ a_science:['🔬 دنیای علم','فرضیه‌سازی و آزمایش'],a_creativity:['🎨 دنیای خلاقیت','تولید ایده و راه‌حل‌های جدید'],
+ a_learning:['🧠 دنیای یادگیری','بررسی عملکرد و بهبود مستمر'],a_memory:['💾 حافظه بلندمدت','ذخیره و بازیابی تجربه‌ها'],
+ a_lab:['🧪 آزمایشگاه شبیه‌سازی','آزمایش روش‌های جدید به‌صورت ایزوله'],a_evo:['📈 موتور ارزیابی و تکامل','اندازه‌گیری پیشرفت و انتخاب نسخه بهتر'],
+ level:{high:'زیاد',medium:'متوسط',low:'کم'},cov:'سطح پوشش ساختاری',review:'نیازمند بازبینی انسانی',noreview:'پیش‌نویس قابل استفاده',
+ scope:'فقط پوشش ساختاری را می‌سنجد؛ درستی یا هوشمندی را نمی‌سنجد.',missing:'معیارهای جاافتاده',none:'—',
+ items:'مورد',total:'کل',kinds:'انواع',byworld:'به تفکیک دنیا',
+ stable:'نسخه پایدار',guidance:'راهنمای تأییدشده',noguidance:'نسخه پایه، بدون افزوده',
+ latest:'آخرین پیشنهاد',noprop:'هنوز پیشنهادی ساخته نشده. ابتدا چند چرخه مغز اجرا کنید، سپس «evaluate» را در موتور تکامل بزنید.',
+ baseline:'میانگین نسخه پایدار',cand:'میانگین کاندیدا',gain:'تغییر میانگین',changes:'تغییرات پیشنهادی',samples:'نمونه خروجی‌ها (قبل از تأیید بخوانید)',
+ versions:'نسخه‌ها',approve:'برای تأیید: Actions ← Evolution Engine ← promote و شناسه پیشنهاد را بدهید. بازگشت به نسخه قبل با rollback انجام می‌شود.',
+ caveat:'هشدار: امتیاز فقط پوشش واژگانی معیارهاست و ممکن است با دستور مستقیم بالا برود. خروجی‌ها را بخوانید.',
+ hist_none:'هنوز چرخه‌ای ثبت نشده.',runs:'اجرا',success:'موفقیت',latency:'تأخیر میانگین',chars:'طول خروجی',
+ foot:'اجرا فقط وقتی workflow در GitHub Actions فعال شود انجام می‌شود؛ این یک سرور همیشه‌روشن نیست. این مخزن عمومی است و سؤال‌ها، خروجی‌ها و حافظه در تاریخچه Git ذخیره می‌شوند. هیچ رمز، کلید یا اطلاعات خصوصی ارسال نکنید.',
+ status_on:'فعال',status_wf:'با workflow',score:'امتیاز',nodata:'داده‌ای نیست'},
+en:{tag:'SERVERLESS · GITHUB ACTIONS',sub:'One central brain coordinating five worlds, long-term memory, a simulation lab and an evaluation and evolution engine.',
+ loading:'Loading…',awaiting:'Awaiting run',complete:'All five worlds completed',partial:'Partial cycle',
+ run:'Run a brain cycle',evo:'Evolution engine (human approval)',repo:'Repository & source',lang:'فارسی',
+ arch:'Architecture',brain:'Central brain · Latest synthesis',worlds:'Five-world results',memory:'Long-term memory',evol:'Simulation lab & evolution engine',hist:'Coverage score trend (per cycle)',metrics:'Execution & latency',
+ a_brain:['🧠 Central brain','Manages intelligence, decisions and coordinates the five worlds'],
+ a_knowledge:['🌐 Knowledge world','Learning and expanding knowledge'],a_reasoning:['🧩 Reasoning world','Strengthening logic and problem solving'],
+ a_science:['🔬 Science world','Hypotheses and experiments'],a_creativity:['🎨 Creativity world','New ideas and solutions'],
+ a_learning:['🧠 Learning world','Reviewing performance and continuous improvement'],a_memory:['💾 Long-term memory','Storing and retrieving experiences'],
+ a_lab:['🧪 Simulation lab','Isolated testing of new methods'],a_evo:['📈 Evaluation & evolution engine','Measuring progress and choosing the better version'],
+ level:{high:'high',medium:'medium',low:'low'},cov:'Structural coverage level',review:'Human review required',noreview:'Usable as a draft',
+ scope:'Measures structural coverage only, not truth or intelligence.',missing:'Missing criteria',none:'—',
+ items:'items',total:'Total',kinds:'Kinds',byworld:'By world',
+ stable:'Stable version',guidance:'Approved guidance',noguidance:'Baseline, no additions',
+ latest:'Latest proposal',noprop:'No proposal yet. Run a few brain cycles, then run “evaluate” in the Evolution Engine.',
+ baseline:'Stable mean',cand:'Candidate mean',gain:'Mean change',changes:'Proposed changes',samples:'Sample outputs (read before approving)',
+ versions:'Versions',approve:'To approve: Actions → Evolution Engine → promote with the proposal id. Use rollback to restore an earlier version.',
+ caveat:'Warning: the score counts keyword coverage of the criteria and can rise just because the prompt asks for them. Read the outputs.',
+ hist_none:'No cycle recorded yet.',runs:'Runs',success:'Success',latency:'Avg latency',chars:'Avg chars',
+ foot:'Execution happens only when a GitHub Actions workflow runs. It is not an always-on server. This public repository stores questions, outputs and memory in Git history. Never submit passwords, API keys or private data.',
+ status_on:'active',status_wf:'via workflow',score:'Score',nodata:'No data'}
+};
+let lang='fa';try{lang=localStorage.getItem('lang')||'fa'}catch(e){}
+let D={};
+const t=k=>(T[lang][k]??T.en[k]??k);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inline=x=>x.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');
+function md(s){
+ let out='',list=false;
+ for(const raw of esc(s).split('\n')){
+  const l=raw.trim(),li=/^[-*]\s+(.*)$/.exec(l)||/^\d+\.\s+(.*)$/.exec(l);
+  if(li){if(!list){out+='<ul>';list=true}out+='<li>'+inline(li[1])+'</li>';continue}
+  if(list){out+='</ul>';list=false}
+  const h=/^#{1,4}\s+(.*)$/.exec(l);
+  if(h){out+='<h4>'+inline(h[1])+'</h4>';continue}
+  if(l)out+='<p>'+inline(l)+'</p>';
+ }
+ return out+(list?'</ul>':'');
 }
-load();
-</script></body></html>
+const when=ts=>ts?new Date(ts).toLocaleString(lang==='fa'?'fa-IR':'en-GB'):'';
+const badge=(cls,text)=>`<span class="badge ${esc(cls)}">${esc(text)}</span>`;
+async function getJSON(name){try{const r=await fetch('./state/'+name+'?'+Date.now());return r.ok?await r.json():null}catch(e){return null}}
+
+function render(){
+ document.documentElement.lang=lang;document.documentElement.dir=lang==='fa'?'rtl':'ltr';
+ $('tag').textContent=t('tag');$('sub').textContent=t('sub');$('lang').textContent=t('lang');
+ $('h-arch').textContent=t('arch');$('h-brain').textContent=t('brain');$('h-worlds').textContent=t('worlds');
+ $('h-memory').textContent=t('memory');$('h-evo').textContent=t('evol');$('h-hist').textContent=t('hist');$('h-metrics').textContent=t('metrics');
+ $('foot').textContent=t('foot');
+ $('links').innerHTML=`<a class="action" href="https://github.com/${REPO}/actions/workflows/github-brain.yml">${esc(t('run'))}</a>
+  <a class="action" href="https://github.com/${REPO}/actions/workflows/evolution.yml">${esc(t('evo'))}</a>
+  <a class="action" href="https://github.com/${REPO}">${esc(t('repo'))}</a>`;
+ const s=D.latest,m=D.metrics,e=D.evolution,h=D.history||[];
+ const status=$('status');
+ if(s){const ok=s.status==='complete';status.textContent=(ok?t('complete'):t('partial'))+' · '+when(s.timestamp);status.style.borderColor=ok?'#2f855a':'#b7791f'}
+ else{status.textContent=t('awaiting')}
+ renderArch(s,m,e);renderBrain(s);renderWorlds(s);renderMemory(m);renderEvo(e);renderHist(h);renderMetrics(m);
+}
+function renderArch(s,m,e){
+ const a=s&&s.central_assessment,count=s?(s.successful_worlds||[]).length:0;
+ const cards=[['brain',a?badge(a.coverage_level,t('level')[a.coverage_level]):badge('',t('status_on'))]];
+ for(const w of WORLD_ORDER)cards.push([w,badge(s&&(s.successful_worlds||[]).includes(w)?'high':'',s?(s.successful_worlds||[]).includes(w)?t('status_on'):'✗':t('status_wf'))]);
+ const total=m&&m.memory?m.memory.total:(m?m.memory_items:null);
+ cards.push(['memory',badge('',total!=null?total+' '+t('items'):t('nodata'))]);
+ const p=e&&e.latest_proposal;
+ cards.push(['lab',badge(p?p.status:'',p?p.id:t('status_wf'))]);
+ cards.push(['evo',badge('','v'+(e&&e.stable?e.stable.version:1))]);
+ $('arch').innerHTML=cards.map(([k,b])=>{const [n,d]=t('a_'+k);return `<div class="card"><h3>${esc(n)}</h3><p>${esc(d)}</p>${b}</div>`}).join('');
+}
+function renderBrain(s){
+ if(!s){$('brain').innerHTML='<p class="muted">'+esc(t('awaiting'))+'</p>';return}
+ const a=s.central_assessment;let html='';
+ if(a)html+=`<p>${esc(t('cov'))}: ${badge(a.coverage_level,t('level')[a.coverage_level])} ${badge(a.requires_human_review?'low':'high',a.requires_human_review?t('review'):t('noreview'))}</p>
+  <p class="muted">${esc((a.reasons||[]).join(' · '))}<br>${esc(t('scope'))}</p>`;
+ $('brain').innerHTML=html+'<div class="txt">'+md(s.answer||'')+'</div>';
+}
+function renderWorlds(s){
+ if(!s){$('worlds').innerHTML='';return}
+ const ev=(s.evaluation&&s.evaluation.worlds)||{};
+ $('worlds').innerHTML=WORLD_ORDER.filter(w=>(s.worlds||{})[w]!==undefined).map(w=>{
+  const r=ev[w],score=r&&r.score!=null?r.score+'%':t('none'),miss=r&&r.missing&&r.missing.length?r.missing.join(', '):t('none');
+  const n=t('a_'+w)[0];
+  return `<article class="card"><h3>${esc(n)}</h3><div class="score">${esc(score)}</div>
+   <small>${esc(t('missing'))}: ${esc(miss)}</small>
+   <details><summary>…</summary><div class="txt">${md(s.worlds[w])}</div></details></article>`}).join('');
+}
+function renderMemory(m){
+ const mem=m&&m.memory;
+ if(!mem){$('memory').innerHTML='<p class="muted">'+esc(t('nodata'))+'</p>';return}
+ const row=o=>Object.entries(o||{}).map(([k,v])=>`<span class="tag">${esc(k)}: ${esc(v)}</span> `).join('');
+ $('memory').innerHTML=`<p>${esc(t('total'))}: <b>${esc(mem.total)}</b></p><p>${esc(t('kinds'))}: ${row(mem.by_kind)}</p><p>${esc(t('byworld'))}: ${row(mem.by_world)}</p>`;
+}
+function renderEvo(e){
+ if(!e){$('evo').innerHTML='<p class="muted">'+esc(t('noprop'))+'</p>';return}
+ const st=e.stable||{},add=Object.entries(st.world_additions||{});
+ let html=`<h3>${esc(t('stable'))}: v${esc(st.version)}</h3>`;
+ html+=add.length?`<p>${esc(t('guidance'))}:</p>`+add.map(([w,x])=>`<details><summary>${esc(w)}</summary><div class="txt">${md(x)}</div></details>`).join(''):`<p class="muted">${esc(t('noguidance'))}</p>`;
+ const p=e.latest_proposal;
+ html+=`<h3 style="margin-top:16px">${esc(t('latest'))}</h3>`;
+ if(!p)html+=`<p class="muted">${esc(t('noprop'))}</p>`;
+ else{
+  const c=p.comparison||{};
+  html+=`<p>${badge(p.status,p.status)} <code>${esc(p.id)}</code> <small>${esc(when(p.created_at))}</small></p>
+  <p>${esc(t('baseline'))}: <b>${esc(c.baseline_mean)}</b> · ${esc(t('cand'))}: <b>${esc(c.candidate_mean)}</b> · ${esc(t('gain'))}: <b>${esc(c.mean_gain)}</b></p>
+  <p class="muted">${esc(c.reason||'')}</p>
+  <p>${esc(t('changes'))}:</p><ul>${(p.changes||[]).map(x=>`<li><code>${esc(x.world)}/${esc(x.criterion)}</code> ${esc(x.instruction)}</li>`).join('')}</ul>
+  <details><summary>${esc(t('samples'))}</summary>${(p.samples||[]).map(sm=>`<h4>${esc(sm.question)}</h4>`+Object.entries(sm.excerpts||{}).map(([w,x])=>`<details><summary>${esc(w)}</summary><div class="txt">${md(x)}</div></details>`).join('')).join('')}</details>
+  <p class="muted"><small>${esc(t('caveat'))}</small></p>`;
+ }
+ html+=`<h3 style="margin-top:16px">${esc(t('versions'))}</h3><ul>${(e.versions||[]).map(v=>`<li>v${esc(v.version)} · ${esc(v.note||'')} ${v.approved_by?'· '+esc(v.approved_by):''}</li>`).join('')}</ul>
+  <p class="muted"><small>${esc(t('approve'))}</small></p>`;
+ $('evo').innerHTML=html;
+}
+function renderHist(h){
+ const pts=h.filter(x=>x.score!=null);
+ $('hist').innerHTML=pts.length?`<div class="bars">${pts.map(x=>`<div style="height:${Math.max(3,x.score)}%" title="v${esc(x.v)} · ${esc(x.score)}% · ${esc(when(x.t))}"></div>`).join('')}</div>`:`<p class="muted">${esc(t('hist_none'))}</p>`;
+}
+function renderMetrics(m){
+ const w=m&&m.worlds;
+ if(!w){$('metrics').innerHTML='<p class="muted">'+esc(t('nodata'))+'</p>';return}
+ $('metrics').innerHTML=`<table><tr><th></th><th>${esc(t('runs'))}</th><th>${esc(t('success'))}</th><th>${esc(t('latency'))}</th><th>${esc(t('chars'))}</th></tr>`+
+  WORLD_ORDER.filter(k=>w[k]).map(k=>`<tr><td>${esc(t('a_'+k)[0])}</td><td>${esc(w[k].runs)}</td><td>${Math.round(w[k].success_rate*100)}%</td><td>${(w[k].avg_latency_ms/1000).toFixed(0)}s</td><td>${esc(w[k].avg_output_chars)}</td></tr>`).join('')+'</table>';
+}
+$('lang').onclick=()=>{lang=lang==='fa'?'en':'fa';try{localStorage.setItem('lang',lang)}catch(e){}render()};
+(async()=>{
+ render();
+ const [latest,metrics,evolution,history]=await Promise.all(['latest.json','metrics.json','evolution.json','history.json'].map(getJSON));
+ D={latest,metrics,evolution,history};
+ render();
+ if(!latest)$('error').textContent=t('awaiting');
+})();
+</script>
+</body></html>

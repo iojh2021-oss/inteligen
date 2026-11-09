@@ -1,5 +1,13 @@
 # Architecture
 
+## Components
+- `app/orchestrator.py` runs the five worlds in dependency order and synthesizes. In **lab mode** it reads and writes no memory, records no metrics and skips synthesis.
+- `app/brain.py` turns rubric coverage and world availability into a coverage level (low/medium/high), reasons, and whether human review is required. Structural only.
+- `app/versions.py` stores the stable version, history of versions, and proposals as JSON under `evolution/`. Promotion needs a *recommended* proposal built on the current stable version; rollback restores an earlier version as a new version number.
+- `app/simulation.py` runs a fixed benchmark (`evolution/benchmark.json`) for one set of per-world additions.
+- `app/evolution.py` records history, derives one candidate from recurring missing criteria using a fixed instruction library, compares paired scores, writes proposals and exports `docs/state/*.json`.
+- `scripts/run_github_cycle.py` and `scripts/run_evolution.py` are the GitHub Actions entry points.
+
 ## Request path
 Browser -> Starlette -> central orchestrator -> knowledge / reasoning / science / creativity (independent) -> learning (reviews those four) -> central synthesis -> browser.
 
@@ -25,9 +33,9 @@ A 4B model is a practical starting point, not a claim that it is the strongest m
 - A human should review proposed changes and evaluation results before any production update.
 
 ## Known limitations
-- Five worlds currently use one underlying model with different system prompts. They are not five independently trained models.
+- Five worlds currently use one underlying model with different system prompts (plus approved per-world guidance). They are not five independently trained models.
 - Memory retrieval is keyword overlap over each world's last 200 entries, not a semantic vector search. Memories are not yet reviewed/approved before sharing.
-- Per-world metrics measure reliability and speed only, not answer quality; quality needs the Phase 5 evaluation harness.
+- Rubric scores measure keyword coverage of structural criteria, not answer quality or truth; a candidate can raise them just by asking for those words. The lab benchmark is small and each question runs once, so verdicts are noisy.
 - No fine-tuning or automatic architecture mutation is implemented.
 - Model endpoint availability and quality must be tested in the target environment.
 

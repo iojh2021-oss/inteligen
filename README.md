@@ -10,7 +10,7 @@ Inteligen is an experimental multi-perspective AI system coordinated by a centra
 - **Science world:** testable hypotheses, predictions and safe experiments.
 - **Creativity world:** alternative ideas and trade-offs.
 - **Learning world:** reviews the other four worlds and proposes measurable improvements.
-- **Long-term memory:** SQLite with per-world retrieval, timestamps and request provenance.
+- **Long-term memory:** SQLite with per-world retrieval, timestamps, request provenance, and structured hypothesis/prediction/outcome records.
 - **Simulation and evolution:** planned next phases; candidate changes must be evaluated and human-approved.
 
 ## Run on GitHub without a separate server
@@ -49,7 +49,8 @@ This repository is public. The workflow commits the question, model outputs, and
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.
-- Semantic/vector memory, world-specific datasets, and a scientific simulation lab: not yet implemented.
+- Structured experience records are implemented on the feature branch: worlds can store hypotheses and predictions, resolve them with observed outcomes, and review only their own history. Numeric absolute prediction error is reported when comparable values exist; the API does not infer whether an outcome is confirmed or refuted.
+- Semantic/vector memory, world-specific datasets, and an isolated scientific simulation lab: not yet implemented.
 - A deterministic rubric benchmark and baseline/candidate comparison CLI are implemented on the feature branch. The comparison detects per-world regressions and recommends human review; it does not judge semantic correctness or promote code.
 - Candidate rollback and a validated semantic-quality benchmark: not yet implemented.
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.

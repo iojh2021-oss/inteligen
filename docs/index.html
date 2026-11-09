@@ -49,9 +49,10 @@ async function load(){
    const p=document.createElement('pre');p.textContent=value;
    box.append(h,p);document.getElementById('worlds').append(box);
   }
-  status.textContent='Last run: '+new Date(s.timestamp).toLocaleString();
+  status.textContent=(s.status==='complete'?'All five worlds completed':'Partial cycle')+' · '+new Date(s.timestamp).toLocaleString();
+  status.style.borderColor=s.status==='complete'?'#2f855a':'#b7791f';
   if(mr.ok){const m=await mr.json();document.getElementById('metrics').textContent=JSON.stringify(m,null,2);}
-  document.getElementById('error').textContent=Object.keys(s.errors||{}).length?'Some worlds failed; see their status above.':'All five worlds completed.';
+  document.getElementById('error').textContent=s.status==='complete'?'All five worlds and central synthesis completed.':('Partial cycle: '+Object.keys(s.errors||{}).length+' world(s) unavailable. See details above.');
  }catch(e){status.textContent='Awaiting run';document.getElementById('error').textContent=e.message;document.getElementById('answer').textContent='No published result is available yet.';document.getElementById('metrics').textContent='Metrics appear after the first successful run.';}
 }
 load();

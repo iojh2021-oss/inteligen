@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app import config
 from app.retrieval import rank_rows
+from app import semantic
 from app.worlds import WORLDS
 
 EXPERIENCE_STATUSES = {"planned", "confirmed", "refuted", "inconclusive"}
@@ -25,6 +26,13 @@ def _db():
     cols = {r[1] for r in conn.execute("PRAGMA table_info(memories)")}
     if "request_id" not in cols:
         conn.execute("ALTER TABLE memories ADD COLUMN request_id TEXT")
+    conn.execute("""CREATE TABLE IF NOT EXISTS semantic_embeddings (
+        memory_id INTEGER PRIMARY KEY,
+        world TEXT NOT NULL,
+        model_version TEXT NOT NULL,
+        vector_json TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    )""")
     conn.execute("""CREATE TABLE IF NOT EXISTS world_metrics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         world TEXT NOT NULL,
@@ -58,16 +66,43 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def save(world: str, prompt: str, result: str, request_id: str = None):
+def _index_memory(memory_id: int, world: str, prompt: str) -> bool:
+    if not semantic.enabled():
+        return False
+    vector = semantic.embed_text(prompt)
+    import json
     conn = _db()
     try:
         with conn:
             conn.execute(
+                """INSERT OR REPLACE INTO semantic_embeddings(
+                    memory_id,world,model_version,vector_json,created_at
+                ) VALUES(?,?,?,?,?)""",
+                (memory_id, world, semantic.MODEL_VERSION,
+                 json.dumps(vector, separators=(",", ":")), _now()),
+            )
+        return True
+    finally:
+        conn.close()
+
+
+def save(world: str, prompt: str, result: str, request_id: str = None):
+    conn = _db()
+    try:
+        with conn:
+            cur = conn.execute(
                 "INSERT INTO memories(world,prompt,result,created_at,request_id) VALUES(?,?,?,?,?)",
                 (world, prompt[:8000], result[:12000], _now(), request_id),
             )
+            memory_id = int(cur.lastrowid)
     finally:
         conn.close()
+    # Embedding failure must never prevent the primary memory record from saving.
+    try:
+        _index_memory(memory_id, world, prompt[:8000])
+    except semantic.SemanticUnavailable:
+        pass
+    return memory_id
 
 
 def _rows(sql: str, params=()):
@@ -97,12 +132,95 @@ def recent(limit: int = 20):
 
 
 def relevant(world: str, question: str, limit: int = 3):
-    """Retrieve this world's best lexical matches; this is not semantic search."""
+    """Hybrid retrieval: BM25 + multilingual dense cosine ranking, with BM25 fallback."""
     rows = _rows(
         f"SELECT {_COLS} FROM memories WHERE world=? ORDER BY id DESC LIMIT 200",
         (world,),
     )
-    return [_item(row) for row in rank_rows(rows, question, limit)]
+    lexical = rank_rows(rows, question, max(limit, 1))
+    if not semantic.enabled() or not rows:
+        return [_item(row) for row in lexical]
+
+    try:
+        import json
+        query_vector = semantic.embed_text(question)
+        ids = [int(row[0]) for row in rows]
+        placeholders = ",".join("?" for _ in ids)
+        indexed = _rows(
+            f"""SELECT memory_id,vector_json FROM semantic_embeddings
+                WHERE world=? AND model_version=? AND memory_id IN ({placeholders})""",
+            (world, semantic.MODEL_VERSION, *ids),
+        )
+        vectors = {int(row[0]): json.loads(row[1]) for row in indexed}
+        by_id = {int(row[0]): row for row in rows}
+        for row in rows:
+            memory_id = int(row[0])
+            if memory_id not in vectors:
+                try:
+                    _index_memory(memory_id, world, row[2])
+                    vectors[memory_id] = semantic.embed_text(row[2])
+                except semantic.SemanticUnavailable:
+                    continue
+        dense = semantic.rank_documents(
+            query_vector,
+            [(memory_id, vector) for memory_id, vector in vectors.items()
+             if memory_id in by_id],
+        )
+        if not dense:
+            return [_item(row) for row in lexical]
+        # Reciprocal-rank fusion avoids comparing raw BM25 and cosine scales.
+        fused = {}
+        for rank, row in enumerate(lexical, start=1):
+            fused[int(row[0])] = fused.get(int(row[0]), 0.0) + 1.0 / (60 + rank)
+        for rank, (memory_id, _score) in enumerate(dense, start=1):
+            fused[memory_id] = fused.get(memory_id, 0.0) + 1.0 / (60 + rank)
+        ordered = sorted(fused, key=lambda memory_id: (fused[memory_id], memory_id), reverse=True)
+        return [_item(by_id[memory_id]) for memory_id in ordered[:max(limit, 1)]]
+    except semantic.SemanticUnavailable:
+        return [_item(row) for row in lexical]
+
+
+def backfill_semantic(limit: int = 500) -> dict:
+    """Index recent historical memories once; existing records remain usable if disabled."""
+    if not semantic.enabled():
+        return {"enabled": False, "indexed": 0, "pending": 0, "model": semantic.MODEL_VERSION}
+    rows = _rows(
+        f"""SELECT m.{_COLS.replace(',', ', m.').replace('id,', 'id,')} FROM memories m
+            LEFT JOIN semantic_embeddings e ON e.memory_id=m.id
+                AND e.model_version=?
+            WHERE e.memory_id IS NULL ORDER BY m.id DESC LIMIT ?""",
+        (semantic.MODEL_VERSION, min(max(int(limit), 1), 2000)),
+    )
+    indexed = 0
+    failed = 0
+    for row in rows:
+        try:
+            indexed += int(_index_memory(int(row[0]), row[1], row[2]))
+        except semantic.SemanticUnavailable:
+            failed += 1
+            break
+    return {
+        "enabled": True, "indexed": indexed, "pending": max(0, len(rows) - indexed),
+        "failed": failed, "model": semantic.MODEL_VERSION,
+    }
+
+
+def semantic_summary() -> dict:
+    conn = _db()
+    try:
+        count = conn.execute(
+            "SELECT COUNT(*) FROM semantic_embeddings WHERE model_version=?",
+            (semantic.MODEL_VERSION,),
+        ).fetchone()[0]
+    finally:
+        conn.close()
+    return {
+        "enabled": semantic.enabled(),
+        "model": semantic.MODEL_VERSION,
+        "dimension": semantic.DIMENSION,
+        "indexed_memories": int(count),
+        "retrieval": "hybrid-bm25-dense" if semantic.enabled() else "bm25-fallback",
+    }
 
 
 def forget(memory_id: int) -> bool:

@@ -48,6 +48,71 @@ async def metrics(request):
     return JSONResponse({"worlds": memory.metrics_summary()})
 
 
+async def get_experiences(request):
+    world = request.query_params.get("world", "")
+    question = request.query_params.get("q")
+    if world not in WORLDS:
+        return _error(422, "world must be one of: " + ", ".join(WORLDS))
+    try:
+        limit = int(request.query_params.get("limit", "10"))
+        return JSONResponse({
+            "world": world,
+            "items": memory.experience_history(world, question, limit),
+        })
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+
+
+async def create_experience(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    if not isinstance(body, dict):
+        return _error(422, "Body must be a JSON object")
+    try:
+        experience_id = memory.record_experience(
+            world=body.get("world"),
+            hypothesis=body.get("hypothesis"),
+            prediction=body.get("prediction"),
+            request_id=body.get("request_id"),
+            expected_metric=body.get("expected_metric"),
+            predicted_value=body.get("predicted_value"),
+            confidence=body.get("confidence"),
+        )
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+    return JSONResponse({"id": experience_id, "status": "planned"}, status_code=201)
+
+
+async def resolve_experience(request):
+    try:
+        experience_id = int(request.path_params["experience_id"])
+    except ValueError:
+        return _error(422, "experience_id must be an integer")
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    if not isinstance(body, dict):
+        return _error(422, "Body must be a JSON object")
+    try:
+        item = memory.resolve_experience(
+            experience_id=experience_id,
+            observed_outcome=body.get("observed_outcome"),
+            outcome_status=body.get("outcome_status"),
+            observed_value=body.get("observed_value"),
+            evidence_note=body.get("evidence_note"),
+        )
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+    return JSONResponse(item)
+
+
+async def experience_summary(request):
+    return JSONResponse({"worlds": memory.experience_summary()})
+
+
 async def ask(request):
     try:
         body = await request.json()
@@ -69,5 +134,9 @@ app = Starlette(routes=[
     Route("/memory", get_memory),
     Route("/memory/{memory_id}", forget_memory, methods=["DELETE"]),
     Route("/metrics", metrics),
+    Route("/experiences", get_experiences, methods=["GET"]),
+    Route("/experiences", create_experience, methods=["POST"]),
+    Route("/experiences/summary", experience_summary, methods=["GET"]),
+    Route("/experiences/{experience_id}/resolve", resolve_experience, methods=["POST"]),
     Route("/ask", ask, methods=["POST"]),
 ])

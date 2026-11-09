@@ -1,6 +1,13 @@
 name: GitHub Brain Cycle
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/github-brain.yml"
+      - "scripts/run_github_cycle.py"
+      - "app/**"
+      - "requirements.txt"
   workflow_dispatch:
     inputs:
       question:
@@ -24,11 +31,14 @@ jobs:
   run-five-worlds:
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     env:
       MODEL_NAME: qwen3:1.7b
       MODEL_BASE_URL: http://127.0.0.1:11434/v1
       WORLD_CONCURRENCY: "1"
-      REQUEST_TIMEOUT_SECONDS: "300"
+      REQUEST_TIMEOUT_SECONDS: "600"
       DATABASE_PATH: data/memory.sqlite3
       BRAIN_QUESTION: ${{ github.event.inputs.question || 'Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated.' }}
     steps:
@@ -62,8 +72,14 @@ jobs:
           cat /tmp/ollama.log
           exit 1
 
-      - name: Download the local model
-        run: ollama pull "$MODEL_NAME"
+      - name: Download and verify the local model
+        run: |
+          ollama pull "$MODEL_NAME"
+          ollama list
+          curl --fail --silent --show-error http://127.0.0.1:11434/v1/models
+
+      - name: Compile application and runner
+        run: python -m compileall -q app scripts
 
       - name: Run central brain and five worlds
         run: python scripts/run_github_cycle.py
@@ -72,7 +88,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/memory.sqlite3 docs/state/latest.json docs/state/metrics.json
+          # data/ is ignored locally; force-add the intended durable SQLite memory.
+          git add -f data/memory.sqlite3
+          git add docs/state/latest.json docs/state/metrics.json
           if git diff --cached --quiet; then
             echo "No state changes to commit."
           else

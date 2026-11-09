@@ -33,7 +33,7 @@ No self-modifying production code, autonomous deployment, arbitrary shell execut
 ## Status
 - Phase 1: implemented in code with an injectable model adapter, failure isolation, and end-to-end tests. The latest GitHub-hosted brain cycle completed all five worlds on Qwen3 1.7B.
 - Phase 2: partial. Per-world retrieval and reliability metrics exist; independent datasets and quality metrics remain future work.
-- Phase 3: started. Provenance, timestamps and forgetting exist. Experiment reports now persist separately in SQLite; memory correction and approval of shared memories remain future work.
+- Phase 3: improved. Provenance, timestamps and forgetting exist. Retrieval now uses a dependency-free BM25-style lexical ranker over both prompts and saved answers, isolated by world and Unicode-aware. Regression tests cover relevance, answer matching, world isolation, Persian tokens, limits and forgetting. Semantic embeddings and memory approval/correction remain future work.
 - Phase 4: initial isolated prompt experiment runner implemented. It compares baseline and candidate instructions on fixed five-world tasks; a full stateful simulator remains future work.
 - Phase 5: initial deterministic structural evaluator implemented with explainable checks. It is not a semantic correctness judge; stronger held-out datasets and calibrated quality metrics remain future work.
 - Phase 6: candidate prompts are not automatically promoted and production code is never modified by the lab. Human-reviewed version approval and rollback remain future work.

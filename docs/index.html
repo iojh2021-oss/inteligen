@@ -33,6 +33,7 @@ small{color:var(--muted)}.metric{font-size:1.5rem;font-weight:700}
 <section class="panel"><h2>Central brain · Latest synthesis</h2><pre id="answer">Waiting for the first GitHub Actions run…</pre></section>
 <section class="panel"><h2>Five-world results</h2><div id="worlds" class="grid"></div></section>
 <section class="panel"><h2>Evaluation & execution</h2><pre id="metrics">Loading metrics…</pre><p id="error"></p></section>
+<section class="panel"><h2>Explainable quality rubric</h2><p class="muted">Text-coverage signals only — not a truth or intelligence score. Missing criteria are shown for review.</p><pre id="evaluation">Loading evaluation…</pre></section>
 <p class="muted"><small>Execution happens only when a GitHub Actions workflow is triggered. It is not an always-on process. This public repository stores the submitted question, outputs, and SQLite memory in Git history. Never submit passwords, API keys, private personal data, or confidential material.</small></p>
 </main>
 <script>
@@ -42,6 +43,7 @@ async function load(){
   const [sr,mr]=await Promise.all([fetch('./state/latest.json?'+Date.now()),fetch('./state/metrics.json?'+Date.now())]);
   if(!sr.ok)throw Error('No completed brain cycle yet. Start one from the GitHub Actions link.');
   const s=await sr.json();document.getElementById('answer').textContent=s.answer||'No synthesis available';
+  const ev=s.evaluation;if(ev){const lines=[`Overall textual coverage: ${ev.overall_score ?? 'n/a'}%`,`Evaluated worlds: ${ev.evaluated_worlds}/5`,''];for(const [name,item] of Object.entries(ev.worlds||{})){lines.push(`${name}: ${item.status==='unavailable'?'UNAVAILABLE':`${item.score}% (${item.passed}/${item.total})`}`);if(item.missing?.length)lines.push(`  Missing signals: ${item.missing.join(', ')}`);}lines.push('',ev.scope||'');document.getElementById('evaluation').textContent=lines.join('\\n');}else{document.getElementById('evaluation').textContent='No evaluation report in this cycle. Run the updated brain workflow.';}
   document.getElementById('worlds').replaceChildren();
   for(const [name,value] of Object.entries(s.worlds||{})){
    const box=document.createElement('article');box.className='card';

@@ -49,7 +49,9 @@ This repository is public. The workflow commits the question, model outputs, and
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.
-- Semantic/vector memory, world-specific datasets, scientific simulation lab, quality benchmarks, candidate comparison and rollback: not yet implemented.
+- Semantic/vector memory, world-specific datasets, and a scientific simulation lab: not yet implemented.
+- A deterministic rubric benchmark and baseline/candidate comparison CLI are implemented on the feature branch. The comparison detects per-world regressions and recommends human review; it does not judge semantic correctness or promote code.
+- Candidate rollback and a validated semantic-quality benchmark: not yet implemented.
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.
 
 See [ROADMAP.md](ROADMAP.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

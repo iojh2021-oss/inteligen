@@ -255,14 +255,24 @@ def experience_history(world: str, question: str = None, limit: int = 5) -> list
 
 
 def experience_summary() -> dict:
-    rows = _rows(
-        """SELECT world,outcome_status,COUNT(*),AVG(
-            CASE WHEN predicted_value IS NOT NULL AND observed_value IS NOT NULL
-            THEN ABS(predicted_value-observed_value) END)
-            FROM experiences GROUP BY world,outcome_status"""
+    """Summarize outcomes and numeric prediction error independently per world."""
+    counts = _rows(
+        """SELECT world,outcome_status,COUNT(*)
+           FROM experiences GROUP BY world,outcome_status"""
+    )
+    errors = _rows(
+        """SELECT world,AVG(ABS(predicted_value-observed_value))
+           FROM experiences
+           WHERE predicted_value IS NOT NULL AND observed_value IS NOT NULL
+           GROUP BY world"""
     )
     summary = {}
-    for world, status, count, error in rows:
+    for world in WORLDS:
+        summary[world] = {
+            "planned": 0, "confirmed": 0, "refuted": 0, "inconclusive": 0,
+            "resolved": 0, "mean_absolute_error": None,
+        }
+    for world, status, count in counts:
         item = summary.setdefault(world, {
             "planned": 0, "confirmed": 0, "refuted": 0, "inconclusive": 0,
             "resolved": 0, "mean_absolute_error": None,
@@ -270,6 +280,9 @@ def experience_summary() -> dict:
         item[status] = count
         if status != "planned":
             item["resolved"] += count
-        if error is not None:
-            item["mean_absolute_error"] = round(error, 6)
+    for world, error in errors:
+        summary.setdefault(world, {
+            "planned": 0, "confirmed": 0, "refuted": 0, "inconclusive": 0,
+            "resolved": 0, "mean_absolute_error": None,
+        })["mean_absolute_error"] = round(error, 6)
     return summary

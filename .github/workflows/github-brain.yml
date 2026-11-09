@@ -31,9 +31,6 @@ jobs:
   run-five-worlds:
     runs-on: ubuntu-latest
     timeout-minutes: 300
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     env:
       MODEL_NAME: qwen3:1.7b
       MODEL_BASE_URL: http://127.0.0.1:11434/v1

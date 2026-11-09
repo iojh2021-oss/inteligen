@@ -7,7 +7,7 @@ from starlette.routing import Route
 
 load_dotenv()  # must run before app modules read the environment
 
-from app import memory, model, simulation, safety, evaluation  # noqa: E402
+from app import memory, model, simulation, safety, evaluation, provenance, progress  # noqa: E402
 from app.orchestrator import run_five_worlds  # noqa: E402
 from app.worlds import WORLDS  # noqa: E402
 
@@ -23,7 +23,10 @@ async def home(request):
 
 
 async def health(request):
-    return JSONResponse({"ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS), "safety_guardrail_version": safety.GUARDRAIL_VERSION, "memory": memory.semantic_summary(), "experience_ledger": True, "simulation_lab": True})
+    return JSONResponse({"ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS),
+                         "safety_guardrail_version": safety.GUARDRAIL_VERSION,
+                         "memory": memory.semantic_summary(), "experience_ledger": True,
+                         "simulation_lab": True, "provenance_ledger": True})
 
 
 async def health_model(request):
@@ -60,6 +63,10 @@ async def metrics(request):
     return JSONResponse({"worlds": memory.metrics_summary()})
 
 
+async def get_progress(request):
+    return JSONResponse(progress.summary())
+
+
 async def get_experiences(request):
     world = request.query_params.get("world", "")
     question = request.query_params.get("q")
@@ -67,10 +74,8 @@ async def get_experiences(request):
         return _error(422, "world must be one of: " + ", ".join(WORLDS))
     try:
         limit = int(request.query_params.get("limit", "10"))
-        return JSONResponse({
-            "world": world,
-            "items": memory.experience_history(world, question, limit),
-        })
+        items = memory.experience_history(world, question, limit)
+        return JSONResponse({"world": world, "items": provenance.enrich(items)})
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
 
@@ -84,13 +89,10 @@ async def create_experience(request):
         return _error(422, "Body must be a JSON object")
     try:
         experience_id = memory.record_experience(
-            world=body.get("world"),
-            hypothesis=body.get("hypothesis"),
-            prediction=body.get("prediction"),
-            request_id=body.get("request_id"),
+            world=body.get("world"), hypothesis=body.get("hypothesis"),
+            prediction=body.get("prediction"), request_id=body.get("request_id"),
             expected_metric=body.get("expected_metric"),
-            predicted_value=body.get("predicted_value"),
-            confidence=body.get("confidence"),
+            predicted_value=body.get("predicted_value"), confidence=body.get("confidence"),
         )
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
@@ -109,12 +111,13 @@ async def resolve_experience(request):
     if not isinstance(body, dict):
         return _error(422, "Body must be a JSON object")
     try:
-        item = memory.resolve_experience(
-            experience_id=experience_id,
-            observed_outcome=body.get("observed_outcome"),
-            outcome_status=body.get("outcome_status"),
-            observed_value=body.get("observed_value"),
+        item = provenance.resolve_experience(
+            experience_id=experience_id, observed_outcome=body.get("observed_outcome"),
+            outcome_status=body.get("outcome_status"), observed_value=body.get("observed_value"),
             evidence_note=body.get("evidence_note"),
+            evidence_source_type=body.get("evidence_source_type", "unknown"),
+            evidence_reference=body.get("evidence_reference"),
+            reviewer_label=body.get("reviewer_label"),
         )
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
@@ -122,7 +125,7 @@ async def resolve_experience(request):
 
 
 async def experience_summary(request):
-    return JSONResponse({"worlds": memory.experience_summary()})
+    return JSONResponse({"worlds": memory.experience_summary(), "provenance": provenance.summary()})
 
 
 async def list_simulations(request):
@@ -137,9 +140,7 @@ async def run_simulation(request):
     if not isinstance(body, dict):
         return _error(422, "Body must be a JSON object")
     try:
-        result = simulation.run_simulation(
-            body.get("scenario"), body.get("parameters", {})
-        )
+        result = simulation.run_simulation(body.get("scenario"), body.get("parameters", {}))
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
     return JSONResponse(result, status_code=201)
@@ -169,18 +170,13 @@ async def attach_simulation_experience(request):
         return _error(422, "Body must be a JSON object")
     try:
         item = simulation.record_run_as_experience(
-            run_id=run_id,
-            world=body.get("world"),
-            hypothesis=body.get("hypothesis"),
-            prediction=body.get("prediction"),
-            expected_metric=body.get("expected_metric"),
-            predicted_value=body.get("predicted_value"),
-            confidence=body.get("confidence"),
+            run_id=run_id, world=body.get("world"), hypothesis=body.get("hypothesis"),
+            prediction=body.get("prediction"), expected_metric=body.get("expected_metric"),
+            predicted_value=body.get("predicted_value"), confidence=body.get("confidence"),
         )
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
     return JSONResponse(item, status_code=201)
-
 
 
 async def evaluate_outputs(request):
@@ -201,7 +197,8 @@ async def evaluate_outputs(request):
 async def evaluation_history(request):
     try:
         limit = int(request.query_params.get("limit", "100"))
-        return JSONResponse(evaluation.evaluation_history(limit))
+        run_type = request.query_params.get("run_type", "request")
+        return JSONResponse(evaluation.evaluation_history(limit, run_type))
     except (TypeError, ValueError) as exc:
         return _error(422, str(exc))
 
@@ -221,28 +218,26 @@ async def ask(request):
         result["evaluation"] = report
         return JSONResponse(result)
     except safety.SafetyRejected as exc:
-        return JSONResponse({"detail": str(exc), "blocked": True, "category": exc.category, "guardrail_version": safety.GUARDRAIL_VERSION}, status_code=422)
+        return JSONResponse({"detail": str(exc), "blocked": True, "category": exc.category,
+                             "guardrail_version": safety.GUARDRAIL_VERSION}, status_code=422)
     except model.ModelUnavailable as exc:
         return _error(503, str(exc))
 
 
 app = Starlette(routes=[
-    Route("/", home),
-    Route("/health", health),
-    Route("/health/model", health_model),
-    Route("/memory", get_memory),
-    Route("/memory/semantic", semantic_memory_status),
+    Route("/", home), Route("/health", health), Route("/health/model", health_model),
+    Route("/memory", get_memory), Route("/memory/semantic", semantic_memory_status),
     Route("/memory/semantic/backfill", semantic_memory_backfill, methods=["POST"]),
     Route("/memory/{memory_id}", forget_memory, methods=["DELETE"]),
-    Route("/metrics", metrics),
+    Route("/metrics", metrics), Route("/progress", get_progress),
     Route("/evaluations", evaluate_outputs, methods=["POST"]),
     Route("/evaluations/history", evaluation_history, methods=["GET"]),
     Route("/experiences", get_experiences, methods=["GET"]),
     Route("/experiences", create_experience, methods=["POST"]),
     Route("/experiences/summary", experience_summary, methods=["GET"]),
-    Route("/simulations/scenarios", list_simulations, methods=["GET"]),
+    Route("/simulations/scenarios", list_simulations),
     Route("/simulations/run", run_simulation, methods=["POST"]),
-    Route("/simulations/{run_id}", get_simulation, methods=["GET"]),
+    Route("/simulations/{run_id}", get_simulation),
     Route("/simulations/{run_id}/experience", attach_simulation_experience, methods=["POST"]),
     Route("/experiences/{experience_id}/resolve", resolve_experience, methods=["POST"]),
     Route("/ask", ask, methods=["POST"]),

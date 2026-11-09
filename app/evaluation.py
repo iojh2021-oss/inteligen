@@ -13,7 +13,7 @@ PASS_THRESHOLD = 70
 
 
 def _words(text: str) -> list[str]:
-    return re.findall(r"\\b[\\w'-]+\\b", str(text).casefold(), flags=re.UNICODE)
+    return re.findall(r"\b[\w'-]+\b", str(text).casefold(), flags=re.UNICODE)
 
 
 def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
@@ -29,7 +29,7 @@ def score_output(output: str, anchor_groups: list, min_words: int = 35) -> dict:
     matched = []
     for alternatives in anchor_groups:
         hits = [term for term in alternatives
-                if re.search(r"(?<!\\w)" + re.escape(term.casefold()) + r"(?!\\w)", normalized)]
+                if re.search(r"(?<!\w)" + re.escape(term.casefold()) + r"(?!\w)", normalized)]
         matched.append({"matched": bool(hits), "terms": hits})
 
     coverage = (sum(item["matched"] for item in matched) / len(matched)) if matched else 1.0
@@ -72,9 +72,7 @@ def evaluate_results(results: list[dict], benchmark_cases: list[dict]) -> dict:
     per_world = {
         name: {
             "mean_score": round(mean(scores), 2) if scores else 0,
-            "cases_passed": sum(
-                case["worlds"][name]["passed"] for case in case_reports
-            ),
+            "cases_passed": sum(case["worlds"][name]["passed"] for case in case_reports),
             "cases_total": len(case_reports),
         }
         for name, scores in world_scores.items()

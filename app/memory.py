@@ -1,11 +1,11 @@
 """Durable SQLite memory with provenance (request_id, world, timestamp), per-world
 retrieval, forgetting, and per-world capability metrics."""
-import re
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
 from app import config
+from app.retrieval import rank_rows
 
 
 def _db():
@@ -74,24 +74,17 @@ def recent(limit: int = 20):
     return [_item(r) for r in rows]
 
 
-def _tokens(text: str) -> set:
-    return {t for t in re.findall(r"\w+", text.lower()) if len(t) >= 2}
-
-
 def relevant(world: str, question: str, limit: int = 3):
-    """Keyword-overlap retrieval over this world's own past work (not a vector search).
-    Works for any script, including Persian. Ties are broken by recency."""
-    q = _tokens(question)
-    if not q:
-        return []
-    rows = _rows(f"SELECT {_COLS} FROM memories WHERE world=? ORDER BY id DESC LIMIT 200", (world,))
-    scored = []
-    for r in rows:
-        overlap = len(q & _tokens(r[2]))
-        if overlap:
-            scored.append((overlap, r[0], r))
-    scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
-    return [_item(s[2]) for s in scored[:limit]]
+    """Retrieve this world's best lexical matches using BM25-style ranking.
+
+    This is explainable keyword retrieval, not semantic/vector search. Results
+    remain isolated by world and retain timestamps and request provenance.
+    """
+    rows = _rows(
+        f"SELECT {_COLS} FROM memories WHERE world=? ORDER BY id DESC LIMIT 200",
+        (world,),
+    )
+    return [_item(row) for row in rank_rows(rows, question, limit)]
 
 
 def forget(memory_id: int) -> bool:

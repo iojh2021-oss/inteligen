@@ -2,6 +2,7 @@ name: Simulation Lab Verification
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     paths:
       - "app/**"
       - "tests/**"

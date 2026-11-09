@@ -7,7 +7,7 @@ from starlette.routing import Route
 
 load_dotenv()  # must run before app modules read the environment
 
-from app import memory, model  # noqa: E402
+from app import memory, model, simulation  # noqa: E402
 from app.orchestrator import run_five_worlds  # noqa: E402
 from app.worlds import WORLDS  # noqa: E402
 
@@ -113,6 +113,37 @@ async def experience_summary(request):
     return JSONResponse({"worlds": memory.experience_summary()})
 
 
+async def list_simulations(request):
+    return JSONResponse({"scenarios": simulation.SCENARIOS})
+
+
+async def run_simulation(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    if not isinstance(body, dict):
+        return _error(422, "Body must be a JSON object")
+    try:
+        result = simulation.run_simulation(
+            body.get("scenario"), body.get("parameters", {})
+        )
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+    return JSONResponse(result, status_code=201)
+
+
+async def get_simulation(request):
+    try:
+        run_id = int(request.path_params["run_id"])
+    except ValueError:
+        return _error(422, "run_id must be an integer")
+    result = simulation.get_run(run_id)
+    if result is None:
+        return _error(404, "Simulation run not found")
+    return JSONResponse(result)
+
+
 async def ask(request):
     try:
         body = await request.json()
@@ -137,6 +168,9 @@ app = Starlette(routes=[
     Route("/experiences", get_experiences, methods=["GET"]),
     Route("/experiences", create_experience, methods=["POST"]),
     Route("/experiences/summary", experience_summary, methods=["GET"]),
+    Route("/simulations/scenarios", list_simulations, methods=["GET"]),
+    Route("/simulations/run", run_simulation, methods=["POST"]),
+    Route("/simulations/{run_id}", get_simulation, methods=["GET"]),
     Route("/experiences/{experience_id}/resolve", resolve_experience, methods=["POST"]),
     Route("/ask", ask, methods=["POST"]),
 ])

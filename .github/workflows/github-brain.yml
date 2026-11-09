@@ -93,6 +93,7 @@ jobs:
           else
             git commit -m "Record GitHub brain cycle"
             git push
+          fi
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

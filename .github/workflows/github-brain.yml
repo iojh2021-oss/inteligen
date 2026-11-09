@@ -19,7 +19,7 @@ on:
     - cron: "17 3 * * *"
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -41,6 +41,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Restore long-term SQLite memory
+        uses: actions/cache/restore@v4
+        with:
+          path: data/memory.sqlite3
+          key: inteligen-memory-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            inteligen-memory-v1-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -81,19 +89,12 @@ jobs:
       - name: Run central brain and five worlds
         run: python scripts/run_github_cycle.py
 
-      - name: Persist public memory and dashboard state
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # data/ is ignored locally; force-add the intended durable SQLite memory.
-          git add -f data/memory.sqlite3
-          git add docs/state/latest.json docs/state/metrics.json
-          if git diff --cached --quiet; then
-            echo "No state changes to commit."
-          else
-            git commit -m "Record GitHub brain cycle"
-            git push
-          fi
+      - name: Save long-term SQLite memory
+        if: always() && hashFiles('data/memory.sqlite3') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/memory.sqlite3
+          key: inteligen-memory-v1-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

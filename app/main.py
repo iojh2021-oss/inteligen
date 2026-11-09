@@ -203,7 +203,11 @@ async def ask(request):
     if not isinstance(question, str) or not (2 <= len(question) <= 6000):
         return _error(422, "question must be a string of 2 to 6000 characters")
     try:
-        return JSONResponse(await run_five_worlds(question))
+        result = await run_five_worlds(question)
+        report = evaluation.evaluate_worlds(result["worlds"])
+        report["persistence"] = evaluation.record_evaluation(report)
+        result["evaluation"] = report
+        return JSONResponse(result)
     except safety.SafetyRejected as exc:
         return JSONResponse({"detail": str(exc), "blocked": True, "category": exc.category, "guardrail_version": safety.GUARDRAIL_VERSION}, status_code=422)
     except model.ModelUnavailable as exc:

@@ -6,9 +6,15 @@ import re
 GUARDRAIL_VERSION = "1.0"
 _RULES = (
     ("weapon_or_explosive_operation", re.compile(
-        r"(?:how\s+to|steps?\s+to|instructions?\s+to|guide\s+to|چطور|چگونه|روش\s+ساخت|آموزش\s+ساخت|مراحل\s+ساخت)"
-        r".{0,100}(?:build|make|construct|assemble|fabricate|use|fire|shoot|بساز|ساخت|استفاده|شلیک)"
-        r".{0,70}(?:bomb|explosive|firearm|gun|weapon|rifle|pistol|بمب|مواد\s+منفجره|اسلحه|سلاح|تفنگ|کلت)",
+        r"(?:how\s+to|steps?\s+to|instructions?\s+to|guide\s+to)"
+        r".{0,100}(?:build|make|construct|assemble|fabricate|use|fire|shoot)"
+        r".{0,70}(?:bomb|explosive|firearm|gun|weapon|rifle|pistol)|"
+        r"(?:چطور|چگونه|روش|آموزش|مراحل)"
+        r".{0,80}(?:بمب|مواد\s+منفجره|اسلحه|سلاح|تفنگ|کلت)"
+        r".{0,60}(?:بساز|ساخت|استفاده|شلیک)|"
+        r"(?:چطور|چگونه|روش\s+ساخت|آموزش\s+ساخت|مراحل\s+ساخت)"
+        r".{0,80}(?:بساز|ساخت|استفاده|شلیک)"
+        r".{0,60}(?:بمب|مواد\s+منفجره|اسلحه|سلاح|تفنگ|کلت)",
         re.IGNORECASE | re.DOTALL)),
     ("self_harm_instructions", re.compile(
         r"(?:how\s+to|steps?\s+to|instructions?\s+for|ways?\s+to|چطور|چگونه|روش|راهی\s+برای)"

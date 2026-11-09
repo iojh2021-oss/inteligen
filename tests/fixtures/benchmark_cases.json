@@ -1,0 +1,26 @@
+[
+  {
+    "id": "knowledge-and-reasoning",
+    "prompt": "Explain how to evaluate whether a small AI system has improved at answering factual questions. Separate evidence from assumptions and propose a safe, repeatable evaluation.",
+    "min_words": 35,
+    "worlds": {
+      "knowledge": [["evidence", "source", "verified"], ["fact", "data"], ["uncertainty", "limitation"]],
+      "reasoning": [["assumption", "premise"], ["step", "logic"], ["counterexample", "alternative"], ["conclusion", "therefore"]],
+      "science": [["hypothesis"], ["prediction"], ["experiment", "test"], ["control", "baseline"], ["limitation", "risk"]],
+      "creativity": [["alternative", "option"], ["approach", "idea"], ["trade-off", "tradeoff"], ["original", "novel"]],
+      "learning": [["metric", "measure"], ["baseline", "comparison"], ["regression", "failure"], ["improvement", "iteration"]]
+    }
+  },
+  {
+    "id": "retrieval-experiment",
+    "prompt": "Propose a safe, repeatable experiment comparing two long-term memory retrieval methods. Define what to measure, how to avoid leakage, and how to decide whether a change is genuinely better.",
+    "min_words": 35,
+    "worlds": {
+      "knowledge": [["dataset", "sample"], ["relevance", "relevant"], ["source", "provenance"], ["limitation", "uncertainty"]],
+      "reasoning": [["assumption", "hypothesis"], ["step", "procedure"], ["fair", "control"], ["conclusion", "decision"]],
+      "science": [["hypothesis"], ["prediction"], ["experiment", "protocol"], ["control", "held-out"], ["result", "outcome"]],
+      "creativity": [["alternative", "variant"], ["approach", "method"], ["trade-off", "tradeoff"], ["novel", "creative"]],
+      "learning": [["metric", "measure"], ["baseline", "benchmark"], ["regression", "degradation"], ["rollback", "revert"], ["improvement", "gain"]]
+    }
+  }
+]

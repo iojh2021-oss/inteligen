@@ -10,7 +10,7 @@ Inteligen is an experimental multi-perspective AI system coordinated by a centra
 - **Science world:** testable hypotheses, predictions and safe experiments.
 - **Creativity world:** alternative ideas and trade-offs.
 - **Learning world:** reviews the other four worlds and proposes measurable improvements.
-- **Long-term memory:** SQLite with per-world retrieval, timestamps and request provenance.
+- **Long-term memory:** SQLite with per-world retrieval, timestamps, request provenance, and structured hypothesis/prediction/outcome records.
 - **Simulation and evolution:** planned next phases; candidate changes must be evaluated and human-approved.
 
 ## Run on GitHub without a separate server
@@ -45,11 +45,21 @@ This repository is public. The workflow commits the question, model outputs, and
 
 - Five specialist roles and central synthesis: implemented.
 - Per-world failure isolation and reliability/latency metrics: implemented.
-- SQLite memory with per-world keyword retrieval and forgetting endpoint: implemented.
+- SQLite memory with per-world BM25-style lexical retrieval and forgetting endpoint: implemented on the feature branch; this is not semantic/vector retrieval.
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.
-- Semantic/vector memory, world-specific datasets, scientific simulation lab, quality benchmarks, candidate comparison and rollback: not yet implemented.
+- Structured experience records are implemented on the feature branch: worlds can store hypotheses and predictions, resolve them with observed outcomes, and review only their own history. Numeric absolute prediction error is reported when comparable values exist; the API does not infer whether an outcome is confirmed or refuted.
+- A bounded deterministic simulation lab is now implemented on the feature branch with two built-in scenarios (logistic population growth and exponential decay), input validation, explicit assumptions, persisted run history, and SHA-256 reproducibility fingerprints. It executes no user-supplied code. Simulation runs can be attached to a world's experience ledger as **inconclusive simulation-only evidence**; they are never auto-labelled as real-world confirmation/refutation.
+- Simulation API: `GET /simulations/scenarios`, `POST /simulations/run`, `GET /simulations/{run_id}`, and `POST /simulations/{run_id}/experience`.
+- Semantic/vector memory, world-specific datasets, stochastic experiments, and multi-variable scientific simulation remain unimplemented.
+- A deterministic rubric benchmark and baseline/candidate comparison CLI are implemented on the feature branch. The comparison detects per-world regressions and recommends human review; it does not judge semantic correctness or promote code.
+- Candidate rollback and a validated semantic-quality benchmark: not yet implemented.
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.
 
 See [ROADMAP.md](ROADMAP.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+
+## Simulation Lab Verification
+
+The dedicated `Simulation Lab Verification` workflow runs the full test suite, compiles the application and scripts, then checks that both built-in simulation scenarios produce stable fingerprints and persist retrievable results. It runs on pull requests and pushes to the development branch. The first smoke-check attempt exposed a script import-path issue; the verifier now explicitly adds the repository root to Python's import path.

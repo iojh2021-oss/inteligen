@@ -82,3 +82,33 @@ def test_ask_response_includes_and_persists_evaluation(fake, db):
         "knowledge", "reasoning", "science", "creativity", "learning"
     }
     assert len(evaluation_history()["worlds"]) == 5
+
+
+def test_fixed_benchmark_uses_all_five_worlds_and_is_versioned(fake):
+    import asyncio
+    from app.evaluation import FIXED_BENCHMARK_VERSION, run_fixed_benchmark
+
+    report = asyncio.run(run_fixed_benchmark(fake))
+    assert report["benchmark_version"] == FIXED_BENCHMARK_VERSION
+    assert set(report["worlds"]) == {
+        "knowledge", "reasoning", "science", "creativity", "learning"
+    }
+    assert len(fake.calls) == 5
+
+
+def test_request_and_fixed_benchmark_histories_are_isolated(db):
+    from app.evaluation import (
+        evaluate_worlds, evaluation_history, record_evaluation,
+    )
+
+    report = evaluate_worlds({"knowledge": "Concept definition, fact, evidence, uncertainty."})
+    record_evaluation(report, run_type="request")
+    record_evaluation(report, run_type="fixed_benchmark")
+
+    request_history = evaluation_history(run_type="request")
+    benchmark_history = evaluation_history(run_type="fixed_benchmark")
+    assert request_history["worlds"]["knowledge"]["latest"]["run_type"] == "request"
+    assert benchmark_history["worlds"]["knowledge"]["latest"]["run_type"] == "fixed_benchmark"
+    assert evaluation_history(run_type="all")["worlds"]["knowledge"]["latest"]["run_type"] in {
+        "request", "fixed_benchmark"
+    }

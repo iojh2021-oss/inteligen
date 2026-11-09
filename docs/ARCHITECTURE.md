@@ -63,8 +63,8 @@ The existing root dashboard route is preserved. The health endpoint reports the 
 
 ## Multilingual semantic memory
 - Embeddings are generated locally with FastEmbed and `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (384 dimensions, multilingual model).
-- Embedding vectors are stored in SQLite by memory ID, world, and model version. The five worlds never retrieve each other's memories.
+- Embedding vectors for both ordinary memories and structured experience records are stored in SQLite by record ID, world, and model version. The five worlds never retrieve each other's memories.
 - Hybrid ranking uses reciprocal-rank fusion rather than directly adding BM25 and cosine scores with different scales.
-- Existing memories can be indexed incrementally with `POST /memory/semantic/backfill?limit=500`; status is exposed at `GET /memory/semantic`.
+- Existing memories and experience records can be indexed incrementally with `POST /memory/semantic/backfill?limit=500`; status is exposed at `GET /memory/semantic`. Resolving an experience refreshes its vector so the observation and evidence note can affect later retrieval.
 - The primary memory save succeeds even if embedding inference fails. Retrieval then uses BM25 as a fallback. Deleting a memory also deletes its stored vector.
 - GitHub Actions restores/saves the FastEmbed model cache separately from SQLite memory. Unit tests use deterministic fake vectors and do not download the model.

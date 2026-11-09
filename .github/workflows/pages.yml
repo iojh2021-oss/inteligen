@@ -1,6 +1,7 @@
 name: Deploy Pages
 
 # Publishes the static dashboard (docs/) whenever it changes, without running the model.
+# Live state (docs/state) is taken from the state branch so the page never shows stale data.
 # Requires Settings -> Pages -> Source: GitHub Actions.
 on:
   push:
@@ -26,6 +27,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Restore state from the state branch
+        run: bash scripts/state_sync.sh pull
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

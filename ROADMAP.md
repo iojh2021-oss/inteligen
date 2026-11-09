@@ -34,6 +34,6 @@ No self-modifying production code, autonomous deployment, arbitrary shell execut
 - Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against the GitHub-hosted model cycle to confirm.
 - Phase 2: partial. Per-world retrieval and reliability metrics exist; world-specific datasets and quality metrics do not yet.
 - Phase 3: partial. Provenance, timestamps, lexical retrieval, forgetting, and structured experience lifecycle exist on the feature branch. Correction/versioning, source verification, and approval of shared memories do not.
-- Phase 4: not started; the experience ledger can record results but does not execute experiments or provide an isolated simulation sandbox.
+- Phase 4: partial. A bounded deterministic simulation module now executes two reviewed built-in scenarios, persists results, and fingerprints reproducible inputs/outputs. It is not yet a general scientific sandbox: there are no arbitrary models, stochastic runs, multi-variable experiment plans, or automated evidence adjudication.
 - Phase 5: partial; baseline comparison is implemented, but held-out semantic evaluation and calibrated quality metrics remain outstanding.
 - Phase 6: not started; candidate generation, safe patch testing, and rollback workflow remain outstanding.

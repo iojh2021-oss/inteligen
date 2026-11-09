@@ -16,11 +16,11 @@ SCENARIOS = {
     "logistic_population": {
         "description": "Discrete logistic growth with optional constant harvest.",
         "parameters": {
-            "initial_population": {"type": "number", "minimum": 0.0},
+            "initial_population": {"type": "number", "minimum": 0.0, "maximum": 1000000000.0},
             "growth_rate": {"type": "number", "minimum": 0.0, "maximum": 2.0},
-            "carrying_capacity": {"type": "number", "minimum": 0.001},
+            "carrying_capacity": {"type": "number", "minimum": 0.001, "maximum": 1000000000.0},
             "steps": {"type": "integer", "minimum": 1, "maximum": 500},
-            "harvest_per_step": {"type": "number", "minimum": 0.0, "default": 0.0},
+            "harvest_per_step": {"type": "number", "minimum": 0.0, "maximum": 1000000000.0, "default": 0.0},
         },
         "assumptions": [
             "The environment and carrying capacity remain constant.",
@@ -32,7 +32,7 @@ SCENARIOS = {
     "exponential_decay": {
         "description": "Deterministic proportional decay of a quantity over fixed steps.",
         "parameters": {
-            "initial_value": {"type": "number", "minimum": 0.0},
+            "initial_value": {"type": "number", "minimum": 0.0, "maximum": 1000000000000.0},
             "decay_rate": {"type": "number", "minimum": 0.0, "maximum": 1.0},
             "steps": {"type": "integer", "minimum": 1, "maximum": 500},
         },

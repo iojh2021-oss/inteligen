@@ -7,7 +7,7 @@ from starlette.routing import Route
 
 load_dotenv()  # must run before app modules read the environment
 
-from app import memory, model, simulation, safety  # noqa: E402
+from app import memory, model, simulation, safety, evaluation  # noqa: E402
 from app.orchestrator import run_five_worlds  # noqa: E402
 from app.worlds import WORLDS  # noqa: E402
 
@@ -170,6 +170,30 @@ async def attach_simulation_experience(request):
     return JSONResponse(item, status_code=201)
 
 
+
+async def evaluate_outputs(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    if not isinstance(body, dict) or not isinstance(body.get("worlds"), dict):
+        return _error(422, "Body must contain a worlds object")
+    try:
+        report = evaluation.evaluate_worlds(body["worlds"])
+        persisted = evaluation.record_evaluation(report)
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+    return JSONResponse({**report, "persistence": persisted}, status_code=201)
+
+
+async def evaluation_history(request):
+    try:
+        limit = int(request.query_params.get("limit", "100"))
+        return JSONResponse(evaluation.evaluation_history(limit))
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+
+
 async def ask(request):
     try:
         body = await request.json()
@@ -193,6 +217,8 @@ app = Starlette(routes=[
     Route("/memory", get_memory),
     Route("/memory/{memory_id}", forget_memory, methods=["DELETE"]),
     Route("/metrics", metrics),
+    Route("/evaluations", evaluate_outputs, methods=["POST"]),
+    Route("/evaluations/history", evaluation_history, methods=["GET"]),
     Route("/experiences", get_experiences, methods=["GET"]),
     Route("/experiences", create_experience, methods=["POST"]),
     Route("/experiences/summary", experience_summary, methods=["GET"]),

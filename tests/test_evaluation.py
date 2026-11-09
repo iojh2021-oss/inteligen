@@ -127,3 +127,13 @@ def test_comparison_rejects_incomplete_baseline_or_candidate():
 def test_comparison_validates_regression_tolerance():
     with pytest.raises(ValueError):
         compare_reports(_report(), _report(), max_regression=-1)
+
+
+
+def test_comparison_rejects_reports_with_incomplete_case_flags():
+    baseline = _report()
+    candidate = _report()
+    candidate["cases"][0]["complete"] = False
+    result = compare_reports(baseline, candidate)
+    assert result["status"] == "not_comparable"
+    assert "candidate_case_incomplete" in result["reasons"]

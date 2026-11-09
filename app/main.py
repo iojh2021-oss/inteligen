@@ -8,6 +8,7 @@ from starlette.routing import Route
 load_dotenv()  # must run before app modules read the environment
 
 from app import memory, model  # noqa: E402
+from app.evaluation import compare_candidate, experiment_history  # noqa: E402
 from app.orchestrator import run_five_worlds  # noqa: E402
 from app.worlds import WORLDS  # noqa: E402
 
@@ -48,6 +49,28 @@ async def metrics(request):
     return JSONResponse({"worlds": memory.metrics_summary()})
 
 
+async def lab_compare(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    candidate = body.get("candidate_instruction") if isinstance(body, dict) else None
+    if not isinstance(candidate, str) or not candidate.strip():
+        return _error(422, "candidate_instruction must be a non-empty string")
+    if len(candidate) > 1200:
+        return _error(422, "candidate_instruction must be at most 1200 characters")
+    try:
+        return JSONResponse(await compare_candidate(candidate))
+    except model.ModelUnavailable as exc:
+        return _error(503, str(exc))
+    except ValueError as exc:
+        return _error(422, str(exc))
+
+
+async def lab_history(request):
+    return JSONResponse({"experiments": experiment_history(20)})
+
+
 async def ask(request):
     try:
         body = await request.json()
@@ -69,5 +92,7 @@ app = Starlette(routes=[
     Route("/memory", get_memory),
     Route("/memory/{memory_id}", forget_memory, methods=["DELETE"]),
     Route("/metrics", metrics),
+    Route("/lab/compare", lab_compare, methods=["POST"]),
+    Route("/lab/experiments", lab_history),
     Route("/ask", ask, methods=["POST"]),
 ])

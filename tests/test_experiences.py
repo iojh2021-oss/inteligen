@@ -25,9 +25,10 @@ def test_experience_lifecycle_records_prediction_and_observation(db):
     resolved = memory.resolve_experience(
         item_id,
         observed_outcome="The simulation measured an error of 3.5",
-        outcome_status="refuted",
+        outcome_status="inconclusive",
         observed_value=3.5,
         evidence_note="Recorded from deterministic test fixture",
+        evidence_source_type="simulation",
     )
     assert resolved["outcome_status"] == "refuted"
     assert resolved["absolute_error"] == 1.5
@@ -43,9 +44,9 @@ def test_experience_history_is_world_scoped(db):
 
 def test_experience_cannot_be_resolved_twice(db):
     item_id = memory.record_experience("knowledge", "hypothesis", "prediction")
-    memory.resolve_experience(item_id, "observed", "confirmed")
+    memory.resolve_experience(item_id, "observed", "inconclusive")
     with pytest.raises(ValueError, match="already resolved"):
-        memory.resolve_experience(item_id, "second observation", "refuted")
+        memory.resolve_experience(item_id, "second observation", "inconclusive")
 
 
 def test_experience_rejects_unknown_world_and_invalid_confidence(db):
@@ -61,7 +62,11 @@ def test_experience_summary_reports_status_and_prediction_error(db):
     item_id = memory.record_experience(
         "science", "numeric prediction", "predict 10", predicted_value=10
     )
-    memory.resolve_experience(item_id, "observed 13", "confirmed", observed_value=13)
+    memory.resolve_experience(
+        item_id, "observed 13", "confirmed", observed_value=13,
+        evidence_note="Measured in a reviewed test", evidence_source_type="manual_observation",
+        reviewer_label="human-review",
+    )
     memory.record_experience("science", "another hypothesis", "future result")
     summary = memory.experience_summary()["science"]
     assert summary["confirmed"] == 1
@@ -87,6 +92,8 @@ def test_experience_api_create_resolve_history_and_summary(db):
         "outcome_status": "refuted",
         "observed_value": 7,
         "evidence_note": "Fixed test observation",
+        "evidence_source_type": "manual_observation",
+        "reviewer_label": "human-review",
     })
     assert resolved.status_code == 200
     assert resolved.json()["absolute_error"] == 2

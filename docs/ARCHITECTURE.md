@@ -3,7 +3,7 @@
 ## Request path
 Browser -> Starlette -> central orchestrator -> knowledge / reasoning / science / creativity (independent) -> learning (reviews those four) -> central synthesis -> browser.
 
-Each world retrieves its own relevant past work from SQLite memory (keyword overlap, with timestamps and request_id provenance). A failing world is recorded and reported but does not abort the request; only a total failure returns 503. Per-world success rate, latency and output size are stored and exposed at `/metrics`.
+Each world retrieves its own relevant past work from SQLite memory. Retrieval is world-scoped and uses deterministic BM25-style lexical ranking over each world's latest 200 records; timestamps and request_id provenance are retained. This is not semantic/vector search. A failing world is recorded and reported but does not abort the request; only a total failure returns 503. Per-world success rate, latency and output size are stored and exposed at `/metrics`.
 
 ## Endpoints
 `POST /ask`, `GET /memory`, `DELETE /memory/{id}` (forgetting), `GET /metrics`, `GET /health`, `GET /health/model` (probes the local model server).
@@ -26,7 +26,7 @@ A 4B model is a practical starting point, not a claim that it is the strongest m
 
 ## Known limitations
 - Five worlds currently use one underlying model with different system prompts. They are not five independently trained models.
-- Memory retrieval is keyword overlap over each world's last 200 entries, not a semantic vector search. Memories are not yet reviewed/approved before sharing.
+- BM25-style retrieval improves lexical ranking but does not understand semantic similarity or paraphrases. Memories are not yet reviewed/approved before sharing.
 - Per-world metrics measure reliability and speed only, not answer quality; quality needs the Phase 5 evaluation harness.
 - No fine-tuning or automatic architecture mutation is implemented.
 - Model endpoint availability and quality must be tested in the target environment.

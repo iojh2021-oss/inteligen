@@ -9,6 +9,13 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+# Make the repository root importable when this file is launched by path
+# (Python otherwise puts only the scripts/ directory at sys.path[0]).
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+os.chdir(REPOSITORY_ROOT)
+sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from app import memory, model
 from app.orchestrator import run_five_worlds

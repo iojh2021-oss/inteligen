@@ -19,7 +19,7 @@ def _new_experience(world="science"):
 
 def test_confirmed_experience_requires_reviewable_evidence(db):
     experience_id = _new_experience()
-    with pytest.raises(ValueError, match="manual_observation or external_reference"):
+    with pytest.raises(ValueError, match="unknown evidence can only produce an inconclusive"):
         provenance.resolve_experience(
             experience_id, "It happened", "confirmed",
             evidence_note="A note", evidence_source_type="unknown",

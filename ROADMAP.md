@@ -13,8 +13,8 @@ The project's non-negotiable destination is:
 
 ## Development phases
 1. Stabilize the current five-role prototype and prove the model adapter works end-to-end.
-2. Add world-specific state, datasets, metrics, and memory retrieval.
-3. Add durable long-term memory with provenance, timestamps, and correction/forgetting support.
+2. Add world-specific state, datasets, metrics, and memory retrieval. **Current partial progress:** per-world memory is isolated and now uses deterministic BM25-style lexical ranking on the feature branch; world-specific datasets and capability-quality metrics remain outstanding.
+3. Add durable long-term memory with provenance, timestamps, correction/forgetting support, and approved sharing.
 4. Build a sandboxed simulation and experiment runner.
 5. Add a reproducible evaluation harness and baseline comparisons.
 6. Add a proposal-only evolution loop: generate candidate changes, test in isolation, compare on held-out tests, and require human approval before promotion.
@@ -31,7 +31,7 @@ The project's non-negotiable destination is:
 No self-modifying production code, autonomous deployment, arbitrary shell execution, or unrestricted external tool access. The evolution engine proposes and evaluates changes; a human approves promotion. Model output is untrusted input.
 
 ## Status
-- Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against your local model server to confirm.
-- Phase 2: partial. Per-world retrieval and reliability metrics exist; per-world datasets and quality metrics do not yet.
+- Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against the GitHub-hosted model cycle to confirm.
+- Phase 2: partial. Per-world retrieval and reliability metrics exist; world-specific datasets and quality metrics do not yet.
 - Phase 3: started. Provenance, timestamps and forgetting exist; correction and approval of shared memories do not.
 - Phases 4-6: not started.

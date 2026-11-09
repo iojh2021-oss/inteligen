@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inteligen · Five Worlds</title>
+<style>
+:root{color-scheme:dark;--bg:#08111f;--panel:#111f33;--line:#263b56;--muted:#9bb0ca;--ink:#edf5ff;--accent:#76b7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172c49,var(--bg) 58%);color:var(--ink);font:15px/1.6 system-ui,sans-serif}
+main{max-width:1100px;margin:auto;padding:28px 18px 64px}header{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.1;margin:12px 0}.muted{color:var(--muted)}.tag{border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:#b9d9ff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
+.card,.panel{background:linear-gradient(145deg,#14253c,#0e1a2b);border:1px solid var(--line);border-radius:16px;padding:17px;min-width:0}
+.card h2{font-size:1rem;margin:0 0 6px}.card p{margin:0;color:var(--muted)}
+.panel{margin-top:16px}.panel h2{margin:0 0 12px;font-size:1.15rem}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;margin:0;color:#dceaff}
+a{color:var(--accent)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.action{display:inline-block;padding:10px 14px;border:1px solid #4775a7;border-radius:10px;text-decoration:none;background:#16375b}
+small{color:var(--muted)}.metric{font-size:1.5rem;font-weight:700}
+#error{color:#ffb8a8}
+</style>
+</head>
+<body><main>
+<header><div><span class="tag">SERVERLESS · GITHUB ACTIONS</span><h1>Inteligen</h1><p class="muted">One central brain coordinating five specialist worlds, durable memory, and measurable evaluation.</p></div><span id="status" class="tag">Loading latest cycle…</span></header>
+<div class="grid">
+<div class="card"><h2>🌐 Knowledge</h2><p>Evidence, concepts, source quality</p></div>
+<div class="card"><h2>🧩 Reasoning</h2><p>Logic, assumptions, problem solving</p></div>
+<div class="card"><h2>🔬 Science</h2><p>Hypotheses, predictions, safe experiments</p></div>
+<div class="card"><h2>🎨 Creativity</h2><p>Alternative ideas and trade-offs</p></div>
+<div class="card"><h2>🧠 Learning</h2><p>Reviews the other worlds and proposes measurable improvements</p></div>
+</div>
+<div class="actions"><a class="action" href="https://github.com/iojh2021-oss/inteligen/actions/workflows/github-brain.yml">Run / inspect a brain cycle on GitHub</a><a class="action" href="https://github.com/iojh2021-oss/inteligen">Repository & source</a></div>
+<section class="panel"><h2>Central brain · Latest synthesis</h2><pre id="answer">Waiting for the first GitHub Actions run…</pre></section>
+<section class="panel"><h2>Five-world results</h2><div id="worlds" class="grid"></div></section>
+<section class="panel"><h2>Evaluation & execution</h2><pre id="metrics">Loading metrics…</pre><p id="error"></p></section>
+<p class="muted"><small>Execution happens only when a GitHub Actions workflow is triggered. It is not an always-on process. This public repository stores the submitted question, outputs, and SQLite memory in Git history. Never submit passwords, API keys, private personal data, or confidential material.</small></p>
+</main>
+<script>
+async function load(){
+ const status=document.getElementById('status');
+ try{
+  const [sr,mr]=await Promise.all([fetch('./state/latest.json?'+Date.now()),fetch('./state/metrics.json?'+Date.now())]);
+  if(!sr.ok)throw Error('No completed brain cycle yet. Start one from the GitHub Actions link.');
+  const s=await sr.json();document.getElementById('answer').textContent=s.answer||'No synthesis available';
+  document.getElementById('worlds').replaceChildren();
+  for(const [name,value] of Object.entries(s.worlds||{})){
+   const box=document.createElement('article');box.className='card';
+   const h=document.createElement('h2');h.textContent=name;
+   const p=document.createElement('pre');p.textContent=value;
+   box.append(h,p);document.getElementById('worlds').append(box);
+  }
+  status.textContent='Last run: '+new Date(s.timestamp).toLocaleString();
+  if(mr.ok){const m=await mr.json();document.getElementById('metrics').textContent=JSON.stringify(m,null,2);}
+  document.getElementById('error').textContent=Object.keys(s.errors||{}).length?'Some worlds failed; see their status above.':'All five worlds completed.';
+ }catch(e){status.textContent='Awaiting run';document.getElementById('error').textContent=e.message;document.getElementById('answer').textContent='No published result is available yet.';document.getElementById('metrics').textContent='Metrics appear after the first successful run.';}
+}
+load();
+</script></body></html>

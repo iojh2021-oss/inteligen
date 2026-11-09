@@ -1,0 +1,52 @@
+name: Simulation Lab Verification
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "scripts/verify_simulation_lab.py"
+      - "requirements.txt"
+      - ".github/workflows/simulation-lab-verification.yml"
+  push:
+    branches:
+      - feature/hybrid-memory-retrieval
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "scripts/verify_simulation_lab.py"
+      - "requirements.txt"
+      - ".github/workflows/simulation-lab-verification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulation-lab:
+    name: Test, compile, and deterministic smoke check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_PATH: /tmp/inteligen-simulation-verification.sqlite3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run complete test suite
+        run: pytest -q
+
+      - name: Compile application
+        run: python -m compileall -q app scripts
+
+      - name: Verify deterministic simulation persistence
+        run: python scripts/verify_simulation_lab.py

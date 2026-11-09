@@ -23,7 +23,7 @@ async def home(request):
 
 
 async def health(request):
-    return JSONResponse({"ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS), "safety_guardrail_version": safety.GUARDRAIL_VERSION, "memory_retrieval": "bm25_lexical", "experience_ledger": True, "simulation_lab": True})
+    return JSONResponse({"ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS), "safety_guardrail_version": safety.GUARDRAIL_VERSION, "memory": memory.semantic_summary(), "experience_ledger": True, "simulation_lab": True})
 
 
 async def health_model(request):
@@ -32,6 +32,18 @@ async def health_model(request):
 
 async def get_memory(request):
     return JSONResponse({"items": memory.recent(30)})
+
+
+async def semantic_memory_status(request):
+    return JSONResponse(memory.semantic_summary())
+
+
+async def semantic_memory_backfill(request):
+    try:
+        limit = int(request.query_params.get("limit", "500"))
+        return JSONResponse(memory.backfill_semantic(limit))
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
 
 
 async def forget_memory(request):
@@ -219,6 +231,8 @@ app = Starlette(routes=[
     Route("/health", health),
     Route("/health/model", health_model),
     Route("/memory", get_memory),
+    Route("/memory/semantic", semantic_memory_status),
+    Route("/memory/semantic/backfill", semantic_memory_backfill, methods=["POST"]),
     Route("/memory/{memory_id}", forget_memory, methods=["DELETE"]),
     Route("/metrics", metrics),
     Route("/evaluations", evaluate_outputs, methods=["POST"]),

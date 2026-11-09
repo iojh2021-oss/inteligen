@@ -358,9 +358,14 @@ def record_experience(
                 (world, request_id, hypothesis.strip(), prediction.strip(), expected_metric,
                  predicted_value, confidence, _now()),
             )
-            return int(cur.lastrowid)
+            experience_id = int(cur.lastrowid)
     finally:
         conn.close()
+    try:
+        _index_experience(experience_id, world, hypothesis.strip() + " " + prediction.strip())
+    except semantic.SemanticUnavailable:
+        pass
+    return experience_id
 
 
 def resolve_experience(
@@ -399,9 +404,14 @@ def resolve_experience(
                 f"SELECT {_EXPERIENCE_COLS} FROM experiences WHERE id=?",
                 (experience_id,),
             ).fetchone()
-            return _experience_item(row)
     finally:
         conn.close()
+    item = _experience_item(row)
+    try:
+        _index_experience(experience_id, item["world"], _experience_text(item))
+    except semantic.SemanticUnavailable:
+        pass
+    return item
 
 
 def experience_history(world: str, question: str = None, limit: int = 5) -> list[dict]:
@@ -418,10 +428,59 @@ def experience_history(world: str, question: str = None, limit: int = 5) -> list
             (row[0], row[1], row[3], " ".join(str(x or "") for x in (row[4], row[7], row[11])), row[12], row[2])
             for row in rows
         ]
-        ranked = rank_rows(rankable, question, limit)
-        selected_ids = {row[0] for row in ranked}
-        rows = [row for row in rows if row[0] in selected_ids]
-        rows.sort(key=lambda row: next(i for i, item in enumerate(ranked) if item[0] == row[0]))
+        lexical = rank_rows(rankable, question, limit)
+        fused = {}
+        for rank, item in enumerate(lexical, start=1):
+            fused[int(item[0])] = fused.get(int(item[0]), 0.0) + 1.0 / (60 + rank)
+
+        if semantic.enabled() and rows:
+            try:
+                import json
+                query_vector = semantic.embed_text(question)
+                ids = [int(row[0]) for row in rows]
+                placeholders = ",".join("?" for _ in ids)
+                indexed = _rows(
+                    f"""SELECT experience_id,vector_json
+                        FROM semantic_experience_embeddings
+                        WHERE world=? AND model_version=? AND experience_id IN ({placeholders})""",
+                    (world, semantic.MODEL_VERSION, *ids),
+                )
+                vectors = {int(item[0]): json.loads(item[1]) for item in indexed}
+                by_id = {int(row[0]): row for row in rows}
+                for row in rows:
+                    experience_id = int(row[0])
+                    if experience_id not in vectors:
+                        try:
+                            item = _experience_item(row)
+                            vector = _index_experience(
+                                experience_id, world, _experience_text(item)
+                            )
+                            if vector:
+                                vectors[experience_id] = vector
+                        except semantic.SemanticUnavailable:
+                            continue
+                dense = semantic.rank_documents(
+                    query_vector,
+                    [(item_id, vector) for item_id, vector in vectors.items()
+                     if item_id in by_id],
+                )
+                for rank, (experience_id, _score) in enumerate(dense, start=1):
+                    fused[experience_id] = fused.get(experience_id, 0.0) + 1.0 / (60 + rank)
+                if fused:
+                    ordered_ids = sorted(
+                        fused, key=lambda item_id: (fused[item_id], item_id), reverse=True
+                    )[:limit]
+                    rows = [by_id[item_id] for item_id in ordered_ids]
+                else:
+                    rows = [by_id[int(item[0])] for item in lexical]
+            except semantic.SemanticUnavailable:
+                selected_ids = {item[0] for item in lexical}
+                rows = [row for row in rows if row[0] in selected_ids]
+                rows.sort(key=lambda row: next(i for i, item in enumerate(lexical) if item[0] == row[0]))
+        else:
+            selected_ids = {item[0] for item in lexical}
+            rows = [row for row in rows if row[0] in selected_ids]
+            rows.sort(key=lambda row: next(i for i, item in enumerate(lexical) if item[0] == row[0]))
     else:
         rows = rows[:limit]
     return [_experience_item(row) for row in rows]

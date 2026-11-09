@@ -200,8 +200,15 @@ def backfill_semantic(limit: int = 500) -> dict:
         except semantic.SemanticUnavailable:
             failed += 1
             break
+    pending_rows = _rows(
+        """SELECT COUNT(*) FROM memories m
+           LEFT JOIN semantic_embeddings e ON e.memory_id=m.id
+               AND e.model_version=?
+           WHERE e.memory_id IS NULL""",
+        (semantic.MODEL_VERSION,),
+    )
     return {
-        "enabled": True, "indexed": indexed, "pending": max(0, len(rows) - indexed),
+        "enabled": True, "indexed": indexed, "pending": int(pending_rows[0][0]),
         "failed": failed, "model": semantic.MODEL_VERSION,
     }
 

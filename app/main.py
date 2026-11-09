@@ -5,34 +5,31 @@ from starlette.applications import Starlette
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.routing import Route
 
-load_dotenv()  # must run before app modules read the environment
+load_dotenv()
 
-from app import memory, model  # noqa: E402
+from app import memory, model, safety  # noqa: E402
 from app.orchestrator import run_five_worlds  # noqa: E402
 from app.worlds import WORLDS  # noqa: E402
 
 _INDEX = Path(__file__).resolve().parent.parent / "static" / "index.html"
 
-
 def _error(status: int, detail: str) -> JSONResponse:
     return JSONResponse({"detail": detail}, status_code=status)
-
 
 async def home(request):
     return HTMLResponse(_INDEX.read_text(encoding="utf-8"))
 
-
 async def health(request):
-    return JSONResponse({"ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS)})
-
+    return JSONResponse({
+        "ok": True, "project": "five-worlds-one-ai", "worlds": len(WORLDS),
+        "safety_guardrail_version": safety.GUARDRAIL_VERSION,
+    })
 
 async def health_model(request):
     return JSONResponse({"model_reachable": await model.get_client().ping()})
 
-
 async def get_memory(request):
     return JSONResponse({"items": memory.recent(30)})
-
 
 async def forget_memory(request):
     try:
@@ -43,10 +40,8 @@ async def forget_memory(request):
         return _error(404, "Memory not found")
     return JSONResponse({"deleted": memory_id})
 
-
 async def metrics(request):
     return JSONResponse({"worlds": memory.metrics_summary()})
-
 
 async def ask(request):
     try:
@@ -58,9 +53,13 @@ async def ask(request):
         return _error(422, "question must be a string of 2 to 6000 characters")
     try:
         return JSONResponse(await run_five_worlds(question))
+    except safety.SafetyRejected as exc:
+        return JSONResponse({
+            "detail": str(exc), "blocked": True, "category": exc.category,
+            "guardrail_version": safety.GUARDRAIL_VERSION,
+        }, status_code=422)
     except model.ModelUnavailable as exc:
         return _error(503, str(exc))
-
 
 app = Starlette(routes=[
     Route("/", home),

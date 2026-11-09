@@ -109,16 +109,29 @@ jobs:
           else
             echo "No state changes to commit."
           fi
-          if ! gh pr view automation/brain-state >/dev/null 2>&1; then
-            if git diff --quiet origin/main...HEAD; then
-              echo "No state changes to propose."
-            else
+          pr_json="$(gh pr view automation/brain-state --json state,mergedAt 2>/dev/null || echo '{}')"
+          pr_state="$(echo "$pr_json" | jq -r '.state // empty')"
+          merged_at="$(echo "$pr_json" | jq -r '.mergedAt // empty')"
+          if [ "$pr_state" = "OPEN" ]; then
+            echo "An open brain-state review PR already exists."
+          elif [ -n "$merged_at" ]; then
+            if ! git diff --quiet origin/main...HEAD; then
               gh pr create \
                 --base main \
                 --head automation/brain-state \
                 --title "Automated Inteligen brain-state update" \
                 --body "Generated state and long-term memory from the GitHub-hosted five-world cycle. Review the run output and state diff before merging. No generated code is auto-promoted."
             fi
+          elif [ "$pr_state" = "CLOSED" ]; then
+            gh pr reopen automation/brain-state
+          elif ! git diff --quiet origin/main...HEAD; then
+            gh pr create \
+              --base main \
+              --head automation/brain-state \
+              --title "Automated Inteligen brain-state update" \
+              --body "Generated state and long-term memory from the GitHub-hosted five-world cycle. Review the run output and state diff before merging. No generated code is auto-promoted."
+          else
+            echo "No state changes to propose."
           fi
 
       - name: Configure GitHub Pages

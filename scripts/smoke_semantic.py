@@ -1,5 +1,9 @@
 """Live CPU smoke test for the pinned multilingual FastEmbed model."""
 import math
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app import semantic
 

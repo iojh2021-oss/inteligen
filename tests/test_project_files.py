@@ -27,3 +27,17 @@ def test_committed_state_is_valid_json_and_baseline_exists():
                 "evolution/benchmark.json", "evolution/history.json"):
         json.loads((ROOT / rel).read_text(encoding="utf-8"))
     assert json.loads((ROOT / "evolution/stable.json").read_text())["version"] >= 1
+
+
+def test_workflows_never_push_to_the_protected_branch_directly():
+    for path in (ROOT / ".github" / "workflows").glob("*.yml"):
+        text = path.read_text(encoding="utf-8")
+        assert "git push" not in text, path.name
+
+
+def test_state_workflows_sync_through_the_state_branch():
+    for name in ("github-brain.yml", "evolution.yml"):
+        text = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        assert "state_sync.sh pull" in text and "state_sync.sh push" in text, name
+    script = (ROOT / "scripts" / "state_sync.sh").read_text(encoding="utf-8")
+    assert "refs/heads/$BRANCH" in script and "refs/heads/main" not in script

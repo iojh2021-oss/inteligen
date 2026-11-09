@@ -22,9 +22,11 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [ROADMAP.md](ROADMAP.md).
 
 Three workflows, all on temporary GitHub-hosted runners (Ollama + `qwen3:1.7b`, model cached between runs):
 
-1. **GitHub Brain Cycle** (manual + daily): tests → five worlds → central synthesis + assessment → rubric evaluation → commits memory, history and dashboard state → deploys Pages.
+1. **GitHub Brain Cycle** (manual + daily): tests → five worlds → central synthesis + assessment → rubric evaluation → saves memory, history and dashboard state to the **`state` branch** → deploys Pages.
 2. **Evolution Engine** (manual + weekly): `evaluate` builds one candidate version and tests it against the stable version in the simulation lab; `promote` and `rollback` change the stable version. These are human actions: only people with write access can run the workflow, and the actor is recorded as approver.
 3. **Deploy Pages** (on any change under `docs/`): publishes the dashboard without running the model.
+
+Runtime state (memory, history, versions, proposals, `docs/state`) lives on the `state` branch, so workflows never push to a protected `main`. Each run restores it first (`scripts/state_sync.sh`). Code and config stay on `main`.
 
 Dashboard: `https://iojh2021-oss.github.io/inteligen/` (Persian/English, RTL).
 

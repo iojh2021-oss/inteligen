@@ -1,0 +1,53 @@
+name: Five-World Evaluation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "app/evaluation.py"
+      - "scripts/run_benchmarks.py"
+      - "tests/fixtures/benchmark_cases.json"
+      - ".github/workflows/evaluation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      MODEL_NAME: qwen3:1.7b
+      MODEL_BASE_URL: http://127.0.0.1:11434/v1
+      WORLD_CONCURRENCY: "1"
+      REQUEST_TIMEOUT_SECONDS: "600"
+      DATABASE_PATH: /tmp/inteligen-evaluation.sqlite3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt pytest
+      - run: pytest -q
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          nohup ollama serve >/tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/ollama.log
+          exit 1
+      - name: Pull evaluation model
+        run: ollama pull "$MODEL_NAME"
+      - name: Run fixed five-world benchmark
+        run: python scripts/run_benchmarks.py
+      - name: Upload evaluation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteligen-evaluation-report
+          path: evaluation-report.json
+          if-no-files-found: error
+          retention-days: 30

@@ -45,7 +45,7 @@ This repository is public. The workflow commits the question, model outputs, and
 
 - Five specialist roles and central synthesis: implemented.
 - Per-world failure isolation and reliability/latency metrics: implemented.
-- SQLite memory with per-world keyword retrieval and forgetting endpoint: implemented.
+- SQLite memory with per-world BM25-style lexical retrieval and forgetting endpoint: implemented on the feature branch; this is not semantic/vector retrieval.
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.

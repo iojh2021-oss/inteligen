@@ -31,7 +31,9 @@ The project's non-negotiable destination is:
 No self-modifying production code, autonomous deployment, arbitrary shell execution, or unrestricted external tool access. The evolution engine proposes and evaluates changes; a human approves promotion. Model output is untrusted input.
 
 ## Status
-- Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against your local model server to confirm.
-- Phase 2: partial. Per-world retrieval and reliability metrics exist; per-world datasets and quality metrics do not yet.
-- Phase 3: started. Provenance, timestamps and forgetting exist; correction and approval of shared memories do not.
-- Phases 4-6: not started.
+- Phase 1: implemented in code with an injectable model adapter, failure isolation, and end-to-end tests. The latest GitHub-hosted brain cycle completed all five worlds on Qwen3 1.7B.
+- Phase 2: partial. Per-world retrieval and reliability metrics exist; independent datasets and quality metrics remain future work.
+- Phase 3: started. Provenance, timestamps and forgetting exist. Experiment reports now persist separately in SQLite; memory correction and approval of shared memories remain future work.
+- Phase 4: initial isolated prompt experiment runner implemented. It compares baseline and candidate instructions on fixed five-world tasks; a full stateful simulator remains future work.
+- Phase 5: initial deterministic structural evaluator implemented with explainable checks. It is not a semantic correctness judge; stronger held-out datasets and calibrated quality metrics remain future work.
+- Phase 6: candidate prompts are not automatically promoted and production code is never modified by the lab. Human-reviewed version approval and rollback remain future work.

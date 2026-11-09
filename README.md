@@ -58,3 +58,8 @@ This repository is public. The workflow commits the question, model outputs, and
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.
 
 See [ROADMAP.md](ROADMAP.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+
+## Simulation Lab Verification
+
+The dedicated `Simulation Lab Verification` workflow runs the full test suite, compiles the application and scripts, then checks that both built-in simulation scenarios produce stable fingerprints and persist retrievable results. It runs on pull requests and pushes to the development branch. The first smoke-check attempt exposed a script import-path issue; the verifier now explicitly adds the repository root to Python's import path.

@@ -79,3 +79,52 @@ def test_semantic_api_reports_status_and_backfills(db, monkeypatch):
     assert status.json()["retrieval"] == "bm25-fallback"
     assert client.post("/memory/semantic/backfill?limit=0").status_code == 200
     assert client.post("/memory/semantic/backfill?limit=not-a-number").status_code == 422
+
+
+def test_semantic_retrieval_also_finds_related_experience_wording(db, monkeypatch):
+    monkeypatch.setattr(semantic, "enabled", lambda: True)
+
+    def fake_embed(text):
+        if any(term in text for term in ("solar energy", "sunlight power")):
+            return _vector(4)
+        return _vector(5)
+
+    monkeypatch.setattr(semantic, "embed_text", fake_embed)
+    memory.record_experience(
+        "knowledge",
+        "solar energy supports plant growth",
+        "power from the sun is converted by photosynthesis",
+    )
+    results = memory.experience_history("knowledge", "sunlight power", limit=1)
+    assert len(results) == 1
+    assert "solar energy" in results[0]["hypothesis"]
+
+
+def test_experience_backfill_and_semantic_summary(db, monkeypatch):
+    monkeypatch.setattr(semantic, "enabled", lambda: False)
+    memory.record_experience("science", "thermal transfer", "heat moves between materials")
+
+    monkeypatch.setattr(semantic, "enabled", lambda: True)
+    monkeypatch.setattr(semantic, "embed_text", lambda _text: _vector(6))
+    result = memory.backfill_semantic(limit=10)
+
+    assert result["indexed_experiences"] == 1
+    assert result["pending_experiences"] == 0
+    assert memory.semantic_summary()["indexed_experiences"] == 1
+
+
+def test_resolving_experience_refreshes_its_semantic_vector(db, monkeypatch):
+    monkeypatch.setattr(semantic, "enabled", lambda: True)
+    calls = []
+    monkeypatch.setattr(
+        semantic, "embed_text",
+        lambda text: calls.append(text) or _vector(7 if "observed" in text else 8),
+    )
+    item_id = memory.record_experience("science", "heat retention", "temperature stays stable")
+    before = len(calls)
+    memory.resolve_experience(
+        item_id, "observed stable temperature", "confirmed",
+        evidence_note="observed in controlled test",
+    )
+    assert len(calls) == before + 1
+    assert "observed stable temperature" in calls[-1]

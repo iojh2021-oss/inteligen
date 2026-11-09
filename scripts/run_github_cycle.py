@@ -33,11 +33,18 @@ def main() -> None:
         raise SystemExit("Runner returned an incomplete world set: " + ", ".join(missing_worlds))
 
     evaluation_report = evaluation.evaluate_worlds(result["worlds"])
-    # Persist the same per-world rubric snapshot into the SQLite file that the
-    # workflow carries forward. This makes cross-run deltas possible after a
-    # later runner restores the database; docs/state remains a readable snapshot.
-    evaluation_report["persistence"] = evaluation.record_evaluation(evaluation_report)
-    evaluation_report["history"] = evaluation.evaluation_history(limit=100)
+    evaluation_report["persistence"] = evaluation.record_evaluation(evaluation_report, run_type="request")
+    evaluation_report["history"] = evaluation.evaluation_history(limit=100, run_type="request")
+
+    # A fixed, versioned task set makes scores comparable across independent
+    # brain cycles; request-specific scores are kept in a separate history.
+    benchmark_report = asyncio.run(evaluation.run_fixed_benchmark(model.get_client()))
+    benchmark_report["persistence"] = evaluation.record_evaluation(
+        benchmark_report, run_type="fixed_benchmark"
+    )
+    benchmark_report["history"] = evaluation.evaluation_history(
+        limit=100, run_type="fixed_benchmark"
+    )
     state = {
         "schema_version": 3,
         "status": "complete" if not result["errors"] and len(successful_worlds) == len(expected_worlds) else "partial",
@@ -51,6 +58,7 @@ def main() -> None:
         "answer": result["answer"],
         "worlds": result["worlds"],
         "evaluation": evaluation_report,
+        "fixed_benchmark": benchmark_report,
         "safety": result["safety"],
         "errors": result["errors"],
     }
@@ -61,6 +69,8 @@ def main() -> None:
         json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (state_dir / "evaluation.json").write_text(
         json.dumps(evaluation_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (state_dir / "benchmark.json").write_text(
+        json.dumps(benchmark_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     metrics = {
         "updated_at": timestamp,
         "worlds": memory.metrics_summary(),
@@ -72,6 +82,13 @@ def main() -> None:
             "scope": evaluation_report["scope"],
             "history_worlds": len(evaluation_report["history"]["worlds"]),
             "snapshot_ids": evaluation_report["persistence"]["snapshot_ids"],
+        },
+        "fixed_benchmark": {
+            "version": benchmark_report["benchmark_version"],
+            "overall_score": benchmark_report["overall_score"],
+            "evaluated_worlds": benchmark_report["evaluated_worlds"],
+            "history": benchmark_report["history"]["worlds"],
+            "snapshot_ids": benchmark_report["persistence"]["snapshot_ids"],
         },
         "safety": {
             "guardrail_version": result["safety"]["guardrail_version"],
@@ -86,7 +103,9 @@ def main() -> None:
         "ok": True, "request_id": result["request_id"], "status": state["status"],
         "successful_worlds": successful_worlds, "expected_worlds": expected_worlds,
         "evaluation_overall_score": evaluation_report["overall_score"],
-        "evaluation_scope": evaluation_report["scope"], "safety": result["safety"],
+        "evaluation_scope": evaluation_report["scope"],
+        "fixed_benchmark_version": benchmark_report["benchmark_version"],
+        "fixed_benchmark_score": benchmark_report["overall_score"], "safety": result["safety"],
         "failed_worlds": result["errors"],
         "memory_path": os.environ.get("DATABASE_PATH", "data/memory.sqlite3"),
     }, ensure_ascii=False))

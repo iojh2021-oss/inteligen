@@ -68,3 +68,17 @@ def test_evaluation_rejects_non_object_worlds(db):
     from app.main import app
 
     assert TestClient(app).post("/evaluations", json={"worlds": []}).status_code == 422
+
+
+def test_ask_response_includes_and_persists_evaluation(fake, db):
+    from starlette.testclient import TestClient
+    from app.main import app
+    from app.evaluation import evaluation_history
+
+    response = TestClient(app).post("/ask", json={"question": "Explain a safe science concept."})
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload["evaluation"]["worlds"]) == {
+        "knowledge", "reasoning", "science", "creativity", "learning"
+    }
+    assert len(evaluation_history()["worlds"]) == 5

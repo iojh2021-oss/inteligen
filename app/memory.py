@@ -81,7 +81,7 @@ def _index_memory(memory_id: int, world: str, prompt: str) -> bool:
                 (memory_id, world, semantic.MODEL_VERSION,
                  json.dumps(vector, separators=(",", ":")), _now()),
             )
-        return True
+        return vector
     finally:
         conn.close()
 
@@ -157,8 +157,9 @@ def relevant(world: str, question: str, limit: int = 3):
             memory_id = int(row[0])
             if memory_id not in vectors:
                 try:
-                    _index_memory(memory_id, world, row[2])
-                    vectors[memory_id] = semantic.embed_text(row[2])
+                    vector = _index_memory(memory_id, world, row[2])
+                    if vector:
+                        vectors[memory_id] = vector
                 except semantic.SemanticUnavailable:
                     continue
         dense = semantic.rank_documents(
@@ -195,7 +196,7 @@ def backfill_semantic(limit: int = 500) -> dict:
     failed = 0
     for row in rows:
         try:
-            indexed += int(_index_memory(int(row[0]), row[1], row[2]))
+            indexed += int(bool(_index_memory(int(row[0]), row[1], row[2])))
         except semantic.SemanticUnavailable:
             failed += 1
             break
@@ -228,6 +229,8 @@ def forget(memory_id: int) -> bool:
     try:
         with conn:
             cur = conn.execute("DELETE FROM memories WHERE id=?", (memory_id,))
+            if cur.rowcount:
+                conn.execute("DELETE FROM semantic_embeddings WHERE memory_id=?", (memory_id,))
         return cur.rowcount > 0
     finally:
         conn.close()

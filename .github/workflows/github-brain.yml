@@ -37,6 +37,8 @@ jobs:
       WORLD_CONCURRENCY: "1"
       REQUEST_TIMEOUT_SECONDS: "600"
       DATABASE_PATH: data/memory.sqlite3
+      INTELIGEN_SEMANTIC_MEMORY: "1"
+      FASTEMBED_CACHE_PATH: ~/.cache/fastembed
       BRAIN_QUESTION: ${{ github.event.inputs.question || 'Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated.' }}
     steps:
       - name: Checkout repository
@@ -50,6 +52,14 @@ jobs:
           restore-keys: |
             inteligen-memory-v1-
 
+      - name: Restore local embedding model cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/fastembed
+          key: inteligen-fastembed-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            inteligen-fastembed-v1-
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -59,7 +69,7 @@ jobs:
       - name: Install application and test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pytest
+          pip install -r requirements.txt -r requirements-semantic.txt pytest
 
       - name: Run regression tests
         run: pytest -q
@@ -88,6 +98,13 @@ jobs:
 
       - name: Run central brain and five worlds
         run: python scripts/run_github_cycle.py
+
+      - name: Save local embedding model cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/fastembed
+          key: inteligen-fastembed-v1-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Save long-term SQLite memory
         if: always() && hashFiles('data/memory.sqlite3') != ''

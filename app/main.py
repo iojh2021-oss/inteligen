@@ -144,6 +144,32 @@ async def get_simulation(request):
     return JSONResponse(result)
 
 
+async def attach_simulation_experience(request):
+    try:
+        run_id = int(request.path_params["run_id"])
+    except ValueError:
+        return _error(422, "run_id must be an integer")
+    try:
+        body = await request.json()
+    except ValueError:
+        return _error(422, "Body must be valid JSON")
+    if not isinstance(body, dict):
+        return _error(422, "Body must be a JSON object")
+    try:
+        item = simulation.record_run_as_experience(
+            run_id=run_id,
+            world=body.get("world"),
+            hypothesis=body.get("hypothesis"),
+            prediction=body.get("prediction"),
+            expected_metric=body.get("expected_metric"),
+            predicted_value=body.get("predicted_value"),
+            confidence=body.get("confidence"),
+        )
+    except (TypeError, ValueError) as exc:
+        return _error(422, str(exc))
+    return JSONResponse(item, status_code=201)
+
+
 async def ask(request):
     try:
         body = await request.json()
@@ -171,6 +197,7 @@ app = Starlette(routes=[
     Route("/simulations/scenarios", list_simulations, methods=["GET"]),
     Route("/simulations/run", run_simulation, methods=["POST"]),
     Route("/simulations/{run_id}", get_simulation, methods=["GET"]),
+    Route("/simulations/{run_id}/experience", attach_simulation_experience, methods=["POST"]),
     Route("/experiences/{experience_id}/resolve", resolve_experience, methods=["POST"]),
     Route("/ask", ask, methods=["POST"]),
 ])

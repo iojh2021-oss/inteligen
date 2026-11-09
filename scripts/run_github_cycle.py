@@ -1,9 +1,4 @@
-"""Run Inteligen entirely on a temporary GitHub-hosted runner.
-
-The runner uses a local Ollama model; no external inference server is required.
-The SQLite memory and dashboard snapshots are persisted by the workflow commit.
-Do not send secrets or private personal information: this repository is public.
-"""
+"""Run Inteligen on a temporary GitHub-hosted runner using local Ollama."""
 import asyncio
 import json
 import os
@@ -15,32 +10,47 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 os.chdir(REPOSITORY_ROOT)
 sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from app import evaluation, memory, model
+from app import evaluation, memory, model, safety
 from app.orchestrator import run_five_worlds
 from app.worlds import WORLDS
-
 
 def main() -> None:
     question = os.environ.get("BRAIN_QUESTION", "").strip()
     if not 2 <= len(question) <= 6000:
         raise SystemExit("BRAIN_QUESTION must contain 2 to 6000 characters.")
+    if not safety.screen_text(question)["allowed"]:
+        raise SystemExit("BRAIN_QUESTION was rejected by the safety gate.")
     if not asyncio.run(model.get_client().ping()):
         raise SystemExit("The local Ollama OpenAI-compatible endpoint is not reachable.")
 
+    # Backfill prior SQLite records before answering; failure never blocks the
+    # primary memory or the five-world cycle because BM25 remains available.
+    semantic_backfill = memory.backfill_semantic(limit=2000)
     result = asyncio.run(run_five_worlds(question))
+    semantic_status = memory.semantic_summary()
     timestamp = datetime.now(timezone.utc).isoformat()
-    successful_worlds = [
-        name for name, value in result["worlds"].items()
-        if not str(value).startswith("(unavailable:")
-    ]
+    successful_worlds = [name for name, value in result["worlds"].items()
+                         if not str(value).startswith("(unavailable:")]
     expected_worlds = list(WORLDS)
     missing_worlds = sorted(set(expected_worlds) - set(result["worlds"]))
     if missing_worlds:
         raise SystemExit("Runner returned an incomplete world set: " + ", ".join(missing_worlds))
 
     evaluation_report = evaluation.evaluate_worlds(result["worlds"])
+    evaluation_report["persistence"] = evaluation.record_evaluation(evaluation_report, run_type="request")
+    evaluation_report["history"] = evaluation.evaluation_history(limit=100, run_type="request")
+
+    # A fixed, versioned task set makes scores comparable across independent
+    # brain cycles; request-specific scores are kept in a separate history.
+    benchmark_report = asyncio.run(evaluation.run_fixed_benchmark(model.get_client()))
+    benchmark_report["persistence"] = evaluation.record_evaluation(
+        benchmark_report, run_type="fixed_benchmark"
+    )
+    benchmark_report["history"] = evaluation.evaluation_history(
+        limit=100, run_type="fixed_benchmark"
+    )
     state = {
-        "schema_version": 2,
+        "schema_version": 3,
         "status": "complete" if not result["errors"] and len(successful_worlds) == len(expected_worlds) else "partial",
         "expected_world_count": len(expected_worlds),
         "successful_worlds": successful_worlds,
@@ -52,44 +62,61 @@ def main() -> None:
         "answer": result["answer"],
         "worlds": result["worlds"],
         "evaluation": evaluation_report,
+        "fixed_benchmark": benchmark_report,
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
+        "safety": result["safety"],
         "errors": result["errors"],
     }
 
     state_dir = Path("docs/state")
     state_dir.mkdir(parents=True, exist_ok=True)
     (state_dir / "latest.json").write_text(
-        json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (state_dir / "evaluation.json").write_text(
-        json.dumps(evaluation_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+        json.dumps(evaluation_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (state_dir / "benchmark.json").write_text(
+        json.dumps(benchmark_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     metrics = {
         "updated_at": timestamp,
         "worlds": memory.metrics_summary(),
         "memory_items": len(memory.recent(100)),
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
         "evaluation": {
             "rubric_version": evaluation_report["rubric_version"],
             "overall_score": evaluation_report["overall_score"],
             "evaluated_worlds": evaluation_report["evaluated_worlds"],
             "scope": evaluation_report["scope"],
+            "history_worlds": len(evaluation_report["history"]["worlds"]),
+            "snapshot_ids": evaluation_report["persistence"]["snapshot_ids"],
         },
-        "architecture": "central-brain + five-worlds + sqlite-long-term-memory + explainable-evaluation",
+        "fixed_benchmark": {
+            "version": benchmark_report["benchmark_version"],
+            "overall_score": benchmark_report["overall_score"],
+            "evaluated_worlds": benchmark_report["evaluated_worlds"],
+            "history": benchmark_report["history"]["worlds"],
+            "snapshot_ids": benchmark_report["persistence"]["snapshot_ids"],
+        },
+        "safety": {
+            "guardrail_version": result["safety"]["guardrail_version"],
+            "blocked_outputs": result["safety"]["blocked_outputs"],
+            "scope": result["safety"]["scope"],
+        },
+        "architecture": "central-brain + five-worlds + sqlite-memory + evaluation + safety-gate",
     }
     (state_dir / "metrics.json").write_text(
-        json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+        json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
-        "ok": True,
-        "request_id": result["request_id"],
-        "status": state["status"],
-        "successful_worlds": successful_worlds,
-        "expected_worlds": expected_worlds,
+        "ok": True, "request_id": result["request_id"], "status": state["status"],
+        "successful_worlds": successful_worlds, "expected_worlds": expected_worlds,
         "evaluation_overall_score": evaluation_report["overall_score"],
         "evaluation_scope": evaluation_report["scope"],
+        "fixed_benchmark_version": benchmark_report["benchmark_version"],
+        "fixed_benchmark_score": benchmark_report["overall_score"],
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
+        "safety": result["safety"],
         "failed_worlds": result["errors"],
         "memory_path": os.environ.get("DATABASE_PATH", "data/memory.sqlite3"),
     }, ensure_ascii=False))
-
 
 if __name__ == "__main__":
     main()

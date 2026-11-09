@@ -1,0 +1,2 @@
+# Optional local multilingual dense-memory backend; no external inference API.
+fastembed>=0.7,<1

@@ -80,3 +80,146 @@ def evaluate_worlds(outputs: dict) -> dict:
         "evaluated_worlds": len(available),
         "worlds": results,
     }
+
+
+# Persisted, versioned evaluation snapshots. Scores remain structural proxies.
+EVALUATION_SCHEMA_VERSION = 1
+
+
+def _evaluation_db():
+    import sqlite3
+    from pathlib import Path
+    from app import config
+
+    path = Path(config.database_path())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path)
+    conn.execute("""CREATE TABLE IF NOT EXISTS evaluation_snapshots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rubric_version INTEGER NOT NULL,
+        world TEXT NOT NULL,
+        score REAL,
+        status TEXT NOT NULL,
+        checks_json TEXT NOT NULL,
+        output_chars INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+    )""")
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(evaluation_snapshots)")}
+    if "run_type" not in columns:
+        conn.execute("ALTER TABLE evaluation_snapshots ADD COLUMN run_type TEXT NOT NULL DEFAULT 'request'")
+    conn.commit()
+    return conn
+
+
+def record_evaluation(report: dict, run_type: str = "request") -> dict:
+    """Persist per-world rubric results and return a versioned snapshot id."""
+    import json
+    from datetime import datetime, timezone
+
+    if run_type not in {"request", "fixed_benchmark"}:
+        raise ValueError("run_type must be request or fixed_benchmark")
+    conn = _evaluation_db()
+    ids = {}
+    try:
+        with conn:
+            for world, result in report["worlds"].items():
+                cur = conn.execute(
+                    """INSERT INTO evaluation_snapshots(
+                        rubric_version,world,score,status,checks_json,output_chars,created_at,run_type
+                    ) VALUES(?,?,?,?,?,?,?,?)""",
+                    (report["rubric_version"], world, result.get("score"),
+                     result.get("status", "evaluated"),
+                     json.dumps(result.get("checks", {}), sort_keys=True),
+                     int(result.get("output_chars", 0)),
+                     datetime.now(timezone.utc).isoformat(), run_type),
+                )
+                ids[world] = int(cur.lastrowid)
+    finally:
+        conn.close()
+    return {"snapshot_ids": ids, "rubric_version": report["rubric_version"], "run_type": run_type}
+
+
+def evaluation_history(limit: int = 100, run_type: str = "request") -> dict:
+    """Return latest records and per-world change from the preceding recorded score."""
+    import json
+
+    limit = min(max(int(limit), 1), 500)
+    if run_type not in {"request", "fixed_benchmark", "all"}:
+        raise ValueError("run_type must be request, fixed_benchmark, or all")
+    conn = _evaluation_db()
+    try:
+        if run_type == "all":
+            rows = conn.execute(
+                """SELECT id,rubric_version,world,score,status,checks_json,output_chars,created_at,run_type
+                   FROM evaluation_snapshots ORDER BY id DESC LIMIT ?""", (limit,)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """SELECT id,rubric_version,world,score,status,checks_json,output_chars,created_at,run_type
+                   FROM evaluation_snapshots WHERE run_type=? ORDER BY id DESC LIMIT ?""",
+                (run_type, limit),
+            ).fetchall()
+    finally:
+        conn.close()
+
+    latest = {}
+    previous = {}
+    for row in rows:
+        world = row[2]
+        if world not in latest:
+            latest[world] = row
+        elif world not in previous and row[3] is not None:
+            previous[world] = row
+
+    worlds = {}
+    for world, row in latest.items():
+        prior = previous.get(world)
+        worlds[world] = {
+            "latest": {
+                "id": row[0], "rubric_version": row[1], "score": row[3],
+                "status": row[4], "checks": json.loads(row[5]),
+                "output_chars": row[6], "created_at": row[7], "run_type": row[8],
+            },
+            "previous_score": prior[3] if prior else None,
+            "score_delta": round(row[3] - prior[3], 2)
+                if prior and row[3] is not None and prior[3] is not None
+                and row[1] == prior[1] else None,
+        }
+    return {
+        "scope": "structural rubric coverage only; not factual correctness or intelligence",
+        "worlds": worlds,
+    }
+
+
+FIXED_BENCHMARK_VERSION = "five-world-fixed-v1"
+FIXED_BENCHMARKS = {
+    "knowledge": "Explain how a compass works. Include a definition, one verified fact, one uncertainty, and an evidence limitation.",
+    "reasoning": "A plant near a window grows faster than one in a dark corner. Give ordered causal reasoning, state an assumption, offer an alternative explanation, and conclude with a test.",
+    "science": "Propose a safe desk-based comparison of two materials that retain heat. State a hypothesis, prediction, measurable test, and limitation.",
+    "creativity": "Give two practical low-cost ideas to reduce household food waste. Explain a trade-off and combine or adapt the ideas.",
+    "learning": "A system became faster but less accurate. Identify the gap, define a measurable metric, propose an evaluation test, and suggest one reversible improvement.",
+}
+
+
+async def run_fixed_benchmark(model_client) -> dict:
+    """Run the same five benign tasks every cycle for comparable rubric snapshots."""
+    from app import model, safety
+    from app.worlds import WORLDS
+
+    outputs = {}
+    for name, world in WORLDS.items():
+        try:
+            response = await model_client.generate(
+                "Safety boundary: educational and non-operational responses only. "
+                + world.system_prompt,
+                FIXED_BENCHMARKS[name],
+            )
+        except model.ModelUnavailable:
+            outputs[name] = "(unavailable: benchmark model call failed)"
+            continue
+        check = safety.screen_text(response)
+        outputs[name] = response if check["allowed"] else safety.SAFE_REFUSAL
+    report = evaluate_worlds(outputs)
+    report["benchmark_version"] = FIXED_BENCHMARK_VERSION
+    report["prompts"] = FIXED_BENCHMARKS
+    return report

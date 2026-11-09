@@ -16,4 +16,18 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt pytest
       - run: pytest -q
-      - run: python -m compileall -q app
+      - name: Cache multilingual embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/fastembed
+          key: inteligen-semantic-smoke-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            inteligen-semantic-smoke-v1-
+      - name: Install local semantic backend
+        run: pip install -r requirements-semantic.txt
+      - name: Verify real English and Persian embedding inference
+        env:
+          INTELIGEN_SEMANTIC_MEMORY: "1"
+          FASTEMBED_CACHE_PATH: ~/.cache/fastembed
+        run: python scripts/smoke_semantic.py
+      - run: python -m compileall -q app scripts

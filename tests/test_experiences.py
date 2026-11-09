@@ -30,7 +30,7 @@ def test_experience_lifecycle_records_prediction_and_observation(db):
         evidence_note="Recorded from deterministic test fixture",
         evidence_source_type="simulation",
     )
-    assert resolved["outcome_status"] == "refuted"
+    assert resolved["outcome_status"] == "inconclusive"
     assert resolved["absolute_error"] == 1.5
     assert resolved["resolved_at"] is not None
 

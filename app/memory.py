@@ -66,7 +66,7 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _index_memory(memory_id: int, world: str, prompt: str) -> bool:
+def _index_memory(memory_id: int, world: str, prompt: str) -> list[float] | bool:
     if not semantic.enabled():
         return False
     vector = semantic.embed_text(prompt)
@@ -215,12 +215,15 @@ def semantic_summary() -> dict:
         ).fetchone()[0]
     finally:
         conn.close()
+    configured = semantic.enabled()
+    loaded = semantic.model_loaded()
     return {
-        "enabled": semantic.enabled(),
+        "enabled": configured,
+        "model_loaded": loaded,
         "model": semantic.MODEL_VERSION,
         "dimension": semantic.DIMENSION,
         "indexed_memories": int(count),
-        "retrieval": "hybrid-bm25-dense" if semantic.enabled() else "bm25-fallback",
+        "retrieval": "hybrid-bm25-dense" if configured and loaded else "bm25-fallback",
     }
 
 

@@ -52,3 +52,10 @@ The brain cycle runs on GitHub-hosted Actions with a local Ollama process on tha
 - `POST /simulations/{id}/experience`
 
 The existing root dashboard route is preserved. The health endpoint reports the guardrail version, retrieval mode, experience ledger and simulation-lab availability.
+
+
+## Fixed cross-run evaluation
+- Every GitHub brain cycle runs the same versioned, benign benchmark prompt for each of the five worlds (`five-world-fixed-v1`).
+- Fixed-benchmark snapshots are stored separately from user-request evaluation snapshots in SQLite, preventing unlike prompts from being compared in the same history.
+- The latest report is also written to `docs/state/benchmark.json`; per-world history and score deltas are included when prior snapshots are available.
+- Rubric scores only measure textual criterion coverage. A higher score is not proof of factual correctness, reasoning quality, or learning. Human-reviewed held-out tasks are still needed.

@@ -50,7 +50,8 @@ This repository is public. The workflow commits the question, model outputs, and
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.
 - Structured experience records are implemented on the feature branch: worlds can store hypotheses and predictions, resolve them with observed outcomes, and review only their own history. Numeric absolute prediction error is reported when comparable values exist; the API does not infer whether an outcome is confirmed or refuted.
-- Semantic/vector memory, world-specific datasets, and an isolated scientific simulation lab: not yet implemented.
+- A bounded deterministic simulation lab is now implemented on the feature branch with two built-in scenarios (logistic population growth and exponential decay), input validation, explicit assumptions, persisted run history, and SHA-256 reproducibility fingerprints. It executes no user-supplied code.
+- Semantic/vector memory, world-specific datasets, stochastic experiments, and multi-variable scientific simulation remain unimplemented.
 - A deterministic rubric benchmark and baseline/candidate comparison CLI are implemented on the feature branch. The comparison detects per-world regressions and recommends human review; it does not judge semantic correctness or promote code.
 - Candidate rollback and a validated semantic-quality benchmark: not yet implemented.
 - The five worlds currently share one model with different system prompts. They are not five separately trained models.

@@ -227,23 +227,61 @@ def backfill_semantic(limit: int = 500) -> dict:
             WHERE e.memory_id IS NULL ORDER BY m.id DESC LIMIT ?""",
         (semantic.MODEL_VERSION, min(max(int(limit), 1), 2000)),
     )
-    indexed = 0
+    indexed_memories = 0
+    indexed_experiences = 0
     failed = 0
     for row in rows:
         try:
-            indexed += int(bool(_index_memory(int(row[0]), row[1], row[2])))
+            indexed_memories += int(bool(_index_memory(int(row[0]), row[1], row[2])))
         except semantic.SemanticUnavailable:
             failed += 1
             break
-    pending_rows = _rows(
+
+    experience_rows = _rows(
+        """SELECT x.id,x.world,x.request_id,x.hypothesis,x.prediction,x.expected_metric,
+                  x.predicted_value,x.observed_outcome,x.observed_value,x.outcome_status,
+                  x.confidence,x.evidence_note,x.created_at,x.resolved_at
+           FROM experiences x
+           LEFT JOIN semantic_experience_embeddings e ON e.experience_id=x.id
+               AND e.model_version=?
+           WHERE e.experience_id IS NULL ORDER BY x.id DESC LIMIT ?""",
+        (semantic.MODEL_VERSION, min(max(int(limit), 1), 2000)),
+    )
+    if not failed:
+        for row in experience_rows:
+            try:
+                item = _experience_item(row)
+                indexed_experiences += int(bool(_index_experience(
+                    int(row[0]), row[1], _experience_text(item)
+                )))
+            except semantic.SemanticUnavailable:
+                failed += 1
+                break
+
+    pending_memory_rows = _rows(
         """SELECT COUNT(*) FROM memories m
            LEFT JOIN semantic_embeddings e ON e.memory_id=m.id
                AND e.model_version=?
            WHERE e.memory_id IS NULL""",
         (semantic.MODEL_VERSION,),
     )
+    pending_experience_rows = _rows(
+        """SELECT COUNT(*) FROM experiences x
+           LEFT JOIN semantic_experience_embeddings e ON e.experience_id=x.id
+               AND e.model_version=?
+           WHERE e.experience_id IS NULL""",
+        (semantic.MODEL_VERSION,),
+    )
+    pending_memories = int(pending_memory_rows[0][0])
+    pending_experiences = int(pending_experience_rows[0][0])
     return {
-        "enabled": True, "indexed": indexed, "pending": int(pending_rows[0][0]),
+        "enabled": True,
+        "indexed": indexed_memories + indexed_experiences,
+        "indexed_memories": indexed_memories,
+        "indexed_experiences": indexed_experiences,
+        "pending": pending_memories + pending_experiences,
+        "pending_memories": pending_memories,
+        "pending_experiences": pending_experiences,
         "failed": failed, "model": semantic.MODEL_VERSION,
     }
 
@@ -253,6 +291,10 @@ def semantic_summary() -> dict:
     try:
         count = conn.execute(
             "SELECT COUNT(*) FROM semantic_embeddings WHERE model_version=?",
+            (semantic.MODEL_VERSION,),
+        ).fetchone()[0]
+        experience_count = conn.execute(
+            "SELECT COUNT(*) FROM semantic_experience_embeddings WHERE model_version=?",
             (semantic.MODEL_VERSION,),
         ).fetchone()[0]
     finally:
@@ -265,6 +307,7 @@ def semantic_summary() -> dict:
         "model": semantic.MODEL_VERSION,
         "dimension": semantic.DIMENSION,
         "indexed_memories": int(count),
+        "indexed_experiences": int(experience_count),
         "retrieval": "hybrid-bm25-dense" if configured and loaded else "bm25-fallback",
     }
 

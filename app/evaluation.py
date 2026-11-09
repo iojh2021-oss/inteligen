@@ -112,6 +112,10 @@ def compare_reports(baseline: dict, candidate: dict, max_regression: float = 0.0
     candidate_cases = {case.get("case_id") for case in candidate.get("cases", [])}
     if not baseline_cases or baseline_cases != candidate_cases:
         reasons.append("benchmark_cases_mismatch")
+    if any(case.get("complete") is False for case in baseline.get("cases", [])):
+        reasons.append("baseline_case_incomplete")
+    if any(case.get("complete") is False for case in candidate.get("cases", [])):
+        reasons.append("candidate_case_incomplete")
 
     base_worlds = baseline.get("per_world", {})
     candidate_worlds = candidate.get("per_world", {})
@@ -136,7 +140,10 @@ def compare_reports(baseline: dict, candidate: dict, max_regression: float = 0.0
         reasons.append("world_regression")
 
     comparable = not any(
-        reason in {"baseline_incomplete", "candidate_incomplete", "benchmark_cases_mismatch"}
+        reason in {
+            "baseline_incomplete", "candidate_incomplete", "benchmark_cases_mismatch",
+            "baseline_case_incomplete", "candidate_case_incomplete",
+        }
         or reason.startswith("missing_world:")
         for reason in reasons
     )

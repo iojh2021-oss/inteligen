@@ -10,7 +10,7 @@ Inteligen is an experimental multi-perspective AI system coordinated by a centra
 - **Science world:** testable hypotheses, predictions and safe experiments.
 - **Creativity world:** alternative ideas and trade-offs.
 - **Learning world:** reviews the other four worlds and proposes measurable improvements.
-- **Long-term memory:** SQLite with per-world retrieval, timestamps and request provenance.
+- **Long-term memory:** SQLite with per-world ranked lexical retrieval, timestamps and request provenance.
 - **Simulation and evolution:** an isolated prompt experiment runner and deterministic structural evaluator are available at `/lab/compare`; reports are stored and retrievable at `/lab/experiments`. Candidate changes are never promoted automatically.
 
 ## Run on GitHub without a separate server
@@ -45,7 +45,8 @@ This repository is public. The workflow commits the question, model outputs, and
 
 - Five specialist roles and central synthesis: implemented.
 - Per-world failure isolation and reliability/latency metrics: implemented.
-- SQLite memory with per-world keyword retrieval and forgetting endpoint: implemented.
+- SQLite memory with per-world BM25-style lexical ranking, Unicode tokenization, prompt-and-answer matching, provenance and forgetting endpoint: implemented in the development branch; regression tests added.
+- This is improved lexical retrieval, **not** semantic embeddings or vector search.
 - Local OpenAI-compatible model adapter: implemented.
 - GitHub-hosted Ollama inference workflow and persistent public state: added.
 - Static GitHub Pages dashboard: added; Pages source must be enabled in repository settings.

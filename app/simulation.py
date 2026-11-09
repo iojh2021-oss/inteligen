@@ -229,7 +229,7 @@ def record_run_as_experience(
         predicted_value=predicted_value,
         confidence=confidence,
     )
-    observed_value = run["result"].get("final_value")
+    # Only compare numeric values when the requested metric exists in this run.\n    observed_value = run["result"].get(expected_metric) if expected_metric else None
     evidence = (
         f"Simulation-only evidence; scenario={run['scenario']}; "
         f"parameters={json.dumps(run['parameters'], sort_keys=True)}; "

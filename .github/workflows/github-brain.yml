@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
   pages: write
   id-token: write
 
@@ -37,10 +38,23 @@ jobs:
       WORLD_CONCURRENCY: "1"
       REQUEST_TIMEOUT_SECONDS: "600"
       DATABASE_PATH: data/memory.sqlite3
-      BRAIN_QUESTION: ${{ github.event.inputs.question || 'Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated.' }}
+      BRAIN_QUESTION: \${{ github.event.inputs.question || 'Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated.' }}
     steps:
-      - name: Checkout repository
+      - name: Checkout main as the initial workspace
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Restore durable brain-state branch
+        run: |
+          git fetch origin main
+          if git fetch origin automation/brain-state; then
+            git checkout -B automation/brain-state origin/automation/brain-state
+            git merge --no-edit origin/main
+          else
+            git checkout -B automation/brain-state origin/main
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -81,18 +95,30 @@ jobs:
       - name: Run central brain and five worlds
         run: python scripts/run_github_cycle.py
 
-      - name: Persist public memory and dashboard state
+      - name: Persist state on an isolated branch and open a review PR
+        env:
+          GH_TOKEN: \${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # data/ is ignored locally; force-add the intended durable SQLite memory.
           git add -f data/memory.sqlite3
           git add docs/state/latest.json docs/state/metrics.json
-          if git diff --cached --quiet; then
-            echo "No state changes to commit."
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "Record GitHub brain cycle"
-            git push
+            git push --set-upstream origin automation/brain-state
+          else
+            echo "No state changes to commit."
+          fi
+          if ! gh pr view automation/brain-state >/dev/null 2>&1; then
+            if git diff --quiet origin/main...HEAD; then
+              echo "No state changes to propose."
+            else
+              gh pr create \
+                --base main \
+                --head automation/brain-state \
+                --title "Automated Inteligen brain-state update" \
+                --body "Generated state and long-term memory from the GitHub-hosted five-world cycle. Review the run output and state diff before merging. No generated code is auto-promoted."
+            fi
           fi
 
       - name: Configure GitHub Pages
@@ -107,4 +133,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          token: ${{ github.token }}
+          token: \${{ github.token }}

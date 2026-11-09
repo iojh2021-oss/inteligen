@@ -106,3 +106,25 @@ def test_experience_api_rejects_invalid_input(db):
     assert client.post("/experiences/999/resolve", json={
         "observed_outcome": "x", "outcome_status": "confirmed"
     }).status_code == 422
+
+
+
+def test_orchestrator_injects_only_the_current_world_experience(fake):
+    import asyncio
+
+    from app.orchestrator import run_five_worlds
+
+    memory.record_experience(
+        "science",
+        "The controlled simulation predicts lower variance",
+        "Variance will decrease by 20 percent",
+    )
+    asyncio.run(run_five_worlds("Review the simulation"))
+    science_prompt = next(
+        prompt for system, prompt in fake.calls if "Science World" in system
+    )
+    knowledge_prompt = next(
+        prompt for system, prompt in fake.calls if "Knowledge World" in system
+    )
+    assert "controlled simulation predicts lower variance" in science_prompt
+    assert "controlled simulation predicts lower variance" not in knowledge_prompt

@@ -26,6 +26,10 @@ def enabled() -> bool:
     }
 
 
+def model_loaded() -> bool:
+    return _model is not None
+
+
 def _get_model():
     global _model
     if _model is not None:

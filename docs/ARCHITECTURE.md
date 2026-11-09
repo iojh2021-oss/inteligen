@@ -3,7 +3,7 @@
 ## Request path
 Browser -> Starlette -> central orchestrator -> knowledge / reasoning / science / creativity (independent) -> learning (reviews those four) -> central synthesis -> browser.
 
-Each world retrieves its own relevant past work from SQLite memory (keyword overlap, with timestamps and request_id provenance). A failing world is recorded and reported but does not abort the request; only a total failure returns 503. Per-world success rate, latency and output size are stored and exposed at `/metrics`.
+Each world retrieves its own relevant past work from SQLite memory. Retrieval uses a dependency-free BM25-style lexical ranker over the world's latest 500 memories, searching both the original prompt and saved answer. Prompt matches receive extra weight, Unicode tokenization supports Persian text, and recency breaks ties. This is not semantic/vector retrieval. Memories retain timestamps and request_id provenance. A failing world is recorded and reported but does not abort the request; only a total failure returns 503. Per-world success rate, latency and output size are stored and exposed at `/metrics`.
 
 ## Endpoints
 - `POST /ask`: run the five worlds and central synthesis.
@@ -36,7 +36,7 @@ A 4B model is a practical starting point, not a claim that it is the strongest m
 
 ## Known limitations
 - Five worlds currently use one underlying model with different system prompts. They are not five independently trained models.
-- Memory retrieval is keyword overlap over each world's last 200 entries, not semantic vector search. Memories are not yet reviewed/approved before sharing.
+- Memory ranking is lexical BM25-style retrieval over at most 500 recent memories per world; it is not semantic vector search. Memories are not yet reviewed/approved before sharing.
 - Existing per-world runtime metrics measure reliability and speed, not answer quality. The new lab adds basic structural signals, not semantic judging.
 - No fine-tuning or automatic architecture mutation is implemented.
 - The experiment lab is sequential and uses a small fixed benchmark; it requires a reachable model endpoint.

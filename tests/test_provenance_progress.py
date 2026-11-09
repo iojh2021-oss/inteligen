@@ -47,14 +47,14 @@ def test_manual_evidence_is_hashed_and_marked_reviewed(db):
 
 def test_simulation_and_model_output_cannot_confirm_real_world_experience(db):
     simulation_id = _new_experience()
-    with pytest.raises(ValueError, match="simulation evidence can only produce an inconclusive"):
+    with pytest.raises(ValueError, match="confirmed/refuted outcomes require manual_observation or external_reference evidence"):
         provenance.resolve_experience(
             simulation_id, "Simulation result", "confirmed",
             evidence_note="simulated", evidence_source_type="simulation",
             reviewer_label="reviewer",
         )
     model_id = _new_experience()
-    with pytest.raises(ValueError, match="model_generated evidence can only produce an inconclusive"):
+    with pytest.raises(ValueError, match="confirmed/refuted outcomes require manual_observation or external_reference evidence"):
         provenance.resolve_experience(
             model_id, "Generated claim", "refuted",
             evidence_note="model said so", evidence_source_type="model_generated",

@@ -80,3 +80,99 @@ def evaluate_worlds(outputs: dict) -> dict:
         "evaluated_worlds": len(available),
         "worlds": results,
     }
+
+
+# Persisted, versioned evaluation snapshots. Scores remain structural proxies.
+EVALUATION_SCHEMA_VERSION = 1
+
+
+def _evaluation_db():
+    import sqlite3
+    from pathlib import Path
+    from app import config
+
+    path = Path(config.database_path())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path)
+    conn.execute("""CREATE TABLE IF NOT EXISTS evaluation_snapshots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rubric_version INTEGER NOT NULL,
+        world TEXT NOT NULL,
+        score REAL,
+        status TEXT NOT NULL,
+        checks_json TEXT NOT NULL,
+        output_chars INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+    )""")
+    conn.commit()
+    return conn
+
+
+def record_evaluation(report: dict) -> dict:
+    """Persist per-world rubric results and return a versioned snapshot id."""
+    import json
+    from datetime import datetime, timezone
+
+    conn = _evaluation_db()
+    ids = {}
+    try:
+        with conn:
+            for world, result in report["worlds"].items():
+                cur = conn.execute(
+                    """INSERT INTO evaluation_snapshots(
+                        rubric_version,world,score,status,checks_json,output_chars,created_at
+                    ) VALUES(?,?,?,?,?,?,?)""",
+                    (report["rubric_version"], world, result.get("score"),
+                     result.get("status", "evaluated"),
+                     json.dumps(result.get("checks", {}), sort_keys=True),
+                     int(result.get("output_chars", 0)),
+                     datetime.now(timezone.utc).isoformat()),
+                )
+                ids[world] = int(cur.lastrowid)
+    finally:
+        conn.close()
+    return {"snapshot_ids": ids, "rubric_version": report["rubric_version"]}
+
+
+def evaluation_history(limit: int = 100) -> dict:
+    """Return latest records and per-world change from the preceding recorded score."""
+    import json
+
+    limit = min(max(int(limit), 1), 500)
+    conn = _evaluation_db()
+    try:
+        rows = conn.execute(
+            """SELECT id,rubric_version,world,score,status,checks_json,output_chars,created_at
+               FROM evaluation_snapshots ORDER BY id DESC LIMIT ?""",
+            (limit,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    latest = {}
+    previous = {}
+    for row in rows:
+        world = row[2]
+        if world not in latest:
+            latest[world] = row
+        elif world not in previous and row[3] is not None:
+            previous[world] = row
+
+    worlds = {}
+    for world, row in latest.items():
+        prior = previous.get(world)
+        worlds[world] = {
+            "latest": {
+                "id": row[0], "rubric_version": row[1], "score": row[3],
+                "status": row[4], "checks": json.loads(row[5]),
+                "output_chars": row[6], "created_at": row[7],
+            },
+            "previous_score": prior[3] if prior else None,
+            "score_delta": round(row[3] - prior[3], 2)
+                if prior and row[3] is not None and prior[3] is not None
+                and row[1] == prior[1] else None,
+        }
+    return {
+        "scope": "structural rubric coverage only; not factual correctness or intelligence",
+        "worlds": worlds,
+    }

@@ -23,7 +23,11 @@ def main() -> None:
     if not asyncio.run(model.get_client().ping()):
         raise SystemExit("The local Ollama OpenAI-compatible endpoint is not reachable.")
 
+    # Backfill prior SQLite records before answering; failure never blocks the
+    # primary memory or the five-world cycle because BM25 remains available.
+    semantic_backfill = memory.backfill_semantic(limit=2000)
     result = asyncio.run(run_five_worlds(question))
+    semantic_status = memory.semantic_summary()
     timestamp = datetime.now(timezone.utc).isoformat()
     successful_worlds = [name for name, value in result["worlds"].items()
                          if not str(value).startswith("(unavailable:")]
@@ -59,6 +63,7 @@ def main() -> None:
         "worlds": result["worlds"],
         "evaluation": evaluation_report,
         "fixed_benchmark": benchmark_report,
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
         "safety": result["safety"],
         "errors": result["errors"],
     }
@@ -75,6 +80,7 @@ def main() -> None:
         "updated_at": timestamp,
         "worlds": memory.metrics_summary(),
         "memory_items": len(memory.recent(100)),
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
         "evaluation": {
             "rubric_version": evaluation_report["rubric_version"],
             "overall_score": evaluation_report["overall_score"],
@@ -105,7 +111,9 @@ def main() -> None:
         "evaluation_overall_score": evaluation_report["overall_score"],
         "evaluation_scope": evaluation_report["scope"],
         "fixed_benchmark_version": benchmark_report["benchmark_version"],
-        "fixed_benchmark_score": benchmark_report["overall_score"], "safety": result["safety"],
+        "fixed_benchmark_score": benchmark_report["overall_score"],
+        "semantic_memory": {"backfill": semantic_backfill, "status": semantic_status},
+        "safety": result["safety"],
         "failed_worlds": result["errors"],
         "memory_path": os.environ.get("DATABASE_PATH", "data/memory.sqlite3"),
     }, ensure_ascii=False))

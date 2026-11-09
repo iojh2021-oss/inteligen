@@ -16,7 +16,7 @@ The project's non-negotiable destination is:
 2. Add world-specific state, datasets, metrics, and memory retrieval. **Current partial progress:** per-world memory is isolated and now uses deterministic BM25-style lexical ranking on the feature branch; world-specific datasets and capability-quality metrics remain outstanding.
 3. Add durable long-term memory with provenance, timestamps, correction/forgetting support, and approved sharing.
 4. Build a sandboxed simulation and experiment runner.
-5. Add a reproducible evaluation harness and baseline comparisons.
+5. Add a reproducible evaluation harness and baseline comparisons. **Partial implementation:** fixed benchmark cases, deterministic rubric scoring, per-world summaries, isolated per-case SQLite databases, and baseline/candidate regression comparison. The current rubric is only a text-coverage proxy, not semantic quality validation.
 6. Add a proposal-only evolution loop: generate candidate changes, test in isolation, compare on held-out tests, and require human approval before promotion.
 
 ## Acceptance criteria
@@ -34,4 +34,6 @@ No self-modifying production code, autonomous deployment, arbitrary shell execut
 - Phase 1: done in code (model adapter with injectable client, failure isolation, end-to-end tests). Needs a real run against the GitHub-hosted model cycle to confirm.
 - Phase 2: partial. Per-world retrieval and reliability metrics exist; world-specific datasets and quality metrics do not yet.
 - Phase 3: started. Provenance, timestamps and forgetting exist; correction and approval of shared memories do not.
-- Phases 4-6: not started.
+- Phase 4: not started; no isolated simulation sandbox exists yet.
+- Phase 5: partial; baseline comparison is implemented, but held-out semantic evaluation and calibrated quality metrics remain outstanding.
+- Phase 6: not started; candidate generation, safe patch testing, and rollback workflow remain outstanding.

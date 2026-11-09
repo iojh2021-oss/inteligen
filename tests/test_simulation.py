@@ -78,3 +78,38 @@ def test_simulation_api_rejects_bad_input_and_unknown_run(db):
     client = TestClient(app)
     assert client.post("/simulations/run", json={"scenario": "missing", "parameters": {}}).status_code == 422
     assert client.get("/simulations/999").status_code == 404
+
+
+
+def test_simulation_result_is_attached_as_inconclusive_experience(db):
+    client = TestClient(app)
+    created = client.post("/simulations/run", json={
+        "scenario": "exponential_decay",
+        "parameters": {"initial_value": 100, "decay_rate": 0.2, "steps": 1},
+    })
+    run_id = created.json()["run_id"]
+
+    attached = client.post(f"/simulations/{run_id}/experience", json={
+        "world": "science",
+        "hypothesis": "The decay model reduces the measured quantity",
+        "prediction": "The final value will be 80",
+        "expected_metric": "final_value",
+        "predicted_value": 80,
+        "confidence": 0.9,
+    })
+    assert attached.status_code == 201
+    item = attached.json()
+    assert item["outcome_status"] == "inconclusive"
+    assert item["observed_value"] == 80
+    assert "Simulation-only evidence" in item["evidence_note"]
+    assert item["request_id"].startswith("simulation:")
+
+
+def test_simulation_experience_rejects_missing_run(db):
+    client = TestClient(app)
+    response = client.post("/simulations/999/experience", json={
+        "world": "science",
+        "hypothesis": "A hypothesis",
+        "prediction": "A prediction",
+    })
+    assert response.status_code == 422

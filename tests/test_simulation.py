@@ -105,6 +105,24 @@ def test_simulation_result_is_attached_as_inconclusive_experience(db):
     assert item["request_id"].startswith("simulation:")
 
 
+def test_simulation_experience_only_compares_the_requested_metric(db):
+    client = TestClient(app)
+    created = client.post("/simulations/run", json={
+        "scenario": "exponential_decay",
+        "parameters": {"initial_value": 100, "decay_rate": 0.2, "steps": 1},
+    })
+    attached = client.post(f"/simulations/{created.json()['run_id']}/experience", json={
+        "world": "science",
+        "hypothesis": "Compare an unsupported metric",
+        "prediction": "The metric will be 80",
+        "expected_metric": "unknown_metric",
+        "predicted_value": 80,
+    })
+    assert attached.status_code == 201
+    assert attached.json()["observed_value"] is None
+    assert attached.json()["absolute_error"] is None
+
+
 def test_simulation_experience_rejects_missing_run(db):
     client = TestClient(app)
     response = client.post("/simulations/999/experience", json={

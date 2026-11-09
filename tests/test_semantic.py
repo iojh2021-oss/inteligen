@@ -125,6 +125,8 @@ def test_resolving_experience_refreshes_its_semantic_vector(db, monkeypatch):
     memory.resolve_experience(
         item_id, "observed stable temperature", "confirmed",
         evidence_note="observed in controlled test",
+        evidence_source_type="manual_observation",
+        reviewer_label="human-review",
     )
     assert len(calls) == before + 1
     assert "observed stable temperature" in calls[-1]

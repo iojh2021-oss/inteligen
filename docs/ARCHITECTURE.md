@@ -68,3 +68,16 @@ The existing root dashboard route is preserved. The health endpoint reports the 
 - Existing memories and experience records can be indexed incrementally with `POST /memory/semantic/backfill?limit=500`; status is exposed at `GET /memory/semantic`. Resolving an experience refreshes its vector so the observation and evidence note can affect later retrieval.
 - The primary memory save succeeds even if embedding inference fails. Retrieval then uses BM25 as a fallback. Deleting a memory also deletes its stored vector.
 - GitHub Actions restores/saves the FastEmbed model cache separately from SQLite memory. Unit tests use deterministic fake vectors and do not download the model.
+
+
+## Evidence provenance and validation (next milestone)
+- Every resolved experience can record an evidence source type, optional source reference, reviewer label, validation status, and SHA-256 fingerprint of the canonical evidence payload.
+- A `confirmed` or `refuted` status requires manual-observation or external-reference evidence, an evidence note, and a reviewer label. External references also require a reference identifier.
+- Simulation, model-generated, and unknown sources are restricted to `inconclusive`; simulation output is not promoted into real-world proof.
+- The digest detects later payload changes only when compared with a trusted copy; it does not authenticate the source or reviewer. Reviewer labels are not identity verification.
+- Existing experience rows remain readable and are reported as unverified when no provenance row exists.
+
+## Per-world progress API
+- `GET /progress` reports each world's own memory count, operational reliability/latency, experience outcomes, provenance counts, and latest fixed-benchmark score/trend.
+- Progress is independent at the data and measurement level. The five worlds still share the same underlying model; this is not five separately trained models.
+- Benchmark trend is a structural rubric signal, not proof of factual correctness or learning. At least two comparable benchmark snapshots are needed before a delta can be reported.

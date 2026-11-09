@@ -30,3 +30,41 @@ def test_unavailable_world_is_not_given_a_zero_quality_score():
     assert result["worlds"]["reasoning"]["status"] == "unavailable"
     assert result["worlds"]["reasoning"]["score"] is None
     assert result["evaluated_worlds"] == 4
+
+
+def test_evaluation_snapshots_track_same_rubric_delta(db):
+    from app.evaluation import evaluation_history, record_evaluation
+
+    first = evaluate_worlds({
+        "knowledge": "Concept definition, verified fact, evidence, uncertainty.",
+    })
+    record_evaluation(first)
+    second = evaluate_worlds({
+        "knowledge": "Concept definition and verified fact with evidence; uncertainty remains.",
+    })
+    record_evaluation(second)
+    history = evaluation_history()
+    item = history["worlds"]["knowledge"]
+    assert item["latest"]["rubric_version"] == 1
+    assert item["score_delta"] == 0
+
+
+def test_evaluation_api_persists_snapshot_and_history(db):
+    from starlette.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    response = client.post("/evaluations", json={"worlds": {
+        "science": "Hypothesis, prediction, experiment, measurement and limitation."
+    }})
+    assert response.status_code == 201
+    assert "snapshot_ids" in response.json()["persistence"]
+    history = client.get("/evaluations/history").json()
+    assert history["worlds"]["science"]["latest"]["score"] == 100
+
+
+def test_evaluation_rejects_non_object_worlds(db):
+    from starlette.testclient import TestClient
+    from app.main import app
+
+    assert TestClient(app).post("/evaluations", json={"worlds": []}).status_code == 422

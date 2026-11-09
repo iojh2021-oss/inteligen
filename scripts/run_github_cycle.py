@@ -12,6 +12,7 @@ from pathlib import Path
 
 from app import memory, model
 from app.orchestrator import run_five_worlds
+from app.worlds import WORLDS
 
 
 def main() -> None:
@@ -24,7 +25,20 @@ def main() -> None:
 
     result = asyncio.run(run_five_worlds(question))
     timestamp = datetime.now(timezone.utc).isoformat()
+    successful_worlds = [
+        name for name, value in result["worlds"].items()
+        if not str(value).startswith("(unavailable:")
+    ]
+    expected_worlds = list(WORLDS)
+    missing_worlds = sorted(set(expected_worlds) - set(result["worlds"]))
+    if missing_worlds:
+        raise SystemExit("Runner returned an incomplete world set: " + ", ".join(missing_worlds))
+
     state = {
+        "schema_version": 1,
+        "status": "complete" if not result["errors"] and len(successful_worlds) == len(expected_worlds) else "partial",
+        "expected_world_count": len(expected_worlds),
+        "successful_worlds": successful_worlds,
         "timestamp": timestamp,
         "request_id": result["request_id"],
         "model": os.environ.get("MODEL_NAME", "qwen3:1.7b"),
@@ -54,8 +68,9 @@ def main() -> None:
     print(json.dumps({
         "ok": True,
         "request_id": result["request_id"],
-        "successful_worlds": [k for k, v in result["worlds"].items()
-                              if not str(v).startswith("(unavailable:")],
+        "status": state["status"],
+        "successful_worlds": successful_worlds,
+        "expected_worlds": expected_worlds,
         "failed_worlds": result["errors"],
         "memory_path": os.environ.get("DATABASE_PATH", "data/memory.sqlite3"),
     }, ensure_ascii=False))

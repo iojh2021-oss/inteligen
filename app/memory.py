@@ -33,6 +33,13 @@ def _db():
         vector_json TEXT NOT NULL,
         created_at TEXT NOT NULL
     )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS semantic_experience_embeddings (
+        experience_id INTEGER PRIMARY KEY,
+        world TEXT NOT NULL,
+        model_version TEXT NOT NULL,
+        vector_json TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    )""")
     conn.execute("""CREATE TABLE IF NOT EXISTS world_metrics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         world TEXT NOT NULL,
@@ -84,6 +91,34 @@ def _index_memory(memory_id: int, world: str, prompt: str) -> list[float] | bool
         return vector
     finally:
         conn.close()
+
+
+
+
+def _index_experience(experience_id: int, world: str, text: str) -> list[float] | bool:
+    if not semantic.enabled():
+        return False
+    vector = semantic.embed_text(text)
+    import json
+    conn = _db()
+    try:
+        with conn:
+            conn.execute(
+                """INSERT OR REPLACE INTO semantic_experience_embeddings(
+                    experience_id,world,model_version,vector_json,created_at
+                ) VALUES(?,?,?,?,?)""",
+                (experience_id, world, semantic.MODEL_VERSION,
+                 json.dumps(vector, separators=(",", ":")), _now()),
+            )
+        return vector
+    finally:
+        conn.close()
+
+
+def _experience_text(item: dict) -> str:
+    return " ".join(str(item.get(key) or "") for key in (
+        "hypothesis", "prediction", "observed_outcome", "evidence_note"
+    ))[:8000]
 
 
 def save(world: str, prompt: str, result: str, request_id: str = None):

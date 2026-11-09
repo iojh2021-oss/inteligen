@@ -16,14 +16,46 @@ runs:
     - name: Install and start Ollama
       shell: bash
       run: |
-        curl -fsSL https://ollama.com/install.sh | sh
+        set -euo pipefail
+
+        # Reuse an existing installation when the runner image already has Ollama.
+        if ! command -v ollama >/dev/null 2>&1; then
+          install_script=/tmp/ollama-install.sh
+          downloaded=false
+
+          # Retry transient 5xx/504 responses from the installer endpoint.
+          for attempt in 1 2 3; do
+            if curl --fail --silent --show-error --location \
+              --connect-timeout 20 --max-time 180 \
+              --retry 5 --retry-all-errors --retry-delay 5 --retry-max-time 180 \
+              https://ollama.com/install.sh -o "$install_script"; then
+              downloaded=true
+              break
+            fi
+            echo "Ollama installer download attempt $attempt failed; retrying..."
+            sleep $((attempt * 10))
+          done
+
+          if [ "$downloaded" != "true" ] || [ ! -s "$install_script" ]; then
+            echo "::error::Could not download the Ollama installer after retries."
+            exit 1
+          fi
+
+          bash "$install_script"
+        else
+          echo "Ollama is already installed: $(ollama --version)"
+        fi
+
         nohup ollama serve >/tmp/ollama.log 2>&1 &
         for attempt in $(seq 1 60); do
-          if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
+          if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
+            echo "Ollama server is ready."
             exit 0
           fi
           sleep 2
         done
+
+        echo "::error::Ollama server did not become ready."
         cat /tmp/ollama.log
         exit 1
 
@@ -32,6 +64,7 @@ runs:
       env:
         MODEL: ${{ inputs.model }}
       run: |
+        set -euo pipefail
         ollama pull "$MODEL"
         ollama list
         curl --fail --silent --show-error http://127.0.0.1:11434/v1/models

@@ -31,6 +31,13 @@ def assess(expected_worlds: int, successful_worlds: list, evaluation: dict, erro
         level = "medium"
     else:
         level = "high"
+    missing = {name: item.get("missing", []) for name, item in (evaluation or {}).get("worlds", {}).items()
+               if item.get("missing")}
+    if missing:
+        reasons.append("missing criteria: " + "; ".join(
+            f"{name} ({', '.join(items)})" for name, items in sorted(missing.items())))
+    if score is not None and score < HIGH_AT_LEAST and not weak and ok == expected_worlds:
+        reasons.append(f"overall coverage {score} is below {HIGH_AT_LEAST}")
     if not reasons:
         reasons.append("all worlds answered and covered their rubric criteria")
 

@@ -27,7 +27,7 @@ details{margin-top:8px}summary{cursor:pointer;color:var(--accent)}
 .txt p,.txt li{margin:4px 0;overflow-wrap:anywhere}.txt ul{margin:4px 0;padding-inline-start:20px}
 table{width:100%;border-collapse:collapse}td,th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:start}
 .bars{display:flex;align-items:flex-end;gap:4px;height:90px}
-.bars div{flex:1;min-width:6px;background:#3b82c4;border-radius:4px 4px 0 0}
+.bars div{flex:1;min-width:6px;background:#3b82c4;border-radius:4px 4px 0 0;position:relative}.bars .bv{position:absolute;top:-1.4em;left:0;right:0;text-align:center;font-size:.75rem;color:var(--muted)}.bars{padding-top:1.6em}
 .score{font-size:1.6rem;font-weight:700}
 </style>
 </head>
@@ -55,7 +55,7 @@ const T={
 fa:{tag:'بدون سرور · اجرا روی GitHub Actions',sub:'یک مغز مرکزی که پنج دنیا، حافظه بلندمدت، آزمایشگاه شبیه‌سازی و موتور ارزیابی و تکامل را هماهنگ می‌کند.',
  loading:'در حال بارگذاری…',awaiting:'در انتظار اجرا',complete:'هر پنج دنیا کامل شدند',partial:'اجرای ناقص',
  run:'اجرای یک چرخه مغز',evo:'موتور تکامل (تأیید انسانی)',repo:'مخزن و کد',lang:'English',
- live:'وضعیت زنده یادگیری زمان‌بندی‌شده',cyc:'چرخه‌ها',cyc_total:'کل',cyc_ok:'کامل',cyc_part:'ناقص',cyc_fail:'ناموفق',lastrun:'آخرین اجرا',lastcomplete:'آخرین چرخه کامل',cadence:'برنامه',everyh:'هر {n} ساعت (تقریبی)',never:'هنوز اجرا نشده',unknown:'نامشخص',stale:'قدیمی؛ شاید زمان‌بندی متوقف یا دیر شده است',fresh:'به‌روز',pw_world:'دنیا',pw_runs:'اجرا',pw_ok:'موفق',pw_fail:'ناموفق',pw_last:'آخرین امتیاز',pw_best:'بهترین',livenote:'این سامانه سرور همیشه‌روشن نیست. GitHub Actions طبق زمان‌بندی یک چرخه کوتاه اجرا می‌کند و تاخیر یا لغو آن ممکن است. یادگیری از طریق حافظه و بازخورد بین چرخه‌ها است، نه آموزش وزن‌های مدل.',lastlaunch:'منبع آخرین سؤال',curriculum:'برنامه چرخشی',manual:'دستی',ago:'پیش',hours:'ساعت',minutes:'دقیقه',
+ live:'وضعیت زنده یادگیری زمان‌بندی‌شده',cyc:'چرخه‌ها',cyc_total:'کل',cyc_ok:'کامل',cyc_part:'ناقص',cyc_fail:'ناموفق',lastrun:'آخرین اجرا',lastcomplete:'آخرین چرخه کامل',cadence:'برنامه',everyh:'هر {n} ساعت (تقریبی)',never:'هنوز اجرا نشده',unknown:'نامشخص',stale:'قدیمی؛ شاید زمان‌بندی متوقف یا دیر شده است',fresh:'به‌روز',pw_world:'دنیا',pw_runs:'اجرا',pw_ok:'موفق',pw_fail:'ناموفق',pw_last:'آخرین امتیاز',pw_best:'بهترین',counters_note:'شمارنده‌های این پنل از اولین چرخه‌ای که وضعیت ثبت کرد شروع می‌شوند؛ جدول «اجرا و تأخیر» و حافظه از ابتدای دیتابیس شمارش می‌کنند، پس ممکن است عددهایشان بیشتر باشد.',livenote:'این سامانه سرور همیشه‌روشن نیست. GitHub Actions طبق زمان‌بندی یک چرخه کوتاه اجرا می‌کند و تاخیر یا لغو آن ممکن است. یادگیری از طریق حافظه و بازخورد بین چرخه‌ها است، نه آموزش وزن‌های مدل.',lastlaunch:'منبع آخرین سؤال',curriculum:'برنامه چرخشی',manual:'دستی',ago:'پیش',hours:'ساعت',minutes:'دقیقه',
  arch:'معماری',brain:'مغز مرکزی · آخرین جمع‌بندی',worlds:'نتایج پنج دنیا',memory:'حافظه بلندمدت',evol:'آزمایشگاه شبیه‌سازی و موتور تکامل',hist:'روند امتیاز پوشش (هر چرخه)',metrics:'اجرا و تأخیر',
  a_brain:['🧠 مغز مرکزی','مدیریت، تصمیم‌گیری و هماهنگی پنج دنیا'],
  a_knowledge:['🌐 دنیای دانش','یادگیری و گسترش دانش'],a_reasoning:['🧩 دنیای استدلال','تقویت منطق و حل مسئله'],
@@ -76,7 +76,7 @@ fa:{tag:'بدون سرور · اجرا روی GitHub Actions',sub:'یک مغز �
 en:{tag:'SERVERLESS · GITHUB ACTIONS',sub:'One central brain coordinating five worlds, long-term memory, a simulation lab and an evaluation and evolution engine.',
  loading:'Loading…',awaiting:'Awaiting run',complete:'All five worlds completed',partial:'Partial cycle',
  run:'Run a brain cycle',evo:'Evolution engine (human approval)',repo:'Repository & source',lang:'فارسی',
- live:'Live scheduled-learning status',cyc:'Cycles',cyc_total:'Total',cyc_ok:'Complete',cyc_part:'Partial',cyc_fail:'Failed',lastrun:'Last run',lastcomplete:'Last complete cycle',cadence:'Schedule',everyh:'about every {n} hours',never:'Not run yet',unknown:'Unknown',stale:'Stale: the schedule may be paused or delayed',fresh:'Up to date',pw_world:'World',pw_runs:'Runs',pw_ok:'OK',pw_fail:'Failed',pw_last:'Last score',pw_best:'Best',livenote:'This is not an always-on server. GitHub Actions starts a short cycle on a schedule and may delay or skip it. Learning happens through memory and feedback between cycles, not by training model weights.',lastlaunch:'Last question source',curriculum:'rotating curriculum',manual:'manual',ago:'ago',hours:'h',minutes:'min',
+ live:'Live scheduled-learning status',cyc:'Cycles',cyc_total:'Total',cyc_ok:'Complete',cyc_part:'Partial',cyc_fail:'Failed',lastrun:'Last run',lastcomplete:'Last complete cycle',cadence:'Schedule',everyh:'about every {n} hours',never:'Not run yet',unknown:'Unknown',stale:'Stale: the schedule may be paused or delayed',fresh:'Up to date',pw_world:'World',pw_runs:'Runs',pw_ok:'OK',pw_fail:'Failed',pw_last:'Last score',pw_best:'Best',counters_note:'Counters in this panel start from the first cycle that recorded status; the execution table and memory count from the start of the database, so their numbers can be higher.',livenote:'This is not an always-on server. GitHub Actions starts a short cycle on a schedule and may delay or skip it. Learning happens through memory and feedback between cycles, not by training model weights.',lastlaunch:'Last question source',curriculum:'rotating curriculum',manual:'manual',ago:'ago',hours:'h',minutes:'min',
  arch:'Architecture',brain:'Central brain · Latest synthesis',worlds:'Five-world results',memory:'Long-term memory',evol:'Simulation lab & evolution engine',hist:'Coverage score trend (per cycle)',metrics:'Execution & latency',
  a_brain:['🧠 Central brain','Manages intelligence, decisions and coordinates the five worlds'],
  a_knowledge:['🌐 Knowledge world','Learning and expanding knowledge'],a_reasoning:['🧩 Reasoning world','Strengthening logic and problem solving'],
@@ -102,15 +102,26 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inline=x=>x.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');
 function md(s){
- let out='',list=false;
+ let out='',list=false,rows=[];
+ const cells=r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+ const flushTable=()=>{
+  if(!rows.length)return;
+  const body=rows.filter(r=>!/^[\s|:-]+$/.test(r)).map(cells);
+  if(body.length){out+='<div style="overflow-x:auto"><table dir="auto">'+body.map((r,i)=>'<tr>'+r.map(c=>(i?'<td>':'<th>')+inline(c)+(i?'</td>':'</th>')).join('')+'</tr>').join('')+'</table></div>'}
+  rows=[];
+ };
  for(const raw of esc(s).split('\n')){
-  const l=raw.trim(),li=/^[-*]\s+(.*)$/.exec(l)||/^\d+\.\s+(.*)$/.exec(l);
-  if(li){if(!list){out+='<ul>';list=true}out+='<li>'+inline(li[1])+'</li>';continue}
+  const l=raw.trim();
+  if(l.startsWith('|')){if(list){out+='</ul>';list=false}rows.push(l);continue}
+  flushTable();
+  const li=/^[-*]\s+(.*)$/.exec(l)||/^\d+\.\s+(.*)$/.exec(l);
+  if(li){if(!list){out+='<ul dir="auto">';list=true}out+='<li dir="auto">'+inline(li[1])+'</li>';continue}
   if(list){out+='</ul>';list=false}
   const h=/^#{1,4}\s+(.*)$/.exec(l);
-  if(h){out+='<h4>'+inline(h[1])+'</h4>';continue}
-  if(l)out+='<p>'+inline(l)+'</p>';
+  if(h){out+='<h4 dir="auto">'+inline(h[1])+'</h4>';continue}
+  if(l&&!/^-{3,}$/.test(l))out+='<p dir="auto">'+inline(l)+'</p>';
  }
+ flushTable();
  return out+(list?'</ul>':'');
 }
 const when=ts=>ts?new Date(ts).toLocaleString(lang==='fa'?'fa-IR':'en-GB'):'';
@@ -150,6 +161,7 @@ function renderLive(s,st){
   <p>${esc(t('cyc'))}: ${esc(t('cyc_total'))} <b>${esc(st.cycles_total)}</b> · ${esc(t('cyc_ok'))} <b>${esc(st.cycles_complete)}</b> · ${esc(t('cyc_part'))} <b>${esc(st.cycles_partial)}</b> · ${esc(t('cyc_fail'))} <b>${esc(st.cycles_failed)}</b></p>
   ${st.last_error?`<p style="color:#feb2b2">${esc(st.last_error)}</p>`:''}
   <table><tr><th>${esc(t('pw_world'))}</th><th>${esc(t('pw_runs'))}</th><th>${esc(t('pw_ok'))}</th><th>${esc(t('pw_fail'))}</th><th>${esc(t('pw_last'))}</th><th>${esc(t('pw_best'))}</th></tr>${rows}</table>
+  <p class="muted"><small>${esc(t('counters_note'))}</small></p>
   <p class="muted"><small>${esc(t('livenote'))}</small></p>`;
 }
 function renderArch(s,m,e){
@@ -209,7 +221,7 @@ function renderEvo(e){
 }
 function renderHist(h){
  const pts=h.filter(x=>x.score!=null);
- $('hist').innerHTML=pts.length?`<div class="bars">${pts.map(x=>`<div style="height:${Math.max(3,x.score)}%" title="v${esc(x.v)} · ${esc(x.score)}% · ${esc(when(x.t))}"></div>`).join('')}</div>`:`<p class="muted">${esc(t('hist_none'))}</p>`;
+ $('hist').innerHTML=pts.length?`<div class="bars">${pts.map(x=>`<div style="height:${Math.max(8,x.score)}%" title="v${esc(x.v)} · ${esc(x.score)}% · ${esc(when(x.t))}"><span class="bv">${esc(x.score)}%</span></div>`).join('')}</div>`:`<p class="muted">${esc(t('hist_none'))}</p>`;
 }
 function renderMetrics(m){
  const w=m&&m.worlds;

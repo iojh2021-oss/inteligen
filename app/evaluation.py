@@ -5,6 +5,8 @@ It deliberately reports observable text signals and missing criteria for human r
 """
 import re
 
+RUBRIC_VERSION = 1
+
 RUBRICS = {
     "knowledge": {
         "concepts": (r"concept|definition|means|refers to|مفهوم|تعریف|یعنی",),
@@ -74,7 +76,7 @@ def evaluate_worlds(outputs: dict) -> dict:
             results[world] = {"status": "evaluated", **evaluate_text(world, str(value))}
     available = [v["score"] for v in results.values() if v["score"] is not None]
     return {
-        "rubric_version": 1,
+        "rubric_version": RUBRIC_VERSION,
         "scope": "deterministic text-coverage signals; human review still required",
         "overall_score": round(sum(available) / len(available)) if available else None,
         "evaluated_worlds": len(available),

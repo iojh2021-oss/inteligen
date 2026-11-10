@@ -18,7 +18,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import config, memory, simulation, versions
+from app import config, learning, memory, simulation, state_guard, versions
+from app.evaluation import RUBRIC_VERSION
 from app.worlds import MAX_ADDITION_CHARS, WORLDS
 
 HISTORY_LIMIT = 100
@@ -75,14 +76,7 @@ def _dir() -> Path:
 # ---- history -----------------------------------------------------------------
 
 def load_history() -> list:
-    path = _dir() / "history.json"
-    if not path.exists():
-        return []
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except ValueError:
-        return []
-    return data if isinstance(data, list) else []
+    return learning.load_history()
 
 
 def record_cycle(state: dict) -> dict:
@@ -100,9 +94,7 @@ def record_cycle(state: dict) -> dict:
         },
     }
     history = (load_history() + [entry])[-HISTORY_LIMIT:]
-    path = _dir() / "history.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(history, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    state_guard.atomic_write_json(_dir() / "history.json", history, indent=1)
     return entry
 
 
@@ -155,6 +147,11 @@ def _mean(values):
 
 def compare(baseline: dict, candidate: dict) -> dict:
     """Paired comparison of rubric scores. Unavailable worlds never count as zero."""
+    if len(baseline["runs"]) != len(candidate["runs"]) or not baseline["runs"]:
+        return {"verdict": "inconclusive", "reason": "baseline and candidate ran different numbers "
+                "of benchmark runs", "paired_scores": 0, "baseline_mean": None,
+                "candidate_mean": None, "mean_gain": None, "per_world_gain": {},
+                "unavailable": {"baseline": 0, "candidate": 0}, "thresholds": {}}
     diffs, base_scores, cand_scores = [], [], []
     per_world = {w: [] for w in WORLDS}
     unavailable = {"baseline": 0, "candidate": 0}
@@ -207,8 +204,9 @@ async def evaluate_cycle() -> dict:
                 "message": "No recurring weakness found under the current stable version "
                            "(or no production cycle has run yet). Nothing to test."}
     questions = simulation.load_benchmark()
-    baseline = await simulation.run_benchmark(stable["world_additions"], questions)
-    candidate = await simulation.run_benchmark(candidate_additions, questions)
+    repeats = config.lab_repeats()
+    baseline = await simulation.run_benchmark(stable["world_additions"], questions, repeats)
+    candidate = await simulation.run_benchmark(candidate_additions, questions, repeats)
     comparison = compare(baseline, candidate)
     proposal = {
         "id": datetime.now(timezone.utc).strftime("p-%Y%m%dT%H%M%S"),
@@ -220,6 +218,10 @@ async def evaluate_cycle() -> dict:
         "changes": changes,
         "candidate_additions": versions.clean_additions(candidate_additions),
         "benchmark_questions": questions,
+        "rubric_version": RUBRIC_VERSION,
+        "repeats": repeats,
+        "conditions": {"model": config.model_name(), "memory": "disabled in lab",
+                       "runs_per_version": len(baseline["runs"])},
         "baseline_runs": [{"scores": r["scores"], "errors": r["errors"]} for r in baseline["runs"]],
         "candidate_runs": [{"scores": r["scores"], "errors": r["errors"]} for r in candidate["runs"]],
         "comparison": comparison,
@@ -262,11 +264,10 @@ def export_state(state_dir: str = "docs/state") -> None:
         "latest_proposal": proposals[-1] if proposals else None,
         "benchmark_size": len(simulation.load_benchmark()) if (_dir() / "benchmark.json").exists() else 0,
     }
-    (folder / "evolution.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    state_guard.atomic_write_json(folder / "evolution.json", payload)
+    state_guard.atomic_write_json(folder / "status.json", learning.load_status())
     history = [
         {"t": h.get("timestamp"), "v": h.get("config_version"), "score": h.get("overall_score")}
         for h in load_history()[-30:]
     ]
-    (folder / "history.json").write_text(
-        json.dumps(history, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    state_guard.atomic_write_json(folder / "history.json", history, indent=1)

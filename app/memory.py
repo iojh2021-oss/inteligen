@@ -1,7 +1,9 @@
 """Durable SQLite memory with provenance (request_id, world, timestamp), per-world
 retrieval, forgetting, and per-world capability metrics."""
+import math
 import re
 import sqlite3
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -52,6 +54,12 @@ def save(world: str, prompt: str, result: str, request_id: str = None, kind: str
     conn = _db()
     try:
         with conn:
+            # No duplicate records: identical world, kind, prompt and result are stored once.
+            same = conn.execute(
+                "SELECT 1 FROM memories WHERE world=? AND kind=? AND prompt=? AND result=? LIMIT 1",
+                (world, kind, prompt[:8000], result[:12000])).fetchone()
+            if same:
+                return
             conn.execute(
                 "INSERT INTO memories(world,prompt,result,created_at,request_id,kind) VALUES(?,?,?,?,?,?)",
                 (world, prompt[:8000], result[:12000], _now(), request_id, kind),
@@ -86,21 +94,64 @@ def _tokens(text: str) -> set:
     return {t for t in re.findall(r"\w+", text.lower()) if len(t) >= 2}
 
 
+def _trigrams(text: str) -> Counter:
+    flat = " ".join(re.findall(r"\w+", text.lower()))
+    return Counter(flat[i:i + 3] for i in range(len(flat) - 2))
+
+
+def _cosine(a: Counter, b: Counter) -> float:
+    if not a or not b:
+        return 0.0
+    dot = sum(v * b.get(k, 0) for k, v in a.items())
+    norm = math.sqrt(sum(v * v for v in a.values())) * math.sqrt(sum(v * v for v in b.values()))
+    return dot / norm if norm else 0.0
+
+
+CHAR_ONLY_THRESHOLD = 0.35
+
+
 def relevant(world: str, question: str, limit: int = 3):
-    """Keyword-overlap retrieval over this world's own past work (not a vector search).
-    Works for any script, including Persian. Ties are broken by recency."""
+    """Hybrid retrieval over this world's own past work, using only the standard library:
+    keyword overlap plus character-trigram cosine similarity (catches word-form variants such
+    as evaporate/evaporation and works for any script, including Persian). It is a lexical
+    approximation of semantic search, not an embedding model. Ties favour recency."""
     q = _tokens(question)
     if not q:
         return []
+    q_grams = _trigrams(question)
     rows = _rows(f"SELECT {_COLS} FROM memories WHERE world=? AND COALESCE(kind,'experience')!='failure' "
                  "ORDER BY id DESC LIMIT 200", (world,))
     scored = []
     for r in rows:
-        overlap = len(q & _tokens(r[2]))
-        if overlap:
-            scored.append((overlap, r[0], r))
+        overlap = len(q & _tokens(r[2])) / len(q)
+        cosine = _cosine(q_grams, _trigrams(r[2]))
+        if overlap > 0 or cosine >= CHAR_ONLY_THRESHOLD:
+            scored.append((0.6 * overlap + 0.4 * cosine, r[0], r))
     scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
     return [_item(s[2]) for s in scored[:limit]]
+
+
+def prune(max_per_world: int = 500, max_failures: int = 100) -> int:
+    """Controlled cleanup: keep the newest experiences per world and the newest failures.
+    Experiments and decisions are small and always kept."""
+    deleted = 0
+    conn = _db()
+    try:
+        with conn:
+            worlds = [r[0] for r in conn.execute("SELECT DISTINCT world FROM memories")]
+            for w in worlds:
+                cur = conn.execute(
+                    "DELETE FROM memories WHERE world=? AND COALESCE(kind,'experience')='experience' AND id NOT IN "
+                    "(SELECT id FROM memories WHERE world=? AND COALESCE(kind,'experience')='experience' "
+                    "ORDER BY id DESC LIMIT ?)", (w, w, max_per_world))
+                deleted += cur.rowcount
+            cur = conn.execute(
+                "DELETE FROM memories WHERE kind='failure' AND id NOT IN "
+                "(SELECT id FROM memories WHERE kind='failure' ORDER BY id DESC LIMIT ?)", (max_failures,))
+            deleted += cur.rowcount
+    finally:
+        conn.close()
+    return deleted
 
 
 def latest_of_kind(kind: str, limit: int = 2):

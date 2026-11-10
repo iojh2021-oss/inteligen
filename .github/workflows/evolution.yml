@@ -50,6 +50,7 @@ jobs:
       REQUEST_TIMEOUT_SECONDS: "600"
       DATABASE_PATH: data/memory.sqlite3
       LAB_MAX_QUESTIONS: "2"
+      LAB_REPEATS: "2"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,7 +88,10 @@ jobs:
           esac
 
       - name: Persist state to the state branch
-        run: bash scripts/state_sync.sh push
+        # Never overwrite a healthy state branch with an inconsistent state.
+        run: |
+          python scripts/validate_state.py
+          bash scripts/state_sync.sh push
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

@@ -6,7 +6,8 @@
 set -euo pipefail
 
 BRANCH="${STATE_BRANCH:-state}"
-PATHS=(data/memory.sqlite3 evolution/stable.json evolution/history.json evolution/versions evolution/proposals docs/state)
+PATHS=(data/memory.sqlite3 data/memory.sqlite3.bak evolution/stable.json evolution/history.json evolution/status.json evolution/versions evolution/proposals docs/state)
+SQUASH_AT="${STATE_SQUASH_AT:-300}"
 
 remote_has_branch() {
   git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1
@@ -33,12 +34,17 @@ case "${1:-}" in
     git config user.name "github-actions[bot]"
     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
     WT="$(mktemp -d)"
+    SQUASH=0
     if remote_has_branch; then
-      git fetch --depth=1 origin "$BRANCH"
+      git fetch --depth="$((SQUASH_AT + 1))" origin "$BRANCH"
+      # Long-running schedules add many commits; start a fresh history when it gets long.
+      if [ "$(git rev-list --count FETCH_HEAD)" -ge "$SQUASH_AT" ]; then SQUASH=1; fi
+    fi
+    if remote_has_branch && [ "$SQUASH" = 0 ]; then
       git worktree add --detach "$WT" FETCH_HEAD
     else
       git worktree add --detach "$WT"
-      git -C "$WT" checkout -q --orphan "$BRANCH"
+      git -C "$WT" checkout -q --orphan "orphan-$$-$RANDOM"
       git -C "$WT" rm -rfq . || true
     fi
     for p in "${PATHS[@]}"; do
@@ -54,7 +60,11 @@ case "${1:-}" in
       echo "No state changes to commit."
     else
       git commit -q -m "Update state (${GITHUB_WORKFLOW:-manual})"
-      git push origin "HEAD:refs/heads/$BRANCH"
+      if [ "$SQUASH" = 1 ]; then
+        git push --force origin "HEAD:refs/heads/$BRANCH"
+      else
+        git push origin "HEAD:refs/heads/$BRANCH"
+      fi
       echo "State pushed to branch '$BRANCH'."
     fi
     ;;

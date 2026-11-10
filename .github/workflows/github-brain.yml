@@ -1,40 +1,49 @@
 name: GitHub Brain Cycle
 
-# Runs the central brain and the five worlds on a temporary GitHub-hosted runner.
-# Triggered manually or daily. It is intentionally not triggered by code pushes,
-# because one cycle downloads a model and takes many minutes of CPU inference.
+# Scheduled, bounded learning cycles on temporary GitHub-hosted runners.
+#
+# This is NOT an always-on process. GitHub starts a short job on the cron schedule below,
+# the job runs all five worlds once, saves the state to the `state` branch and ends. The next
+# cycle restores that state. Scheduled runs can be delayed or skipped by GitHub, and in public
+# repositories GitHub disables scheduled workflows after 60 days without repository activity.
+#
+# Cadence: every 2 hours (12 cycles/day). Edit the cron line to change it.
+# Pause:   Settings -> Secrets and variables -> Actions -> Variables -> LEARNING_PAUSED=true
+#          (delete the variable or set it to anything else to resume).
+# Manual:  Actions -> GitHub Brain Cycle -> Run workflow (optional question).
 on:
   workflow_dispatch:
     inputs:
       question:
-        description: "Question for the five worlds (stored publicly in this repository)"
+        description: "Optional question (stored publicly). Leave empty to use the rotating curriculum."
         required: false
         type: string
-        default: "Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated."
+        default: ""
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "11 */2 * * *"
 
 permissions:
   contents: write
   pages: write
   id-token: write
 
-# Shared with the Evolution workflow: both commit state, so they must not overlap.
+# Shared with the Evolution workflow: both write state, so they must never overlap.
 concurrency:
   group: inteligen-state
   cancel-in-progress: false
 
 jobs:
   run-five-worlds:
+    if: ${{ vars.LEARNING_PAUSED != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 60
     env:
       MODEL_NAME: qwen3:1.7b
       MODEL_BASE_URL: http://127.0.0.1:11434/v1
       WORLD_CONCURRENCY: "1"
       REQUEST_TIMEOUT_SECONDS: "600"
       DATABASE_PATH: data/memory.sqlite3
-      BRAIN_QUESTION: ${{ github.event.inputs.question || 'Review the previous public learning records. Identify one measurable weakness, propose a safe experiment, and define how its result should be evaluated.' }}
+      BRAIN_QUESTION: ${{ github.event.inputs.question }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,11 +73,21 @@ jobs:
       - name: Compile application and runner
         run: python -m compileall -q app scripts
 
-      - name: Run central brain and five worlds
-        run: python scripts/run_github_cycle.py
+      - name: Run central brain and five worlds (one retry at most)
+        id: cycle
+        run: |
+          python scripts/run_github_cycle.py || {
+            echo "First attempt failed; retrying once after 30 seconds."
+            sleep 30
+            python scripts/run_github_cycle.py
+          }
 
       - name: Persist state to the state branch
-        run: bash scripts/state_sync.sh push
+        if: ${{ always() && steps.cycle.conclusion != 'skipped' }}
+        # Never overwrite a healthy state branch with an inconsistent state.
+        run: |
+          python scripts/validate_state.py
+          bash scripts/state_sync.sh push
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app import config
+from app.evaluation import RUBRIC_VERSION
 from app.worlds import MAX_ADDITION_CHARS, WORLDS
 
 
@@ -30,8 +31,8 @@ def _read(path: Path):
 
 
 def _write(path: Path, data) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    from app import state_guard
+    state_guard.atomic_write_json(path, data)
 
 
 def clean_additions(additions) -> dict:
@@ -118,6 +119,17 @@ def list_proposals() -> list:
     return sorted(items, key=lambda p: p.get("created_at", ""))
 
 
+def benchmark_matches(proposal: dict) -> bool:
+    """True if the benchmark questions and rubric are unchanged since the proposal was tested.
+    Prevents 'improvement' that only comes from editing the questions or the scoring."""
+    path = _dir() / "benchmark.json"
+    if not path.exists() or proposal.get("rubric_version") != RUBRIC_VERSION:
+        return False
+    questions = [q.get("question") for q in _read(path).get("questions", [])]
+    used = proposal.get("benchmark_questions") or []
+    return bool(used) and questions[: len(used)] == used
+
+
 # ---- human-approved changes -------------------------------------------------
 
 def promote(proposal_id: str, approver: str) -> dict:
@@ -128,6 +140,9 @@ def promote(proposal_id: str, approver: str) -> dict:
     if proposal.get("status") != "recommended":
         raise VersionError(
             f"Proposal status is '{proposal.get('status')}'; only 'recommended' can be promoted.")
+    if not benchmark_matches(proposal):
+        raise VersionError("The benchmark questions or rubric changed since this proposal was "
+                           "tested. Run a new evaluation.")
     current = ensure_baseline()
     if proposal.get("base_version") != current["version"]:
         raise VersionError(

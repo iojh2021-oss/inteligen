@@ -20,14 +20,16 @@ def load_benchmark() -> list:
     return questions[: config.lab_max_questions()]
 
 
-async def run_benchmark(additions: dict, questions: list) -> dict:
-    """Run every question once with the given prompt additions and score each world."""
+async def run_benchmark(additions: dict, questions: list, repeats: int = 1) -> dict:
+    """Run every question `repeats` times with the given prompt additions and score each world."""
     runs = []
-    for index, question in enumerate(questions):
+    plan = [(i, q, r) for r in range(repeats) for i, q in enumerate(questions)]
+    for index, question, repeat in plan:
         result = await run_five_worlds(question, additions=additions, lab=True)
         report = evaluation.evaluate_worlds(result["worlds"])
         runs.append({
             "index": index,
+            "repeat": repeat,
             "question": question,
             "errors": result["errors"],
             "scores": {w: report["worlds"][w]["score"] for w in WORLDS},

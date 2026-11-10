@@ -1,0 +1,77 @@
+{
+  "note": "Rotating learning topics, used by scheduled cycles in order. Keep them different from benchmark.json so lab comparisons stay held-out.",
+  "topics": [
+    {
+      "id": "t1",
+      "question": "How can a neighborhood reduce food waste by 30 percent in six months? Propose a plan and how to measure it."
+    },
+    {
+      "id": "t2",
+      "question": "Why do some habits stick while others fade? Suggest an experiment to compare two habit-building methods."
+    },
+    {
+      "id": "t3",
+      "question": "A school wants students to read more for pleasure. What approaches could work and how would they know?"
+    },
+    {
+      "id": "t4",
+      "question": "How could a small clinic reduce missed appointments without spending much money?"
+    },
+    {
+      "id": "t5",
+      "question": "What makes a scientific claim trustworthy? Describe how to judge a surprising health claim you read online."
+    },
+    {
+      "id": "t6",
+      "question": "A city wants fewer traffic injuries near schools. What interventions are plausible and how should they be evaluated?"
+    },
+    {
+      "id": "t7",
+      "question": "How should a team decide between two software designs when evidence is incomplete?"
+    },
+    {
+      "id": "t8",
+      "question": "Why do rumors spread faster than corrections, and what could reduce the spread?"
+    },
+    {
+      "id": "t9",
+      "question": "How can a household cut electricity use by 15 percent? Rank options by evidence and effort."
+    },
+    {
+      "id": "t10",
+      "question": "What is a good way to learn a new language in 100 days, and how would you measure progress?"
+    },
+    {
+      "id": "t11",
+      "question": "How can an online community keep discussions respectful without heavy moderation?"
+    },
+    {
+      "id": "t12",
+      "question": "A farmer has less water each year. Which adaptations are most promising and how can she test them cheaply?"
+    },
+    {
+      "id": "t13",
+      "question": "What would a fair evaluation of a new teaching app look like?"
+    },
+    {
+      "id": "t14",
+      "question": "How do sleep, exercise and study time interact for exam performance? What can and cannot be concluded from observation?"
+    },
+    {
+      "id": "t15",
+      "question": "یک مدرسه می‌خواهد غیبت دانش‌آموزان را کم کند. چه راهکارهایی وجود دارد و چطور اثرشان سنجیده شود؟"
+    },
+    {
+      "id": "t16",
+      "question": "چگونه می‌توان فهمید یک خبر علمی در شبکه‌های اجتماعی قابل اعتماد است یا نه؟"
+    },
+    {
+      "id": "t17",
+      "question": "یک خانواده می‌خواهد مصرف آب خانه را کم کند. چه کارهایی مؤثرتر است و چطور بفهمند جواب داده است؟"
+    },
+    {
+      "id": "t18",
+      "question": "چه آزمایش ساده‌ای می‌تواند نشان بدهد کدام روش مرور درس برای یادگیری بهتر است؟"
+    }
+  ]
+}

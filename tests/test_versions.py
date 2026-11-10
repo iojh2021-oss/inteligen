@@ -1,13 +1,22 @@
+import json
+
 import pytest
 
 from app import versions
+from app.evaluation import RUBRIC_VERSION
+
+QUESTIONS = ["How can a town save water?", "Why do students forget lessons?"]
 
 
 def make_proposal(pid="p-1", status="recommended", base=1, additions=None):
     versions.ensure_baseline()
+    evo = versions._dir()
+    (evo / "benchmark.json").write_text(json.dumps(
+        {"questions": [{"id": f"b{i}", "question": q} for i, q in enumerate(QUESTIONS)]}))
     versions.save_proposal({
         "id": pid, "created_at": "2026-01-01T00:00:00", "status": status, "base_version": base,
         "candidate_additions": additions or {"science": "- State a clear, testable hypothesis."},
+        "benchmark_questions": QUESTIONS, "rubric_version": RUBRIC_VERSION,
     })
 
 
@@ -65,3 +74,20 @@ def test_rollback_restores_old_additions_as_a_new_version(db):
 def test_proposal_ids_cannot_escape_the_folder(db):
     with pytest.raises(versions.VersionError):
         versions.load_proposal("../stable")
+
+
+def test_promotion_is_refused_if_the_benchmark_changed_after_testing(db):
+    make_proposal()
+    (versions._dir() / "benchmark.json").write_text(json.dumps(
+        {"questions": [{"id": "b0", "question": "an easier question"}]}))
+    with pytest.raises(versions.VersionError):
+        versions.promote("p-1", "alice")
+
+
+def test_promotion_is_refused_if_the_rubric_version_changed(db):
+    make_proposal()
+    proposal = versions.load_proposal("p-1")
+    proposal["rubric_version"] = RUBRIC_VERSION + 1
+    versions.save_proposal(proposal)
+    with pytest.raises(versions.VersionError):
+        versions.promote("p-1", "alice")

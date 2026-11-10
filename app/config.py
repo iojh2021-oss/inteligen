@@ -42,3 +42,10 @@ def lab_max_questions() -> int:
         return max(1, int(os.getenv("LAB_MAX_QUESTIONS", "2")))
     except ValueError:
         return 2
+
+
+def lab_repeats() -> int:
+    try:
+        return min(5, max(1, int(os.getenv("LAB_REPEATS", "1"))))
+    except ValueError:
+        return 1

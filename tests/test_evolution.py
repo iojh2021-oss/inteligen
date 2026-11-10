@@ -149,3 +149,57 @@ def test_record_cycle_appends_history(db):
         "overall_score": 80, "worlds": {"science": {"score": 50, "missing": ["test"]}}}})
     entry = evolution.load_history()[-1]
     assert entry["config_version"] == 2 and entry["worlds"]["science"]["missing"] == ["test"]
+
+
+def test_repeats_multiply_lab_runs_and_are_recorded(db, monkeypatch):
+    prepare(db, monkeypatch)
+    monkeypatch.setenv("LAB_REPEATS", "2")
+    original = model.get_client()
+    model.set_client(GuidedModel())
+    try:
+        proposal = run(evolution.evaluate_cycle())["proposal"]
+    finally:
+        model.set_client(original)
+    assert proposal["repeats"] == 2 and len(proposal["candidate_runs"]) == 4
+    assert proposal["conditions"]["runs_per_version"] == 4
+    assert proposal["comparison"]["paired_scores"] == 20
+
+
+def test_compare_refuses_runs_of_unequal_size():
+    result = evolution.compare(lab([scores(50)] * 2), lab([scores(100)]))
+    assert result["verdict"] == "inconclusive"
+
+
+def test_a_regression_in_one_world_is_not_hidden_by_a_strong_average():
+    candidate = dict(scores(100), science=20)
+    result = evolution.compare(lab([scores(50)] * 2), lab([candidate] * 2))
+    assert result["mean_gain"] > 10 and result["verdict"] == "rejected"
+
+
+def test_stable_version_never_changes_without_an_explicit_promote(db, monkeypatch):
+    prepare(db, monkeypatch)
+    original = model.get_client()
+    model.set_client(GuidedModel())
+    try:
+        run(evolution.evaluate_cycle())
+        run(evolution.evaluate_cycle())
+    finally:
+        model.set_client(original)
+    assert versions.load_stable()["version"] == 1 and versions.stable_additions() == {}
+
+
+def test_history_and_status_stay_consistent_after_promote_and_rollback(db, monkeypatch):
+    prepare(db, monkeypatch)
+    original = model.get_client()
+    model.set_client(GuidedModel())
+    try:
+        proposal = run(evolution.evaluate_cycle())["proposal"]
+    finally:
+        model.set_client(original)
+    before = evolution.load_history()
+    versions.promote(proposal["id"], "alice")
+    versions.rollback(1, "alice")
+    assert evolution.load_history() == before
+    assert [v["version"] for v in versions.list_versions()] == [1, 2, 3]
+    from app import state_guard
+    assert state_guard.validate_state(str(db / "docs")) == []

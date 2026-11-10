@@ -29,3 +29,13 @@ def test_weak_coverage_is_reported_and_never_claims_correctness():
     result = brain.assess(5, list(GOOD), report, {})
     assert "reasoning" in result["weak_worlds"] and result["coverage_level"] == "medium"
     assert "not a measure of truth" in result["scope"]
+
+
+def test_reasons_never_claim_full_coverage_when_criteria_are_missing():
+    outputs = dict(GOOD, science="Hypothesis only.", creativity="Several ideas only.")
+    report = evaluation.evaluate_worlds(outputs)
+    result = brain.assess(5, list(GOOD), report, {})
+    text = " ".join(result["reasons"])
+    assert "covered their rubric criteria" not in text
+    assert "science (" in text and "creativity (" in text and "prediction" in text
+    assert result["coverage_level"] != "high"

@@ -1,58 +1,58 @@
 {
-  "updated_at": "2026-11-10T05:41:18.542099+00:00",
+  "updated_at": "2026-11-10T12:53:24.820565+00:00",
   "worlds": {
     "creativity": {
-      "runs": 5,
+      "runs": 6,
       "success_rate": 1.0,
-      "avg_latency_ms": 365259,
-      "avg_output_chars": 3345
+      "avg_latency_ms": 389747,
+      "avg_output_chars": 3337
     },
     "knowledge": {
-      "runs": 5,
+      "runs": 6,
       "success_rate": 1.0,
-      "avg_latency_ms": 65830,
-      "avg_output_chars": 3151
+      "avg_latency_ms": 72185,
+      "avg_output_chars": 3012
     },
     "learning": {
-      "runs": 5,
+      "runs": 6,
       "success_rate": 1.0,
-      "avg_latency_ms": 163674,
-      "avg_output_chars": 4664
+      "avg_latency_ms": 177092,
+      "avg_output_chars": 4522
     },
     "reasoning": {
-      "runs": 5,
-      "success_rate": 0.8,
-      "avg_latency_ms": 232992,
-      "avg_output_chars": 3154
+      "runs": 6,
+      "success_rate": 0.833,
+      "avg_latency_ms": 235175,
+      "avg_output_chars": 3307
     },
     "science": {
-      "runs": 5,
+      "runs": 6,
       "success_rate": 1.0,
-      "avg_latency_ms": 296298,
-      "avg_output_chars": 3336
+      "avg_latency_ms": 306856,
+      "avg_output_chars": 3239
     }
   },
-  "memory_items": 30,
+  "memory_items": 36,
   "memory": {
-    "total": 30,
+    "total": 36,
     "by_world": {
-      "central": 5,
-      "creativity": 5,
-      "knowledge": 5,
-      "learning": 5,
-      "reasoning": 5,
-      "science": 5
+      "central": 6,
+      "creativity": 6,
+      "knowledge": 6,
+      "learning": 6,
+      "reasoning": 6,
+      "science": 6
     },
     "by_kind": {
-      "experience": 29,
+      "experience": 35,
       "failure": 1
     }
   },
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 88,
-    "evaluated_worlds": 4,
+    "overall_score": 80,
+    "evaluated_worlds": 5,
     "scope": "deterministic text-coverage signals; human review still required"
   },
   "architecture": "central-brain + five-worlds + long-term-memory + simulation-lab + evaluation-evolution"

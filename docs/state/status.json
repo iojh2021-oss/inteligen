@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "cycles_total": 1,
+  "cycles_complete": 1,
+  "cycles_partial": 0,
+  "cycles_failed": 0,
+  "cadence_hours": 2,
+  "last_run_at": "2026-11-10T04:03:21.923842+00:00",
+  "last_complete_at": "2026-11-10T04:03:21.923842+00:00",
+  "last_request_id": "87ee223160b9",
+  "last_error": null,
+  "per_world": {
+    "knowledge": {
+      "runs": 1,
+      "ok": 1,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T04:03:21.923842+00:00",
+      "last_score": 100,
+      "best_score": 100,
+      "last_missing": []
+    },
+    "reasoning": {
+      "runs": 1,
+      "ok": 1,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T04:03:21.923842+00:00",
+      "last_score": 50,
+      "best_score": 50,
+      "last_missing": [
+        "assumptions",
+        "conclusion"
+      ]
+    },
+    "science": {
+      "runs": 1,
+      "ok": 1,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T04:03:21.923842+00:00",
+      "last_score": 50,
+      "best_score": 50,
+      "last_missing": [
+        "hypothesis",
+        "prediction"
+      ]
+    },
+    "creativity": {
+      "runs": 1,
+      "ok": 1,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T04:03:21.923842+00:00",
+      "last_score": 50,
+      "best_score": 50,
+      "last_missing": [
+        "multiple_ideas",
+        "original_combination"
+      ]
+    },
+    "learning": {
+      "runs": 1,
+      "ok": 1,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T04:03:21.923842+00:00",
+      "last_score": 100,
+      "best_score": 100,
+      "last_missing": []
+    }
+  }
+}

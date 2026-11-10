@@ -1,57 +1,58 @@
 {
-  "updated_at": "2026-11-10T05:11:09.096373+00:00",
+  "updated_at": "2026-11-10T05:41:18.542099+00:00",
   "worlds": {
     "creativity": {
-      "runs": 4,
+      "runs": 5,
       "success_rate": 1.0,
-      "avg_latency_ms": 236064,
-      "avg_output_chars": 3055
+      "avg_latency_ms": 365259,
+      "avg_output_chars": 3345
     },
     "knowledge": {
-      "runs": 4,
+      "runs": 5,
       "success_rate": 1.0,
-      "avg_latency_ms": 60564,
-      "avg_output_chars": 3161
+      "avg_latency_ms": 65830,
+      "avg_output_chars": 3151
     },
     "learning": {
-      "runs": 4,
+      "runs": 5,
       "success_rate": 1.0,
-      "avg_latency_ms": 155790,
-      "avg_output_chars": 4602
+      "avg_latency_ms": 163674,
+      "avg_output_chars": 4664
     },
     "reasoning": {
-      "runs": 4,
-      "success_rate": 1.0,
-      "avg_latency_ms": 119492,
+      "runs": 5,
+      "success_rate": 0.8,
+      "avg_latency_ms": 232992,
       "avg_output_chars": 3154
     },
     "science": {
-      "runs": 4,
+      "runs": 5,
       "success_rate": 1.0,
-      "avg_latency_ms": 176191,
-      "avg_output_chars": 3197
+      "avg_latency_ms": 296298,
+      "avg_output_chars": 3336
     }
   },
-  "memory_items": 24,
+  "memory_items": 30,
   "memory": {
-    "total": 24,
+    "total": 30,
     "by_world": {
-      "central": 4,
-      "creativity": 4,
-      "knowledge": 4,
-      "learning": 4,
-      "reasoning": 4,
-      "science": 4
+      "central": 5,
+      "creativity": 5,
+      "knowledge": 5,
+      "learning": 5,
+      "reasoning": 5,
+      "science": 5
     },
     "by_kind": {
-      "experience": 24
+      "experience": 29,
+      "failure": 1
     }
   },
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 95,
-    "evaluated_worlds": 5,
+    "overall_score": 88,
+    "evaluated_worlds": 4,
     "scope": "deterministic text-coverage signals; human review still required"
   },
   "architecture": "central-brain + five-worlds + long-term-memory + simulation-lab + evaluation-evolution"

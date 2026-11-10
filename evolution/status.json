@@ -1,58 +1,60 @@
 {
   "schema_version": 1,
-  "cycles_total": 2,
+  "cycles_total": 3,
   "cycles_complete": 2,
-  "cycles_partial": 0,
+  "cycles_partial": 1,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-10T05:11:09.096373+00:00",
+  "last_run_at": "2026-11-10T05:41:18.542099+00:00",
   "last_complete_at": "2026-11-10T05:11:09.096373+00:00",
-  "last_request_id": "c705b28f0af3",
+  "last_request_id": "1d126d8e4f42",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 2,
-      "ok": 2,
+      "runs": 3,
+      "ok": 3,
       "fail": 0,
-      "last_ok_at": "2026-11-10T05:11:09.096373+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-10T05:41:18.542099+00:00",
+      "last_score": 75,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "concepts"
+      ]
     },
     "reasoning": {
-      "runs": 2,
+      "runs": 3,
       "ok": 2,
-      "fail": 0,
+      "fail": 1,
       "last_ok_at": "2026-11-10T05:11:09.096373+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "science": {
-      "runs": 2,
-      "ok": 2,
+      "runs": 3,
+      "ok": 3,
       "fail": 0,
-      "last_ok_at": "2026-11-10T05:11:09.096373+00:00",
+      "last_ok_at": "2026-11-10T05:41:18.542099+00:00",
+      "last_score": 75,
+      "best_score": 100,
+      "last_missing": [
+        "hypothesis"
+      ]
+    },
+    "creativity": {
+      "runs": 3,
+      "ok": 3,
+      "fail": 0,
+      "last_ok_at": "2026-11-10T05:41:18.542099+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
-    "creativity": {
-      "runs": 2,
-      "ok": 2,
-      "fail": 0,
-      "last_ok_at": "2026-11-10T05:11:09.096373+00:00",
-      "last_score": 75,
-      "best_score": 75,
-      "last_missing": [
-        "practicality"
-      ]
-    },
     "learning": {
-      "runs": 2,
-      "ok": 2,
+      "runs": 3,
+      "ok": 3,
       "fail": 0,
-      "last_ok_at": "2026-11-10T05:11:09.096373+00:00",
+      "last_ok_at": "2026-11-10T05:41:18.542099+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []

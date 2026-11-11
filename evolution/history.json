@@ -211,5 +211,43 @@
     "missing": []
    }
   }
+ },
+ {
+  "timestamp": "2026-11-11T02:09:29.147657+00:00",
+  "request_id": "ae9fd8e8c207",
+  "config_version": 1,
+  "model": "qwen3:1.7b",
+  "overall_score": 75,
+  "worlds": {
+   "knowledge": {
+    "score": 75,
+    "missing": [
+     "concepts"
+    ]
+   },
+   "reasoning": {
+    "score": 50,
+    "missing": [
+     "ordered_steps",
+     "assumptions"
+    ]
+   },
+   "science": {
+    "score": 75,
+    "missing": [
+     "prediction"
+    ]
+   },
+   "creativity": {
+    "score": 75,
+    "missing": [
+     "original_combination"
+    ]
+   },
+   "learning": {
+    "score": 100,
+    "missing": []
+   }
+  }
  }
 ]

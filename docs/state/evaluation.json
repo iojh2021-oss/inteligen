@@ -17,8 +17,8 @@
         "evidence_limits": true
       },
       "missing": [],
-      "output_chars": 3138,
-      "output_words": 410,
+      "output_chars": 3376,
+      "output_words": 426,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "reasoning": {
@@ -34,8 +34,8 @@
         "conclusion": true
       },
       "missing": [],
-      "output_chars": 3221,
-      "output_words": 389,
+      "output_chars": 3567,
+      "output_words": 436,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "science": {
@@ -51,8 +51,8 @@
         "limitations": true
       },
       "missing": [],
-      "output_chars": 2923,
-      "output_words": 363,
+      "output_chars": 3355,
+      "output_words": 462,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "creativity": {
@@ -68,8 +68,8 @@
         "practicality": true
       },
       "missing": [],
-      "output_chars": 4922,
-      "output_words": 690,
+      "output_chars": 4010,
+      "output_words": 512,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "learning": {
@@ -85,8 +85,8 @@
         "improvement": true
       },
       "missing": [],
-      "output_chars": 4386,
-      "output_words": 572,
+      "output_chars": 3921,
+      "output_words": 514,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     }
   }

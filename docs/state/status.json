@@ -1,56 +1,65 @@
 {
   "schema_version": 1,
-  "cycles_total": 8,
-  "cycles_complete": 7,
+  "cycles_total": 9,
+  "cycles_complete": 8,
   "cycles_partial": 1,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-11T18:06:35.046130+00:00",
-  "last_complete_at": "2026-11-11T18:06:35.046130+00:00",
-  "last_request_id": "50c8c65ead90",
+  "last_run_at": "2026-11-12T00:56:44.754034+00:00",
+  "last_complete_at": "2026-11-12T00:56:44.754034+00:00",
+  "last_request_id": "2df375390c29",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 8,
-      "ok": 8,
+      "runs": 9,
+      "ok": 9,
       "fail": 0,
-      "last_ok_at": "2026-11-11T18:06:35.046130+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-12T00:56:44.754034+00:00",
+      "last_score": 25,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "concepts",
+        "fact_vs_assumption",
+        "uncertainty"
+      ]
     },
     "reasoning": {
-      "runs": 8,
-      "ok": 7,
+      "runs": 9,
+      "ok": 8,
       "fail": 1,
-      "last_ok_at": "2026-11-11T18:06:35.046130+00:00",
+      "last_ok_at": "2026-11-12T00:56:44.754034+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "science": {
-      "runs": 8,
-      "ok": 8,
+      "runs": 9,
+      "ok": 9,
       "fail": 0,
-      "last_ok_at": "2026-11-11T18:06:35.046130+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-12T00:56:44.754034+00:00",
+      "last_score": 75,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "hypothesis"
+      ]
     },
     "creativity": {
-      "runs": 8,
-      "ok": 8,
+      "runs": 9,
+      "ok": 9,
       "fail": 0,
-      "last_ok_at": "2026-11-11T18:06:35.046130+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-12T00:56:44.754034+00:00",
+      "last_score": 50,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "original_combination",
+        "practicality"
+      ]
     },
     "learning": {
-      "runs": 8,
-      "ok": 8,
+      "runs": 9,
+      "ok": 9,
       "fail": 0,
-      "last_ok_at": "2026-11-11T18:06:35.046130+00:00",
+      "last_ok_at": "2026-11-12T00:56:44.754034+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []

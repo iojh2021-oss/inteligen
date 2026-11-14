@@ -1,40 +1,46 @@
 {
   "rubric_version": 1,
   "scope": "deterministic text-coverage signals; human review still required",
-  "overall_score": 75,
-  "evaluated_worlds": 4,
+  "overall_score": 85,
+  "evaluated_worlds": 5,
   "worlds": {
     "knowledge": {
       "status": "evaluated",
       "world": "knowledge",
-      "score": 50,
-      "passed": 2,
+      "score": 75,
+      "passed": 3,
       "total": 4,
       "checks": {
         "concepts": false,
         "fact_vs_assumption": true,
-        "uncertainty": false,
+        "uncertainty": true,
         "evidence_limits": true
       },
       "missing": [
-        "concepts",
-        "uncertainty"
+        "concepts"
       ],
-      "output_chars": 3054,
-      "output_words": 400,
+      "output_chars": 2393,
+      "output_words": 305,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "reasoning": {
+      "status": "evaluated",
       "world": "reasoning",
-      "status": "unavailable",
-      "score": null,
+      "score": 75,
+      "passed": 3,
+      "total": 4,
+      "checks": {
+        "ordered_steps": true,
+        "assumptions": false,
+        "countercheck": true,
+        "conclusion": true
+      },
       "missing": [
-        "ordered_steps",
-        "assumptions",
-        "countercheck",
-        "conclusion"
+        "assumptions"
       ],
-      "output_chars": 0
+      "output_chars": 2785,
+      "output_words": 362,
+      "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "science": {
       "status": "evaluated",
@@ -49,45 +55,44 @@
         "limitations": true
       },
       "missing": [],
-      "output_chars": 2755,
-      "output_words": 373,
+      "output_chars": 2723,
+      "output_words": 336,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "creativity": {
       "status": "evaluated",
       "world": "creativity",
-      "score": 50,
-      "passed": 2,
+      "score": 100,
+      "passed": 4,
       "total": 4,
       "checks": {
-        "multiple_ideas": false,
+        "multiple_ideas": true,
         "tradeoffs": true,
-        "original_combination": false,
+        "original_combination": true,
         "practicality": true
       },
-      "missing": [
-        "multiple_ideas",
-        "original_combination"
-      ],
-      "output_chars": 3024,
-      "output_words": 402,
+      "missing": [],
+      "output_chars": 3124,
+      "output_words": 418,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "learning": {
       "status": "evaluated",
       "world": "learning",
-      "score": 100,
-      "passed": 4,
+      "score": 75,
+      "passed": 3,
       "total": 4,
       "checks": {
-        "identified_gap": true,
+        "identified_gap": false,
         "measurable_metric": true,
         "evaluation_test": true,
         "improvement": true
       },
-      "missing": [],
-      "output_chars": 4813,
-      "output_words": 628,
+      "missing": [
+        "identified_gap"
+      ],
+      "output_chars": 4087,
+      "output_words": 524,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     }
   }

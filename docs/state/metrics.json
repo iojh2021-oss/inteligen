@@ -1,58 +1,58 @@
 {
-  "updated_at": "2026-11-13T23:49:03.368360+00:00",
+  "updated_at": "2026-11-14T06:35:40.746203+00:00",
   "worlds": {
     "creativity": {
-      "runs": 17,
+      "runs": 18,
       "success_rate": 1.0,
-      "avg_latency_ms": 385420,
-      "avg_output_chars": 3219
+      "avg_latency_ms": 409442,
+      "avg_output_chars": 3209
     },
     "knowledge": {
-      "runs": 17,
+      "runs": 18,
       "success_rate": 1.0,
-      "avg_latency_ms": 88304,
-      "avg_output_chars": 3150
+      "avg_latency_ms": 87520,
+      "avg_output_chars": 3145
     },
     "learning": {
-      "runs": 17,
+      "runs": 18,
       "success_rate": 1.0,
-      "avg_latency_ms": 198474,
-      "avg_output_chars": 4319
+      "avg_latency_ms": 196675,
+      "avg_output_chars": 4346
     },
     "reasoning": {
-      "runs": 17,
-      "success_rate": 0.941,
-      "avg_latency_ms": 216969,
+      "runs": 18,
+      "success_rate": 0.889,
+      "avg_latency_ms": 242376,
       "avg_output_chars": 3497
     },
     "science": {
-      "runs": 17,
+      "runs": 18,
       "success_rate": 1.0,
-      "avg_latency_ms": 296320,
-      "avg_output_chars": 3116
+      "avg_latency_ms": 320952,
+      "avg_output_chars": 3096
     }
   },
-  "memory_items": 102,
+  "memory_items": 108,
   "memory": {
-    "total": 102,
+    "total": 108,
     "by_world": {
-      "central": 17,
-      "creativity": 17,
-      "knowledge": 17,
-      "learning": 17,
-      "reasoning": 17,
-      "science": 17
+      "central": 18,
+      "creativity": 18,
+      "knowledge": 18,
+      "learning": 18,
+      "reasoning": 18,
+      "science": 18
     },
     "by_kind": {
-      "experience": 101,
-      "failure": 1
+      "experience": 106,
+      "failure": 2
     }
   },
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 65,
-    "evaluated_worlds": 5,
+    "overall_score": 75,
+    "evaluated_worlds": 4,
     "scope": "deterministic text-coverage signals; human review still required"
   },
   "architecture": "central-brain + five-worlds + long-term-memory + simulation-lab + evaluation-evolution"

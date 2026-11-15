@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T09:33:20.695669+00:00",
+  "updated_at": "2026-11-15T13:03:56.449908+00:00",
   "stable": {
     "version": 1,
     "created_at": "2026-11-09T06:51:52.228701+00:00",
@@ -14,7 +14,209 @@
       "approved_by": null
     }
   ],
-  "proposals": [],
-  "latest_proposal": null,
+  "proposals": [
+    {
+      "id": "p-20261115T130356",
+      "created_at": "2026-11-15T13:03:56.439505+00:00",
+      "status": "inconclusive",
+      "base_version": 1,
+      "verdict": "inconclusive",
+      "reason": "mean change 2.5 points is within the noise band",
+      "baseline_mean": 86.2,
+      "candidate_mean": 88.8,
+      "mean_gain": 2.5,
+      "changes": [
+        "knowledge/concepts",
+        "creativity/multiple_ideas"
+      ]
+    }
+  ],
+  "latest_proposal": {
+    "id": "p-20261115T130356",
+    "created_at": "2026-11-15T13:03:56.439505+00:00",
+    "status": "inconclusive",
+    "base_version": 1,
+    "model": "qwen3:1.7b",
+    "changes": [
+      {
+        "world": "knowledge",
+        "criterion": "concepts",
+        "instruction": "Define the key concepts explicitly before using them.",
+        "missed_in": "3/5 recent cycles"
+      },
+      {
+        "world": "creativity",
+        "criterion": "multiple_ideas",
+        "instruction": "Offer at least three distinct ideas or options.",
+        "missed_in": "4/5 recent cycles"
+      }
+    ],
+    "candidate_additions": {
+      "knowledge": "- Define the key concepts explicitly before using them.",
+      "creativity": "- Offer at least three distinct ideas or options."
+    },
+    "benchmark_questions": [
+      "A small town wants to cut its water use by 20 percent within one year without banning anything. What should it do and how would it know it worked?",
+      "Why do some students remember a lesson for years while others forget it in a week? Suggest what a teacher could change."
+    ],
+    "rubric_version": 1,
+    "repeats": 2,
+    "conditions": {
+      "model": "qwen3:1.7b",
+      "memory": "disabled in lab",
+      "runs_per_version": 4
+    },
+    "baseline_runs": [
+      {
+        "scores": {
+          "knowledge": 50,
+          "reasoning": 75,
+          "science": 100,
+          "creativity": 100,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 100,
+          "reasoning": 50,
+          "science": 100,
+          "creativity": 100,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 50,
+          "reasoning": 75,
+          "science": 100,
+          "creativity": 100,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 100,
+          "reasoning": 50,
+          "science": 100,
+          "creativity": 75,
+          "learning": 100
+        },
+        "errors": {}
+      }
+    ],
+    "candidate_runs": [
+      {
+        "scores": {
+          "knowledge": 75,
+          "reasoning": 75,
+          "science": 100,
+          "creativity": 100,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 100,
+          "reasoning": 100,
+          "science": 75,
+          "creativity": 75,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 75,
+          "reasoning": 75,
+          "science": 100,
+          "creativity": 75,
+          "learning": 100
+        },
+        "errors": {}
+      },
+      {
+        "scores": {
+          "knowledge": 75,
+          "reasoning": 75,
+          "science": 100,
+          "creativity": 100,
+          "learning": 100
+        },
+        "errors": {}
+      }
+    ],
+    "comparison": {
+      "verdict": "inconclusive",
+      "reason": "mean change 2.5 points is within the noise band",
+      "paired_scores": 20,
+      "baseline_mean": 86.2,
+      "candidate_mean": 88.8,
+      "mean_gain": 2.5,
+      "per_world_gain": {
+        "knowledge": 6.2,
+        "reasoning": 18.8,
+        "science": -6.2,
+        "creativity": -6.2,
+        "learning": 0.0
+      },
+      "unavailable": {
+        "baseline": 0,
+        "candidate": 0
+      },
+      "thresholds": {
+        "min_gain": 10.0,
+        "min_paired": 4,
+        "max_world_regression": -10.0
+      }
+    },
+    "samples": [
+      {
+        "question": "A small town wants to cut its water use by 20 percent within one year without banning anything. What should it do and how would it know it worked?",
+        "excerpts": {
+          "knowledge": "To address the town's goal of cutting water use by 20% within one year without banning anything, the following strategies and methods can be employed, supported by verified practices and evidence-based approaches:\n\n### **Strategies for Water Conservation**  \n1. **Promote Water-Efficient Technologies**:  \n   - **Install low-flow fixtures** (e.g., toilets, faucets, showerheads) and **smart meters** to monitor usage in real time.  \n   - **Offer incentives** (e.g., discounts on utility bills) for adopting water-saving practices (e.g., rainwater harvesting, xeriscaping).  \n\n2. **Public Awareness Ca",
+          "reasoning": "To address the town's goal of reducing water use by 20% within a year without banning anything, the following steps and verification methods are recommended:\n\n---\n\n### **1. Strategies to Reduce Water Use Without Banning Anything**\n- **Implement Water-Saving Technologies**: Install low-flow fixtures, smart irrigation systems, or water-efficient appliances.  \n- **Promote Efficient Usage**: Educate residents on conservation practices (e.g., fixing leaks, using drip irrigation).  \n- **Monitor and Track Usage**: Use smart meters or water usage logs to track consumption.  \n- **Encourage Behavioral C",
+          "science": "To achieve a 20% reduction in water use without banning anything, the town could implement the following hypotheses and tests:  \n\n### **Hypotheses**  \n1. **Hypothesis 1**: Implementing water-efficient appliances (e.g., low-flow toilets, showerheads) will reduce household water use by 15–20%.  \n2. **Hypothesis 2**: Educating residents on water-saving practices (e.g., drip irrigation, rainwater harvesting) will increase conservation behaviors.  \n3. **Hypothesis 3**: Reusing greywater in non-potable applications (e.g., flushing toilets) will offset water demand by 10–15%.  \n\n### **Proposed Tests*",
+          "creativity": "### **Approach 1: Implement Water-Efficient Technologies**  \n- **Action**: Install low-flow fixtures, solar-powered water pumps, and smart irrigation systems.  \n- **Trade-offs**: Initial costs for technology may be high, but long-term savings on energy and water bills can offset expenses.  \n- **Verification**: Monitor water usage data via smart meters to track reductions.  \n\n---\n\n### **Approach 2: Promote Behavioral Change Through Education**  \n- **Action**: Launch a public campaign highlighting water waste (e.g., \"Turn off the tap\" posters, workshops).  \n- **Trade-offs**: Requires resources f",
+          "learning": "### **Gaps Identified in Existing World Outputs**  \n1. **Lack of Specific Metrics**: The knowledge world mentions \"real-time monitoring\" but does not specify quantifiable benchmarks (e.g., percentage reduction, cost savings).  \n2. **Control Group Absence**: The science world suggests comparing with a control group, but the knowledge world does not explicitly address this.  \n3. **External Factor Limitations**: The creativity world notes \"external variables\" (e.g., droughts, seasonal fluctuations) but does not propose mitigation strategies.  \n4. **Resource Constraints**: The creativity world hig"
+        }
+      },
+      {
+        "question": "Why do some students remember a lesson for years while others forget it in a week? Suggest what a teacher could change.",
+        "excerpts": {
+          "knowledge": "**Key Concepts and Verification:**  \n1. **Encoding Efficiency**: Students who engage deeply with material (e.g., through active recall, elaboration, or visualization) are more likely to encode information effectively.  \n2. **Spaced Repetition**: Repeating information at increasing intervals (e.g., through flashcards or review sessions) strengthens long-term memory.  \n3. **Attention and Distractions**: Environmental factors (e.g., noise, multitasking) reduce focus, while structured, distraction-free learning environments enhance retention.  \n4. **Active Learning**: Techniques like discussions, ",
+          "reasoning": "To address why some students retain lessons for years while others forget them in a week, the following steps and considerations apply:\n\n### **Key Factors Influencing Retention**  \n1. **Teaching Methods**:  \n   - **Active Learning**: Engaging students in discussions, problem-solving, and hands-on activities (e.g., case studies, experiments) enhances memory retention.  \n   - **Spaced Repetition**: Repeating material at increasing intervals (e.g., using flashcards or review sessions) strengthens long-term memory.  \n   - **Interactivity**: Collaborative learning and real-time feedback (e.g., peer",
+          "science": "To address the question of why some students retain lessons for years while others forget them in a week, several factors likely contribute to memory retention, including:  \n1. **Depth of Engagement**: Students who actively participate (e.g., through discussion, problem-solving, or hands-on activities) are more likely to encode information.  \n2. **Multisensory Learning**: Combining visual, auditory, and kinesthetic inputs (e.g., diagrams, videos, experiments) enhances retention.  \n3. **Spaced Repetition**: Regular review over time strengthens memory consolidation.  \n4. **Reinforcement**: Consi",
+          "creativity": "### **1. Implement Active Learning Techniques**  \n**Approach:** Replace passive lectures with interactive methods like think-pair-share, role-playing, or problem-solving activities.  \n**Trade-off:** Active learning may require more time and preparation but can significantly enhance retention by engaging multiple cognitive processes (e.g., reasoning, collaboration).  \n**Evidence:** Studies show that active learning improves long-term memory retention by 20-30% compared to passive lectures (e.g., textbook reading).  \n\n### **2. Integrate Technology for Personalized Review**  \n**Approach:** Use ap",
+          "learning": "### **Key Gaps in Previous World Outputs**  \n1. **Resource Limitations**: Some strategies (e.g., technology-based spaced repetition) require external tools (e.g., apps, hardware) that may not be universally accessible.  \n2. **Teacher Capacity**: Active learning and real-world applications may demand significant time and preparation, which may not align with teacher workload.  \n3. **Individualized Support**: While acknowledged, the role of personalized instruction (e.g., adapting to neurodiverse learners) is underexplored in most suggestions.  \n4. **Measurement Tools**: Few concrete metrics are"
+        }
+      },
+      {
+        "question": "A small town wants to cut its water use by 20 percent within one year without banning anything. What should it do and how would it know it worked?",
+        "excerpts": {
+          "knowledge": "To address the town's goal of reducing water use by 20% within one year without banning anything, the following strategies and verification methods can be employed:  \n\n### **Strategies for Reduction**  \n1. **Water Efficiency Technologies**:  \n   - Install low-flow fixtures (e.g., toilets, faucets, irrigation systems) and smart meters to monitor usage in real time.  \n   - Upgrade to water-efficient appliances (e.g., dishwashers, washing machines) with energy-efficient ratings.  \n\n2. **Behavioral and Educational Campaigns**:  \n   - Launch public awareness programs to promote conservation (e.g., ",
+          "reasoning": "To address the town's goal of cutting water use by 20% within a year without banning anything, the following steps and verification methods can be employed:\n\n### **Strategies to Achieve the Goal**\n1. **Implement Water Efficiency Upgrades**:\n   - Install low-flow fixtures, smart irrigation systems, and leak detection technologies.\n   - Use sensors to monitor water usage in real time and identify wasteful areas.\n\n2. **Promote Public Awareness**:\n   - Launch campaigns through local media, community workshops, or social platforms to educate residents on water conservation.\n   - Highlight the benef",
+          "science": "To achieve a 20% reduction in water use within one year without banning anything, the town could implement the following strategies:  \n1. **Promote Water Efficiency**: Install low-flow fixtures (e.g., toilets, showerheads), incentivize energy-efficient appliances, and educate residents on conservation practices.  \n2. **Infrastructure Improvements**: Repair leaks, install smart meters to monitor usage, and optimize irrigation systems for landscaping.  \n3. **Public Awareness Campaigns**: Use local media and community workshops to highlight conservation benefits and encourage behavior change.  \n\n",
+          "creativity": "### **Three Practical Approaches**  \n1. **Install Water-Efficient Technologies**  \n   - **Action**: Replace old irrigation systems with drip irrigation, install low-flow fixtures, and upgrade wastewater treatment to reuse water.  \n   - **How to Measure Success**: Monitor water usage data over 12 months, comparing pre- and post-implementation metrics. Use smart meters to track consumption patterns.  \n   - **Trade-offs**: Initial costs for infrastructure may be high, but long-term savings on water bills and reduced demand could offset expenses. Risk of dependency on existing systems if not maint",
+          "learning": "### **Gaps Identified in Existing World Outputs**  \n1. **Lack of Specific Metrics for 20% Reduction**:  \n   - No clear benchmarks for quantifying \"20% reduction\" (e.g., absolute vs. relative terms).  \n   - Missing metrics for evaluating success (e.g., cost savings, per capita usage, or industry-specific savings).  \n\n2. **Insufficient Focus on External Variables**:  \n   - No explicit mechanisms to account for external factors (e.g., droughts, seasonal shifts, or policy changes) that could skew results.  \n\n3. **Limited Integration of Real-Time Monitoring**:  \n   - While smart meters are mentione"
+        }
+      },
+      {
+        "question": "Why do some students remember a lesson for years while others forget it in a week? Suggest what a teacher could change.",
+        "excerpts": {
+          "knowledge": "**Key Concepts and Verification:**  \n1. **Memory Types**: Short-term (10-30 seconds), working (temporary storage), and long-term (permanent storage).  \n2. **Encoding**: Information is encoded through sensory input (visual, auditory, kinesthetic).  \n3. **Retention Factors**: Attention, engagement, spaced repetition, and active recall.  \n4. **Learning Styles**: Visual, auditory, kinesthetic, and reading/writing learners.  \n5. **Teaching Methods**: Interactive techniques (discussions, hands-on activities) vs. passive lectures.  \n\n**Verified Facts:**  \n- **Spaced Repetition**: Repeating informatio",
+          "reasoning": "To address why some students retain lessons for years while others forget them quickly, the following factors and teacher interventions are critical:\n\n### **Key Factors Influencing Memory Retention**  \n1. **Depth of Processing**:  \n   - Students who engage in **active recall**, **elaboration**, or **teaching others** (e.g., explaining concepts to peers) create stronger memory traces.  \n   - Passive learning (e.g., rote memorization) lacks the neural reinforcement needed for long-term retention.  \n\n2. **Teaching Methods**:  \n   - **Spaced Repetition**: Regular review intervals (e.g., using flas",
+          "science": "**Hypotheses and Testable Proposals:**  \n1. **Teaching Method Variation:**  \n   - *Hypothesis:* Using diverse teaching methods (e.g., lectures, group work, multimedia) may enhance retention.  \n   - *Testable Proposal:* Implement a mixed-methods approach (e.g., combining lectures with interactive simulations) and observe if students retain information longer.  \n   - *Outcome Prediction:* Students may demonstrate improved recall of complex concepts.  \n\n2. **Active Engagement:**  \n   - *Hypothesis:* Encouraging student participation (e.g., quizzes, discussions) increases memory consolidation.  \n ",
+          "creativity": "### **Three Practical Approaches**  \n1. **Integrate Active Learning Strategies**  \n   - **Action**: Use group discussions, role-playing, or hands-on experiments to engage students in the material.  \n   - **Trade-Off**: Requires time and resources for preparation, but increases retention by fostering deeper cognitive processing.  \n   - **Evidence**: Studies show active learning improves memory consolidation (e.g., spaced repetition and interleaving).  \n\n2. **Adopt Spaced Repetition and Interleaving**  \n   - **Action**: Schedule reviews at increasing intervals (e.g., 1 day, 1 week, 1 month) and ",
+          "learning": "### **Gaps Identified in Previous Worlds' Outputs**  \n1. **Individual Differences**: While acknowledged, the interplay between individual learning styles, prior knowledge, and health factors is not fully quantified.  \n2. **External Factors**: Stress, socioeconomic barriers, and health issues (e.g., ADHD) are not systematically addressed in interventions.  \n3. **Measurement Limitations**: Simulated tests lack real-world variability (e.g., student diversity, resource constraints).  \n4. **Trade-Offs**: Balancing engagement, efficiency, and equity is not explicitly tested.  \n\n---\n\n### **Proposed M"
+        }
+      }
+    ],
+    "caveat": "Rubric coverage only. Read the samples before approving."
+  },
   "benchmark_size": 2
 }

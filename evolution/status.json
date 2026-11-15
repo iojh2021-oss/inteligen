@@ -1,49 +1,52 @@
 {
   "schema_version": 1,
-  "cycles_total": 18,
-  "cycles_complete": 16,
+  "cycles_total": 19,
+  "cycles_complete": 17,
   "cycles_partial": 2,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-14T20:53:35.071024+00:00",
-  "last_complete_at": "2026-11-14T20:53:35.071024+00:00",
-  "last_request_id": "8540b5385999",
+  "last_run_at": "2026-11-15T02:14:28.978610+00:00",
+  "last_complete_at": "2026-11-15T02:14:28.978610+00:00",
+  "last_request_id": "f8ee6b5e5e94",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 18,
-      "ok": 18,
+      "runs": 19,
+      "ok": 19,
       "fail": 0,
-      "last_ok_at": "2026-11-14T20:53:35.071024+00:00",
-      "last_score": 75,
+      "last_ok_at": "2026-11-15T02:14:28.978610+00:00",
+      "last_score": 50,
       "best_score": 100,
       "last_missing": [
-        "concepts"
+        "fact_vs_assumption",
+        "uncertainty"
       ]
     },
     "reasoning": {
-      "runs": 18,
-      "ok": 16,
+      "runs": 19,
+      "ok": 17,
       "fail": 2,
-      "last_ok_at": "2026-11-14T20:53:35.071024+00:00",
+      "last_ok_at": "2026-11-15T02:14:28.978610+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "science": {
-      "runs": 18,
-      "ok": 18,
+      "runs": 19,
+      "ok": 19,
       "fail": 0,
-      "last_ok_at": "2026-11-14T20:53:35.071024+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-15T02:14:28.978610+00:00",
+      "last_score": 75,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "hypothesis"
+      ]
     },
     "creativity": {
-      "runs": 18,
-      "ok": 18,
+      "runs": 19,
+      "ok": 19,
       "fail": 0,
-      "last_ok_at": "2026-11-14T20:53:35.071024+00:00",
+      "last_ok_at": "2026-11-15T02:14:28.978610+00:00",
       "last_score": 75,
       "best_score": 100,
       "last_missing": [
@@ -51,13 +54,15 @@
       ]
     },
     "learning": {
-      "runs": 18,
-      "ok": 18,
+      "runs": 19,
+      "ok": 19,
       "fail": 0,
-      "last_ok_at": "2026-11-14T20:53:35.071024+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-15T02:14:28.978610+00:00",
+      "last_score": 75,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "identified_gap"
+      ]
     }
   }
 }

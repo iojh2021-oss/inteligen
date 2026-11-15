@@ -735,5 +735,38 @@
     ]
    }
   }
+ },
+ {
+  "timestamp": "2026-11-15T17:18:28.289118+00:00",
+  "request_id": "e48586094bae",
+  "config_version": 1,
+  "model": "qwen3:1.7b",
+  "overall_score": 90,
+  "worlds": {
+   "knowledge": {
+    "score": 75,
+    "missing": [
+     "concepts"
+    ]
+   },
+   "reasoning": {
+    "score": 75,
+    "missing": [
+     "ordered_steps"
+    ]
+   },
+   "science": {
+    "score": 100,
+    "missing": []
+   },
+   "creativity": {
+    "score": 100,
+    "missing": []
+   },
+   "learning": {
+    "score": 100,
+    "missing": []
+   }
+  }
  }
 ]

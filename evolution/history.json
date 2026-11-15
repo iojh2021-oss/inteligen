@@ -700,5 +700,40 @@
     ]
    }
   }
+ },
+ {
+  "timestamp": "2026-11-15T09:33:20.681134+00:00",
+  "request_id": "b5c5ec31fafe",
+  "config_version": 1,
+  "model": "qwen3:1.7b",
+  "overall_score": 85,
+  "worlds": {
+   "knowledge": {
+    "score": 75,
+    "missing": [
+     "evidence_limits"
+    ]
+   },
+   "reasoning": {
+    "score": 100,
+    "missing": []
+   },
+   "science": {
+    "score": 100,
+    "missing": []
+   },
+   "creativity": {
+    "score": 75,
+    "missing": [
+     "multiple_ideas"
+    ]
+   },
+   "learning": {
+    "score": 75,
+    "missing": [
+     "evaluation_test"
+    ]
+   }
+  }
  }
 ]

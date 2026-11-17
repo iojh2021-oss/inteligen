@@ -1,64 +1,56 @@
 {
   "schema_version": 1,
-  "cycles_total": 24,
-  "cycles_complete": 22,
+  "cycles_total": 25,
+  "cycles_complete": 23,
   "cycles_partial": 2,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-16T18:52:01.868665+00:00",
-  "last_complete_at": "2026-11-16T18:52:01.868665+00:00",
-  "last_request_id": "d8200c8954b3",
+  "last_run_at": "2026-11-17T03:02:46.127381+00:00",
+  "last_complete_at": "2026-11-17T03:02:46.127381+00:00",
+  "last_request_id": "4f0b818f4c9d",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 24,
-      "ok": 24,
+      "runs": 25,
+      "ok": 25,
       "fail": 0,
-      "last_ok_at": "2026-11-16T18:52:01.868665+00:00",
-      "last_score": 75,
+      "last_ok_at": "2026-11-17T03:02:46.127381+00:00",
+      "last_score": 100,
       "best_score": 100,
-      "last_missing": [
-        "fact_vs_assumption"
-      ]
+      "last_missing": []
     },
     "reasoning": {
-      "runs": 24,
-      "ok": 22,
+      "runs": 25,
+      "ok": 23,
       "fail": 2,
-      "last_ok_at": "2026-11-16T18:52:01.868665+00:00",
-      "last_score": 50,
+      "last_ok_at": "2026-11-17T03:02:46.127381+00:00",
+      "last_score": 100,
       "best_score": 100,
-      "last_missing": [
-        "ordered_steps",
-        "conclusion"
-      ]
+      "last_missing": []
     },
     "science": {
-      "runs": 24,
-      "ok": 24,
+      "runs": 25,
+      "ok": 25,
       "fail": 0,
-      "last_ok_at": "2026-11-16T18:52:01.868665+00:00",
+      "last_ok_at": "2026-11-17T03:02:46.127381+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "creativity": {
-      "runs": 24,
-      "ok": 24,
+      "runs": 25,
+      "ok": 25,
       "fail": 0,
-      "last_ok_at": "2026-11-16T18:52:01.868665+00:00",
-      "last_score": 50,
+      "last_ok_at": "2026-11-17T03:02:46.127381+00:00",
+      "last_score": 100,
       "best_score": 100,
-      "last_missing": [
-        "multiple_ideas",
-        "original_combination"
-      ]
+      "last_missing": []
     },
     "learning": {
-      "runs": 24,
-      "ok": 24,
+      "runs": 25,
+      "ok": 25,
       "fail": 0,
-      "last_ok_at": "2026-11-16T18:52:01.868665+00:00",
+      "last_ok_at": "2026-11-17T03:02:46.127381+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []

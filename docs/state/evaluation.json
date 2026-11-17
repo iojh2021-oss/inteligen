@@ -1,24 +1,26 @@
 {
   "rubric_version": 1,
   "scope": "deterministic text-coverage signals; human review still required",
-  "overall_score": 100,
+  "overall_score": 95,
   "evaluated_worlds": 5,
   "worlds": {
     "knowledge": {
       "status": "evaluated",
       "world": "knowledge",
-      "score": 100,
-      "passed": 4,
+      "score": 75,
+      "passed": 3,
       "total": 4,
       "checks": {
-        "concepts": true,
+        "concepts": false,
         "fact_vs_assumption": true,
         "uncertainty": true,
         "evidence_limits": true
       },
-      "missing": [],
-      "output_chars": 3179,
-      "output_words": 396,
+      "missing": [
+        "concepts"
+      ],
+      "output_chars": 2806,
+      "output_words": 381,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "reasoning": {
@@ -34,8 +36,8 @@
         "conclusion": true
       },
       "missing": [],
-      "output_chars": 3075,
-      "output_words": 411,
+      "output_chars": 2754,
+      "output_words": 336,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "science": {
@@ -51,8 +53,8 @@
         "limitations": true
       },
       "missing": [],
-      "output_chars": 2774,
-      "output_words": 350,
+      "output_chars": 2923,
+      "output_words": 391,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "creativity": {
@@ -68,8 +70,8 @@
         "practicality": true
       },
       "missing": [],
-      "output_chars": 3555,
-      "output_words": 480,
+      "output_chars": 4397,
+      "output_words": 566,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "learning": {
@@ -85,8 +87,8 @@
         "improvement": true
       },
       "missing": [],
-      "output_chars": 3843,
-      "output_words": 484,
+      "output_chars": 5016,
+      "output_words": 652,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     }
   }

@@ -1,51 +1,51 @@
 {
-  "updated_at": "2026-11-17T22:41:09.667810+00:00",
+  "updated_at": "2026-11-18T07:36:50.786503+00:00",
   "worlds": {
     "creativity": {
-      "runs": 29,
+      "runs": 30,
       "success_rate": 1.0,
-      "avg_latency_ms": 410686,
-      "avg_output_chars": 3390
+      "avg_latency_ms": 409466,
+      "avg_output_chars": 3370
     },
     "knowledge": {
-      "runs": 29,
+      "runs": 30,
       "success_rate": 1.0,
-      "avg_latency_ms": 91262,
-      "avg_output_chars": 3052
+      "avg_latency_ms": 91285,
+      "avg_output_chars": 3064
     },
     "learning": {
-      "runs": 29,
+      "runs": 30,
       "success_rate": 1.0,
-      "avg_latency_ms": 209810,
-      "avg_output_chars": 4326
+      "avg_latency_ms": 208942,
+      "avg_output_chars": 4365
     },
     "reasoning": {
-      "runs": 29,
-      "success_rate": 0.931,
-      "avg_latency_ms": 227544,
-      "avg_output_chars": 3422
+      "runs": 30,
+      "success_rate": 0.933,
+      "avg_latency_ms": 225721,
+      "avg_output_chars": 3394
     },
     "science": {
-      "runs": 29,
+      "runs": 30,
       "success_rate": 1.0,
-      "avg_latency_ms": 310532,
-      "avg_output_chars": 3035
+      "avg_latency_ms": 310288,
+      "avg_output_chars": 3107
     }
   },
-  "memory_items": 176,
+  "memory_items": 182,
   "memory": {
-    "total": 176,
+    "total": 182,
     "by_world": {
-      "central": 30,
-      "creativity": 29,
-      "knowledge": 29,
-      "learning": 30,
-      "reasoning": 29,
-      "science": 29
+      "central": 31,
+      "creativity": 30,
+      "knowledge": 30,
+      "learning": 31,
+      "reasoning": 30,
+      "science": 30
     },
     "by_kind": {
       "decision": 1,
-      "experience": 172,
+      "experience": 178,
       "experiment": 1,
       "failure": 2
     }
@@ -53,7 +53,7 @@
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 70,
+    "overall_score": 80,
     "evaluated_worlds": 5,
     "scope": "deterministic text-coverage signals; human review still required"
   },

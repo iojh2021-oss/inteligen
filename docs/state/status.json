@@ -1,61 +1,68 @@
 {
   "schema_version": 1,
-  "cycles_total": 29,
-  "cycles_complete": 27,
+  "cycles_total": 30,
+  "cycles_complete": 28,
   "cycles_partial": 2,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-18T17:28:33.253565+00:00",
-  "last_complete_at": "2026-11-18T17:28:33.253565+00:00",
-  "last_request_id": "3d8ed7b2154d",
+  "last_run_at": "2026-11-19T00:31:26.081489+00:00",
+  "last_complete_at": "2026-11-19T00:31:26.081489+00:00",
+  "last_request_id": "bcbb8bb04445",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 29,
-      "ok": 29,
+      "runs": 30,
+      "ok": 30,
       "fail": 0,
-      "last_ok_at": "2026-11-18T17:28:33.253565+00:00",
+      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
+      "last_score": 25,
+      "best_score": 100,
+      "last_missing": [
+        "concepts",
+        "fact_vs_assumption",
+        "evidence_limits"
+      ]
+    },
+    "reasoning": {
+      "runs": 30,
+      "ok": 28,
+      "fail": 2,
+      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
-    "reasoning": {
-      "runs": 29,
-      "ok": 27,
-      "fail": 2,
-      "last_ok_at": "2026-11-18T17:28:33.253565+00:00",
-      "last_score": 75,
-      "best_score": 100,
-      "last_missing": [
-        "assumptions"
-      ]
-    },
     "science": {
-      "runs": 29,
-      "ok": 29,
+      "runs": 30,
+      "ok": 30,
       "fail": 0,
-      "last_ok_at": "2026-11-18T17:28:33.253565+00:00",
+      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "creativity": {
-      "runs": 29,
-      "ok": 29,
+      "runs": 30,
+      "ok": 30,
       "fail": 0,
-      "last_ok_at": "2026-11-18T17:28:33.253565+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
+      "last_score": 50,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "multiple_ideas",
+        "practicality"
+      ]
     },
     "learning": {
-      "runs": 29,
-      "ok": 29,
+      "runs": 30,
+      "ok": 30,
       "fail": 0,
-      "last_ok_at": "2026-11-18T17:28:33.253565+00:00",
-      "last_score": 100,
+      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
+      "last_score": 75,
       "best_score": 100,
-      "last_missing": []
+      "last_missing": [
+        "identified_gap"
+      ]
     }
   }
 }

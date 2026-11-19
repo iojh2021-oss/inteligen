@@ -1,68 +1,61 @@
 {
   "schema_version": 1,
-  "cycles_total": 30,
-  "cycles_complete": 28,
+  "cycles_total": 31,
+  "cycles_complete": 29,
   "cycles_partial": 2,
   "cycles_failed": 0,
   "cadence_hours": 2,
-  "last_run_at": "2026-11-19T00:31:26.081489+00:00",
-  "last_complete_at": "2026-11-19T00:31:26.081489+00:00",
-  "last_request_id": "bcbb8bb04445",
+  "last_run_at": "2026-11-19T10:26:48.089301+00:00",
+  "last_complete_at": "2026-11-19T10:26:48.089301+00:00",
+  "last_request_id": "15923114f40b",
   "last_error": null,
   "per_world": {
     "knowledge": {
-      "runs": 30,
-      "ok": 30,
+      "runs": 31,
+      "ok": 31,
       "fail": 0,
-      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
-      "last_score": 25,
+      "last_ok_at": "2026-11-19T10:26:48.089301+00:00",
+      "last_score": 75,
       "best_score": 100,
       "last_missing": [
-        "concepts",
-        "fact_vs_assumption",
-        "evidence_limits"
+        "concepts"
       ]
     },
     "reasoning": {
-      "runs": 30,
-      "ok": 28,
+      "runs": 31,
+      "ok": 29,
       "fail": 2,
-      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
+      "last_ok_at": "2026-11-19T10:26:48.089301+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "science": {
-      "runs": 30,
-      "ok": 30,
+      "runs": 31,
+      "ok": 31,
       "fail": 0,
-      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
+      "last_ok_at": "2026-11-19T10:26:48.089301+00:00",
       "last_score": 100,
       "best_score": 100,
       "last_missing": []
     },
     "creativity": {
-      "runs": 30,
-      "ok": 30,
+      "runs": 31,
+      "ok": 31,
       "fail": 0,
-      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
-      "last_score": 50,
+      "last_ok_at": "2026-11-19T10:26:48.089301+00:00",
+      "last_score": 100,
       "best_score": 100,
-      "last_missing": [
-        "multiple_ideas",
-        "practicality"
-      ]
+      "last_missing": []
     },
     "learning": {
-      "runs": 30,
-      "ok": 30,
+      "runs": 31,
+      "ok": 31,
       "fail": 0,
-      "last_ok_at": "2026-11-19T00:31:26.081489+00:00",
-      "last_score": 75,
+      "last_ok_at": "2026-11-19T10:26:48.089301+00:00",
+      "last_score": 100,
       "best_score": 100,
-      "last_missing": [
-        "identified_gap"
-      ]
+      "last_missing": []
     }
   }
 }

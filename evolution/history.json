@@ -1212,5 +1212,42 @@
     "missing": []
    }
   }
+ },
+ {
+  "timestamp": "2026-11-20T22:00:18.885596+00:00",
+  "request_id": "ab0851c50e5c",
+  "config_version": 1,
+  "model": "qwen3:1.7b",
+  "overall_score": 80,
+  "worlds": {
+   "knowledge": {
+    "score": 75,
+    "missing": [
+     "concepts"
+    ]
+   },
+   "reasoning": {
+    "score": 75,
+    "missing": [
+     "assumptions"
+    ]
+   },
+   "science": {
+    "score": 100,
+    "missing": []
+   },
+   "creativity": {
+    "score": 75,
+    "missing": [
+     "original_combination"
+    ]
+   },
+   "learning": {
+    "score": 75,
+    "missing": [
+     "identified_gap"
+    ]
+   }
+  }
  }
 ]

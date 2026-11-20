@@ -1,24 +1,29 @@
 {
   "rubric_version": 1,
   "scope": "deterministic text-coverage signals; human review still required",
-  "overall_score": 95,
+  "overall_score": 75,
   "evaluated_worlds": 5,
   "worlds": {
     "knowledge": {
       "status": "evaluated",
       "world": "knowledge",
-      "score": 100,
-      "passed": 4,
+      "score": 0,
+      "passed": 0,
       "total": 4,
       "checks": {
-        "concepts": true,
-        "fact_vs_assumption": true,
-        "uncertainty": true,
-        "evidence_limits": true
+        "concepts": false,
+        "fact_vs_assumption": false,
+        "uncertainty": false,
+        "evidence_limits": false
       },
-      "missing": [],
-      "output_chars": 2917,
-      "output_words": 377,
+      "missing": [
+        "concepts",
+        "fact_vs_assumption",
+        "uncertainty",
+        "evidence_limits"
+      ],
+      "output_chars": 2424,
+      "output_words": 371,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "reasoning": {
@@ -36,8 +41,8 @@
       "missing": [
         "assumptions"
       ],
-      "output_chars": 2794,
-      "output_words": 334,
+      "output_chars": 2450,
+      "output_words": 282,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "science": {
@@ -53,8 +58,8 @@
         "limitations": true
       },
       "missing": [],
-      "output_chars": 3318,
-      "output_words": 420,
+      "output_chars": 3326,
+      "output_words": 390,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "creativity": {
@@ -70,8 +75,8 @@
         "practicality": true
       },
       "missing": [],
-      "output_chars": 4046,
-      "output_words": 525,
+      "output_chars": 3271,
+      "output_words": 416,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "learning": {
@@ -87,8 +92,8 @@
         "improvement": true
       },
       "missing": [],
-      "output_chars": 4443,
-      "output_words": 561,
+      "output_chars": 4812,
+      "output_words": 545,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     }
   }

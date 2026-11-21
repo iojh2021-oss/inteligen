@@ -1,51 +1,51 @@
 {
-  "updated_at": "2026-11-21T03:21:33.733953+00:00",
+  "updated_at": "2026-11-21T12:50:32.763527+00:00",
   "worlds": {
     "creativity": {
-      "runs": 38,
+      "runs": 39,
       "success_rate": 1.0,
-      "avg_latency_ms": 395051,
-      "avg_output_chars": 3348
+      "avg_latency_ms": 395219,
+      "avg_output_chars": 3361
     },
     "knowledge": {
-      "runs": 38,
+      "runs": 39,
       "success_rate": 1.0,
-      "avg_latency_ms": 91821,
-      "avg_output_chars": 3020
+      "avg_latency_ms": 92635,
+      "avg_output_chars": 3039
     },
     "learning": {
-      "runs": 38,
+      "runs": 39,
       "success_rate": 1.0,
-      "avg_latency_ms": 206390,
+      "avg_latency_ms": 206689,
       "avg_output_chars": 4316
     },
     "reasoning": {
-      "runs": 38,
-      "success_rate": 0.947,
-      "avg_latency_ms": 215927,
-      "avg_output_chars": 3366
+      "runs": 39,
+      "success_rate": 0.949,
+      "avg_latency_ms": 215794,
+      "avg_output_chars": 3371
     },
     "science": {
-      "runs": 38,
+      "runs": 39,
       "success_rate": 1.0,
-      "avg_latency_ms": 298144,
-      "avg_output_chars": 3066
+      "avg_latency_ms": 298263,
+      "avg_output_chars": 3084
     }
   },
-  "memory_items": 230,
+  "memory_items": 236,
   "memory": {
-    "total": 230,
+    "total": 236,
     "by_world": {
-      "central": 39,
-      "creativity": 38,
-      "knowledge": 38,
-      "learning": 39,
-      "reasoning": 38,
-      "science": 38
+      "central": 40,
+      "creativity": 39,
+      "knowledge": 39,
+      "learning": 40,
+      "reasoning": 39,
+      "science": 39
     },
     "by_kind": {
       "decision": 1,
-      "experience": 226,
+      "experience": 232,
       "experiment": 1,
       "failure": 2
     }
@@ -53,7 +53,7 @@
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 85,
+    "overall_score": 80,
     "evaluated_worlds": 5,
     "scope": "deterministic text-coverage signals; human review still required"
   },

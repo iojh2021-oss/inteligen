@@ -1,59 +1,59 @@
 {
-  "updated_at": "2026-11-22T12:54:29.252938+00:00",
+  "updated_at": "2026-11-22T21:02:56.057439+00:00",
   "worlds": {
     "creativity": {
-      "runs": 42,
+      "runs": 43,
       "success_rate": 1.0,
-      "avg_latency_ms": 400661,
-      "avg_output_chars": 3399
+      "avg_latency_ms": 404682,
+      "avg_output_chars": 3423
     },
     "knowledge": {
-      "runs": 42,
+      "runs": 43,
       "success_rate": 1.0,
-      "avg_latency_ms": 92269,
-      "avg_output_chars": 3029
+      "avg_latency_ms": 92891,
+      "avg_output_chars": 3010
     },
     "learning": {
-      "runs": 42,
+      "runs": 43,
       "success_rate": 1.0,
-      "avg_latency_ms": 210590,
-      "avg_output_chars": 4339
+      "avg_latency_ms": 213102,
+      "avg_output_chars": 4327
     },
     "reasoning": {
-      "runs": 42,
-      "success_rate": 0.952,
-      "avg_latency_ms": 213738,
-      "avg_output_chars": 3364
+      "runs": 43,
+      "success_rate": 0.953,
+      "avg_latency_ms": 215536,
+      "avg_output_chars": 3372
     },
     "science": {
-      "runs": 42,
+      "runs": 43,
       "success_rate": 1.0,
-      "avg_latency_ms": 299061,
-      "avg_output_chars": 3076
+      "avg_latency_ms": 301865,
+      "avg_output_chars": 3089
     }
   },
-  "memory_items": 254,
+  "memory_items": 262,
   "memory": {
-    "total": 254,
+    "total": 262,
     "by_world": {
-      "central": 43,
-      "creativity": 42,
-      "knowledge": 42,
-      "learning": 43,
-      "reasoning": 42,
-      "science": 42
+      "central": 45,
+      "creativity": 43,
+      "knowledge": 43,
+      "learning": 45,
+      "reasoning": 43,
+      "science": 43
     },
     "by_kind": {
-      "decision": 1,
-      "experience": 250,
-      "experiment": 1,
+      "decision": 2,
+      "experience": 256,
+      "experiment": 2,
       "failure": 2
     }
   },
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 85,
+    "overall_score": 75,
     "evaluated_worlds": 5,
     "scope": "deterministic text-coverage signals; human review still required"
   },

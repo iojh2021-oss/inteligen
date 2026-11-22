@@ -1,51 +1,51 @@
 {
-  "updated_at": "2026-11-21T20:46:04.741174+00:00",
+  "updated_at": "2026-11-22T02:25:18.818748+00:00",
   "worlds": {
     "creativity": {
-      "runs": 40,
+      "runs": 41,
       "success_rate": 1.0,
-      "avg_latency_ms": 396014,
-      "avg_output_chars": 3381
+      "avg_latency_ms": 395185,
+      "avg_output_chars": 3386
     },
     "knowledge": {
-      "runs": 40,
+      "runs": 41,
       "success_rate": 1.0,
-      "avg_latency_ms": 92825,
-      "avg_output_chars": 3063
+      "avg_latency_ms": 92453,
+      "avg_output_chars": 3054
     },
     "learning": {
-      "runs": 40,
+      "runs": 41,
       "success_rate": 1.0,
-      "avg_latency_ms": 207620,
-      "avg_output_chars": 4332
+      "avg_latency_ms": 207162,
+      "avg_output_chars": 4326
     },
     "reasoning": {
-      "runs": 40,
-      "success_rate": 0.95,
-      "avg_latency_ms": 214737,
-      "avg_output_chars": 3364
+      "runs": 41,
+      "success_rate": 0.951,
+      "avg_latency_ms": 213664,
+      "avg_output_chars": 3370
     },
     "science": {
-      "runs": 40,
+      "runs": 41,
       "success_rate": 1.0,
-      "avg_latency_ms": 297667,
-      "avg_output_chars": 3082
+      "avg_latency_ms": 296806,
+      "avg_output_chars": 3070
     }
   },
-  "memory_items": 242,
+  "memory_items": 248,
   "memory": {
-    "total": 242,
+    "total": 248,
     "by_world": {
-      "central": 41,
-      "creativity": 40,
-      "knowledge": 40,
-      "learning": 41,
-      "reasoning": 40,
-      "science": 40
+      "central": 42,
+      "creativity": 41,
+      "knowledge": 41,
+      "learning": 42,
+      "reasoning": 41,
+      "science": 41
     },
     "by_kind": {
       "decision": 1,
-      "experience": 238,
+      "experience": 244,
       "experiment": 1,
       "failure": 2
     }

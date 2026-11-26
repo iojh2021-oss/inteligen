@@ -1,51 +1,51 @@
 {
-  "updated_at": "2026-11-26T14:07:00.701693+00:00",
+  "updated_at": "2026-11-26T23:16:18.830086+00:00",
   "worlds": {
     "creativity": {
-      "runs": 52,
+      "runs": 53,
       "success_rate": 1.0,
-      "avg_latency_ms": 408766,
-      "avg_output_chars": 3431
+      "avg_latency_ms": 411037,
+      "avg_output_chars": 3451
     },
     "knowledge": {
-      "runs": 52,
+      "runs": 53,
       "success_rate": 1.0,
-      "avg_latency_ms": 94511,
-      "avg_output_chars": 3030
+      "avg_latency_ms": 96417,
+      "avg_output_chars": 3019
     },
     "learning": {
-      "runs": 52,
+      "runs": 53,
       "success_rate": 1.0,
-      "avg_latency_ms": 213216,
-      "avg_output_chars": 4369
+      "avg_latency_ms": 212730,
+      "avg_output_chars": 4372
     },
     "reasoning": {
-      "runs": 52,
+      "runs": 53,
       "success_rate": 0.962,
-      "avg_latency_ms": 215419,
-      "avg_output_chars": 3395
+      "avg_latency_ms": 216829,
+      "avg_output_chars": 3377
     },
     "science": {
-      "runs": 52,
+      "runs": 53,
       "success_rate": 1.0,
-      "avg_latency_ms": 304846,
-      "avg_output_chars": 3169
+      "avg_latency_ms": 306543,
+      "avg_output_chars": 3170
     }
   },
-  "memory_items": 316,
+  "memory_items": 322,
   "memory": {
-    "total": 316,
+    "total": 322,
     "by_world": {
-      "central": 54,
-      "creativity": 52,
-      "knowledge": 52,
-      "learning": 54,
-      "reasoning": 52,
-      "science": 52
+      "central": 55,
+      "creativity": 53,
+      "knowledge": 53,
+      "learning": 55,
+      "reasoning": 53,
+      "science": 53
     },
     "by_kind": {
       "decision": 2,
-      "experience": 310,
+      "experience": 316,
       "experiment": 2,
       "failure": 2
     }
@@ -53,7 +53,7 @@
   "config_version": 1,
   "evaluation": {
     "rubric_version": 1,
-    "overall_score": 85,
+    "overall_score": 60,
     "evaluated_worlds": 5,
     "scope": "deterministic text-coverage signals; human review still required"
   },

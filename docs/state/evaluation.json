@@ -1,97 +1,103 @@
 {
   "rubric_version": 1,
   "scope": "deterministic text-coverage signals; human review still required",
-  "overall_score": 85,
+  "overall_score": 65,
   "evaluated_worlds": 5,
   "worlds": {
     "knowledge": {
       "status": "evaluated",
       "world": "knowledge",
-      "score": 50,
-      "passed": 2,
+      "score": 100,
+      "passed": 4,
       "total": 4,
       "checks": {
-        "concepts": false,
+        "concepts": true,
         "fact_vs_assumption": true,
         "uncertainty": true,
-        "evidence_limits": false
+        "evidence_limits": true
       },
-      "missing": [
-        "concepts",
-        "evidence_limits"
-      ],
-      "output_chars": 2223,
-      "output_words": 273,
+      "missing": [],
+      "output_chars": 3562,
+      "output_words": 432,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "reasoning": {
       "status": "evaluated",
       "world": "reasoning",
-      "score": 100,
-      "passed": 4,
+      "score": 75,
+      "passed": 3,
       "total": 4,
       "checks": {
         "ordered_steps": true,
-        "assumptions": true,
+        "assumptions": false,
         "countercheck": true,
         "conclusion": true
       },
-      "missing": [],
-      "output_chars": 2711,
-      "output_words": 347,
+      "missing": [
+        "assumptions"
+      ],
+      "output_chars": 4092,
+      "output_words": 522,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "science": {
       "status": "evaluated",
       "world": "science",
-      "score": 100,
-      "passed": 4,
+      "score": 75,
+      "passed": 3,
       "total": 4,
       "checks": {
-        "hypothesis": true,
+        "hypothesis": false,
         "prediction": true,
         "test": true,
         "limitations": true
       },
-      "missing": [],
-      "output_chars": 2397,
-      "output_words": 329,
+      "missing": [
+        "hypothesis"
+      ],
+      "output_chars": 3008,
+      "output_words": 389,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "creativity": {
       "status": "evaluated",
       "world": "creativity",
-      "score": 75,
-      "passed": 3,
+      "score": 50,
+      "passed": 2,
       "total": 4,
       "checks": {
         "multiple_ideas": false,
         "tradeoffs": true,
-        "original_combination": true,
+        "original_combination": false,
         "practicality": true
       },
       "missing": [
-        "multiple_ideas"
+        "multiple_ideas",
+        "original_combination"
       ],
-      "output_chars": 2487,
-      "output_words": 319,
+      "output_chars": 4558,
+      "output_words": 592,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     },
     "learning": {
       "status": "evaluated",
       "world": "learning",
-      "score": 100,
-      "passed": 4,
+      "score": 25,
+      "passed": 1,
       "total": 4,
       "checks": {
-        "identified_gap": true,
+        "identified_gap": false,
         "measurable_metric": true,
-        "evaluation_test": true,
-        "improvement": true
+        "evaluation_test": false,
+        "improvement": false
       },
-      "missing": [],
-      "output_chars": 3758,
-      "output_words": 482,
+      "missing": [
+        "identified_gap",
+        "evaluation_test",
+        "improvement"
+      ],
+      "output_chars": 4054,
+      "output_words": 528,
       "interpretation": "textual rubric coverage only; not truth, correctness, intelligence, or learning"
     }
   }
